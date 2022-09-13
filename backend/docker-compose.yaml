@@ -1,0 +1,31 @@
+version: '3.9'
+services:
+    db:
+        image: 'postgres:14.5-alpine'
+        environment:
+            POSTGRES_DB: cookery2
+            POSTGRES_USER: cookery2
+            POSTGRES_PASSWORD: cookery2123
+        ports:
+            - '5432:5432'
+        volumes:
+            - postgre_cookery_2_data:/var/lib/postgresql/data
+
+    pgadmin:
+        image: 'dpage/pgadmin4'
+        environment:
+            PGADMIN_DEFAULT_EMAIL: user@domain.com
+            PGADMIN_DEFAULT_PASSWORD: cookery2123
+            PGADMIN_CONFIG_SERVER_MODE: 'False'
+            MASTER_PASSWORD_REQUIRED: 'False'
+        ports:
+            - '8083:80'
+        volumes:
+            - ../servers.json:/pgadmin4/servers.json
+            - pgadmin_cookery_2_data:/var/lib/pgadmin
+        depends_on:
+            - db
+
+volumes:
+    postgre_cookery_2_data:
+    pgadmin_cookery_2_data:
