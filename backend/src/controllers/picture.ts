@@ -27,7 +27,7 @@ export const getPicturesByRecipe = async (
             where: {
                 recipeId: recipeId,
             },
-            attributes: ['id', 'name'],
+            attributes: ['id', 'name', 'sortNumber'],
             order: [['name', SORT_ORDER.ASC]],
         });
 

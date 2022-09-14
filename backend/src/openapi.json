@@ -1,0 +1,400 @@
+{
+    "openapi": "3.0.2",
+    "info": {
+        "title": "My Cookery Book 2 - backend",
+        "version": "0.0.1",
+        "license": {
+            "name": "MIT"
+        },
+        "description": "This is rest api application backend developed on NodeJS and ExpressJS. Writen in typescript.",
+        "contact": {
+            "email": "tfilosk@gmail.com",
+            "name": "Tomáš Filo",
+            "url": "https://github.com/tfilo/my-cookery-book-2"
+        }
+    },
+    "servers": [
+        {
+            "url": "http://localhost:3000/api",
+            "description": "DEV"
+        },
+        {
+            "url": "http://localhost:8080/api",
+            "description": "DEV - backend in docker"
+        },
+        {
+            "url": "http://localhost/api",
+            "description": "PROD"
+        }
+    ],
+    "tags": [
+        {
+            "name": "auth",
+            "description": "Endpoint for authentication and changing password."
+        },
+        {
+            "name": "category",
+            "description": "Endpoint for categories administration."
+        },
+        {
+            "name": "picture",
+            "description": "Endpoint for pictures administration."
+        },
+        {
+            "name": "recipe",
+            "description": "Endpoint for recipe administration."
+        },
+        {
+            "name": "tag",
+            "description": "Endpoint for tags administration."
+        },
+        {
+            "name": "unit",
+            "description": "Endpoint for units administration."
+        },
+        {
+            "name": "unitCategory",
+            "description": "Endpoint for unit categories administration."
+        },
+        {
+            "name": "user",
+            "description": "Endpoint for users administration."
+        }
+    ],
+    "paths": {
+        "/health": {
+            "get": {
+                "operationId": "health",
+                "security": [],
+                "responses": {
+                    "200": {
+                        "description": "ok"
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "operationId": "login",
+                "tags": ["auth"],
+                "security": []
+            }
+        },
+        "/auth/refresh": {
+            "post": {
+                "operationId": "refreshToken",
+                "tags": ["auth"],
+                "security": []
+            }
+        },
+        "/auth/password": {
+            "patch": {
+                "operationId": "updatePassword",
+                "tags": ["auth"]
+            }
+        },
+        "/auth/user": {
+            "get": {
+                "operationId": "user",
+                "tags": ["auth"]                
+            }
+        },
+        "/category": {
+            "get": {
+                "operationId": "getCategories",
+                "tags": ["category"]                  
+            }
+        },
+        "/category/{categoryId}": {
+            "get": {
+                "operationId": "getCategory",
+                "tags": ["category"] 
+            },
+            "post": {
+                "operationId": "createCategory",
+                "tags": ["category"] 
+            },
+            "put": {
+                "operationId": "updateCategory",
+                "tags": ["category"] 
+            },
+            "delete": {
+                "operationId": "deleteCategory",
+                "tags": ["category"] 
+            }
+        },
+        "/picture/byRecipe": {
+            "get": {
+                "operationId": "getPicturesByRecipe",
+                "tags": ["picture"] 
+            }
+        },
+        "/picture/thumbnail/{pictureId}": {
+            "get": {
+                "operationId": "getPictureThumbnail",
+                "tags": ["picture"] 
+            }
+        },
+        "/picture/data/{pictureId}": {
+            "get": {
+                "operationId": "getPictureData",
+                "tags": ["picture"]                 
+            }
+        },
+        "/picture/upload": {
+            "post": {
+                "operationId": "uploadPicture",
+                "tags": ["picture"] 
+            }
+        },
+        "/recipe": {
+            "post": {
+                "operationId": "createRecipe",
+                "tags": ["recipe"] 
+            }
+        },
+        "/recipe/find": {
+            "post": {
+                "operationId": "findRecipes",
+                "tags": ["recipe"]                 
+            }
+        },
+        "/recipe/{recipeId}": {
+            "get": {
+                "operationId": "getRecipe",
+                "tags": ["recipe"]                 
+            },
+            "put": {
+                "operationId": "updateRecipe",
+                "tags": ["recipe"]                 
+            },
+            "delete": {
+                "operationId": "deleteRecipe",
+                "tags": ["recipe"] 
+            }
+        },
+        "/tag": {
+            "get": {
+                "operationId": "getTags",
+                "tags": ["tag"]                 
+            },
+            "post": {
+                "operationId": "createTag",
+                "tags": ["tag"]                  
+            }
+        },
+        "/tag/{tagId}": {
+            "get": {
+                "operationId": "getTag",
+                "tags": ["tag"]                  
+            },
+            "put": {
+                "operationId": "updateTag",
+                "tags": ["tag"]  
+            },
+            "delete": {
+                "operationId": "deleteTag",
+                "tags": ["tag"]  
+            }
+        },
+        "/unit": {
+            "post": {
+                "operationId": "createUnit",
+                "tags": ["unit"]   
+            }
+        },
+        "/unit/byUnitCategory/{unitCategoryId}": {
+            "get": {
+                "operationId": "getUnitsByUnitCategory",
+                "tags": ["unit"]  
+            }
+        },
+        "/unit/{unitId}": {
+            "get": {
+                "operationId": "getUnit",
+                "tags": ["unit"]                  
+            },
+            "put": {
+                "operationId": "updateUnit",
+                "tags": ["unit"]                  
+            },
+            "delete": {
+                "operationId": "deleteUnit",
+                "tags": ["unit"]  
+            }
+        },
+        "/unitCategory": {
+            "get": {
+                "operationId": "deleteUnit",
+                "tags": ["unitCategory"]  
+            },
+            "post": {
+                "operationId": "deleteUnit",
+                "tags": ["unitCategory"]  
+            }
+        },
+        "/unitCategory/{unitCategoryId}": {
+            "get": {
+                "operationId": "getUnitCategory",
+                "tags": ["unitCategory"]  
+            },
+            "put": {
+                "operationId": "updateUnitCategory",
+                "tags": ["unitCategory"]  
+            },
+            "delete": {
+                "operationId": "deleteUnitCategory",
+                "tags": ["unitCategory"]  
+            }
+        },
+        "/user": {
+            "post": {
+                "operationId": "createUser",
+                "tags": ["user"]                 
+            }
+        },
+        "/user/all": {
+            "get": {
+                "operationId": "getUsers",
+                "tags": ["user"]                 
+            }
+        },
+        "/user/{userId}": {
+            "get": {
+                "operationId": "getUser",
+                "tags": ["user"] 
+            },
+            "put": {
+                "operationId": "updateUser",
+                "tags": ["user"] 
+            },
+            "delete": {
+                "operationId": "deleteUser",
+                "tags": ["user"] 
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        },
+        "schemas": {
+            "RoleEnum": {
+                "type": "string",
+                "enum": ["ADMIN", "CREATOR"]
+            },
+            "SortOrderEnum": {
+                "type": "string",
+                "enum": ["ASC", "DESC"]
+            },
+            "ErrorTypeEnum": {
+                "type": "string",
+                "enum": [
+                    "GENERAL_ERROR",
+                    "DATABASE_ERROR",
+                    "NOT_FOUND",
+                    "VALIDATION_FAILED",
+                    "INVALID_CREDENTIALS",
+                    "FORBIDEN",
+                    "EXPIRED_TOKEN",
+                    "INVALID_TOKEN",
+                    "UNIQUE_CONSTRAINT_ERROR",
+                    "ACCOUNT_DOESNT_EXIST",
+                    "UNABLE_TO_SENT_REG_EMAIL",
+                    "EMAIL_IN_USE",
+                    "CONSTRAINT_FAILED",
+                    "CONTRACT_OVERLAP"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "required": ["code"],
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "code": {
+                        "$ref": "#/components/schemas/ErrorTypeEnum"
+                    },
+                    "fields": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "responses": {
+            "UnauthorizedError": {
+                "description": "Access token is missing or invalid. Possibly incorrect credentials.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            },
+            "NotFound": {
+                "description": "Object is missing, or required parent doesn't exists.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            },
+            "InternalServerError": {
+                "description": "General error. Something went wrong on server side.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            },
+            "UnprocessableEntity": {
+                "description": "Request can't be processed because validation failed.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            },
+            "ServiceUnavailableError": {
+                "description": "Request can't be processed because mail service failed.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            },
+            "ConstraintError": {
+                "description": "Constraint or duplicity error.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "security": [
+        {
+            "bearerAuth": []
+        }
+    ]
+}
