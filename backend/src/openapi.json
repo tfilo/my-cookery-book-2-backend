@@ -77,50 +77,330 @@
             "post": {
                 "operationId": "login",
                 "tags": ["auth"],
-                "security": []
+                "security": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful login",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TokenResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntity"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
             }
         },
         "/auth/refresh": {
             "post": {
                 "operationId": "refreshToken",
                 "tags": ["auth"],
-                "security": []
+                "security": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["refreshToken"],
+                                "properties": {
+                                    "refreshToken": {
+                                        "type": "string",
+                                        "format": "bearer"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful token refresh",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TokenResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
             }
         },
         "/auth/password": {
             "patch": {
                 "operationId": "updatePassword",
-                "tags": ["auth"]
+                "tags": ["auth"],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdatePasswordRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "Successful password update"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntity"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
             }
         },
         "/auth/user": {
             "get": {
                 "operationId": "user",
-                "tags": ["auth"]                
+                "tags": ["auth"],
+                "responses": {
+                    "200": {
+                        "description": "Authenticated user info",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthenticatedUser"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }             
             }
         },
         "/category": {
             "get": {
                 "operationId": "getCategories",
-                "tags": ["category"]                  
+                "tags": ["category"],
+                "responses": {
+                    "200": {
+                        "description": "List of categories",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/SimpleCategory"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }                
+            },
+            "post": {
+                "operationId": "createCategory",
+                "tags": ["category"],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateCategory"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Category created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Category"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/ConstraintError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntity"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
             }
         },
         "/category/{categoryId}": {
             "get": {
                 "operationId": "getCategory",
-                "tags": ["category"] 
-            },
-            "post": {
-                "operationId": "createCategory",
-                "tags": ["category"] 
+                "tags": ["category"],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "categoryId",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "minimum": 1
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Single category",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Category"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntity"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
             },
             "put": {
                 "operationId": "updateCategory",
-                "tags": ["category"] 
+                "tags": ["category"],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "categoryId",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "minimum": 1
+                        },
+                        "required": true
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateCategory"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Category updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Category"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/ConstraintError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntity"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
             },
             "delete": {
                 "operationId": "deleteCategory",
-                "tags": ["category"] 
+                "tags": ["category"],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "categoryId",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "minimum": 1
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Category deleted"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntity"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
             }
         },
         "/picture/byRecipe": {
@@ -309,6 +589,141 @@
                     "CONSTRAINT_FAILED",
                     "CONTRACT_OVERLAP"
                 ]
+            },
+            "LoginRequest": {
+                "type": "object",
+                "required": ["username", "password"],
+                "properties": {
+                    "username": {
+                        "type": "string",
+                        "maxLength": 50
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "maxLength": 255
+                    }
+                }
+            },
+            "TokenResponse": {
+                "type": "object",
+                "required": ["token", "refreshToken"],
+                "properties": {
+                    "token": {
+                        "type": "string",
+                        "format": "bearer"
+                    },
+                    "refreshToken": {
+                        "type": "string",
+                        "format": "bearer"
+                    }
+                }
+            },
+            "UpdatePasswordRequest": {
+                "type": "object",
+                "required": ["password", "newPassword"],
+                "properties": {
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "maxLength": 255,
+                        "description": "Old password to verify this user"
+                    },
+                    "newPassword": {
+                        "type": "string",
+                        "format": "password",
+                        "minLength": 8,
+                        "maxLength": 255,
+                        "description": "New password for user. Should be at least 8 characters long, at least one small letter, one capital letter and one number."
+                    }
+                }
+            },
+            "AuthenticatedUser": {
+                "type": "object",
+                "required": [
+                    "username",
+                    "firstName",
+                    "lastName"
+                ],
+                "properties": {
+                    "username": {
+                        "type": "string",
+                        "minLength": 4,
+                        "maxLength": 50
+                    },
+                    "firstName": {
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 50
+                    },
+                    "lastName": {
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 50
+                    }
+                }
+            },
+            "SimpleCategory": {
+                "type": "object",
+                "required": ["id", "name"],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int32",
+                        "minimum": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 50
+                    }
+                }
+            },
+            "CreateCategory": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 50
+                    }
+                }
+            },
+            "UpdateCategory": {
+                "type": "object",
+                "$ref": "#/components/schemas/CreateCategory"
+            },
+            "Category": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "name",
+                    "createdAt",
+                    "updatedAt"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int32",
+                        "minimum": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 50
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2022-04-10T12:58:33.592Z"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2022-04-10T12:58:33.592Z"
+                    }
+                }
             },
             "Error": {
                 "type": "object",
