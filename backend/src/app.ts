@@ -18,7 +18,7 @@ export const app = express();
 
 const openapiFilePath = path.join(__dirname, 'openapi.json');
 const openapiFile = JSON.parse(fs.readFileSync(openapiFilePath, 'utf-8'));
-const basePath = String(process.env.BASE_PATH);
+const basePath = String(process.env.BASE_PATH ?? '/api');
 
 app.use(express.json());
 app.use((req, res, next) => {
