@@ -13,7 +13,7 @@ import {
 
 const router = express.Router();
 
-router.get('/all', isAuth(ROLE.ADMIN), userController.getUsers);
+router.get('/', isAuth(ROLE.ADMIN), userController.getUsers);
 
 router.get(
     '/:userId',

@@ -22,7 +22,7 @@ export const getUsers = async (
     next: NextFunction
 ) => {
     try {
-        const users = await User.findAll({
+        const users = await User.scope('listScope').findAll({
             order: [['username', SORT_ORDER.ASC]],
         });
 
@@ -44,6 +44,7 @@ export const getUser = async (
         const user = await User.findByPk(userId, {
             include: {
                 model: UserRole,
+                as: 'roles',
                 required: false,
                 attributes: ['roleName'],
             },
@@ -56,7 +57,7 @@ export const getUser = async (
             throw error;
         }
 
-        res.status(200).json(user);
+        res.status(200).json(transformUserRolesToList(user));
     } catch (err) {
         next(err);
     }
@@ -91,7 +92,7 @@ export const createUser = async (
             return userWithRoles;
         });
 
-        res.status(201).json(result);
+        res.status(201).json(transformUserRolesToList(result));
     } catch (err) {
         next(err);
     }
@@ -155,7 +156,7 @@ export const updateUser = async (
             return userWithRoles;
         });
 
-        res.status(200).json(result);
+        res.status(200).json(transformUserRolesToList(result));
     } catch (err) {
         next(err);
     }
@@ -190,6 +191,21 @@ export const deleteUser = async (
     } catch (err) {
         next(err);
     }
+};
+
+const transformUserRolesToList = (user: User | null) => {
+    if (!user) {
+        return null;
+    }
+    const userJson: UserAttributes & { roles: [{ roleName: string }] } =
+        user.toJSON();
+
+    const result = {
+        ...userJson,
+        roles: userJson.roles.map((r) => r.roleName),
+    };
+
+    return result;
 };
 
 const updateRoles = async (roles: ROLE[], userId: number, t: Transaction) => {

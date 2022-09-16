@@ -47,7 +47,7 @@ interface UserCreationAttributes
         attributes: ['id', 'username'],
     },
     listScope: {
-        attributes: ['id', 'firstName', 'lastName'],
+        attributes: ['id', 'username', 'firstName', 'lastName'],
     },
 }))
 @Table({

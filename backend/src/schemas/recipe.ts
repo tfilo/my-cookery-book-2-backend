@@ -1,6 +1,5 @@
 import * as yup from 'yup';
 
-import Recipe from '../models/database/recipe';
 import { SORT_ORDER } from '../models/sortOrderEnum';
 
 export const findRecipesSchema = yup
@@ -15,9 +14,13 @@ export const findRecipesSchema = yup
                 orderBy: yup
                     .string()
                     .trim()
-                    .oneOf(Object.keys(Recipe.getAttributes()))
+                    .oneOf(['name', 'createdAt', 'updatedAt'])
                     .required(),
-                order: yup.string().trim().oneOf(Object.keys(SORT_ORDER)).required(),
+                order: yup
+                    .string()
+                    .trim()
+                    .oneOf(Object.keys(SORT_ORDER))
+                    .required(),
             })
             .required(),
     })
@@ -38,7 +41,7 @@ export const createRecipeSchema = yup
         body: yup
             .object({
                 name: yup.string().trim().max(80).required(),
-                description: yup.string().trim().max(160).required(),
+                description: yup.string().defined().trim().max(160).nullable(),
                 serves: yup.number().defined().min(1).max(100).nullable(),
                 method: yup.string().required(),
                 sources: yup
@@ -107,7 +110,7 @@ export const updateRecipeSchema = yup
         body: yup
             .object({
                 name: yup.string().trim().max(80).required(),
-                description: yup.string().trim().max(160).required(),
+                description: yup.string().defined().trim().max(160).nullable(),
                 serves: yup.number().defined().min(1).max(100).optional(),
                 method: yup.string().required(),
                 sources: yup

@@ -131,6 +131,19 @@ export const getRecipe = async (
                     [Op.eq]: recipeId,
                 },
             },
+            attributes: [
+                'id',
+                'name',
+                'description',
+                'serves',
+                'method',
+                'sources',
+                'categoryId',
+                'modifierId',
+                'creatorId',
+                'createdAt',
+                'updatedAt',
+            ],
             include: [
                 {
                     model: IngredientSection,
@@ -164,7 +177,7 @@ export const getRecipe = async (
                 {
                     model: Tag,
                     as: 'tags',
-                    attributes: ['id'],
+                    attributes: ['id', 'name'],
                     order: [['name', SORT_ORDER.ASC]],
                     required: false,
                 },
@@ -235,7 +248,7 @@ export const createRecipe = async (
             return recipe.id;
         });
         res.status(201).json({
-            recipeId: result,
+            id: result,
         });
     } catch (err) {
         next(err);

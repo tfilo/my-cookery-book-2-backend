@@ -59,7 +59,11 @@ export const getPictureThumbnail = async (
             throw error;
         }
 
-        res.status(200).json(thumbnail.thumbnail);
+        res.status(200);
+        res.type(thumbnail.thumbnail.type);
+        thumbnail.thumbnail.arrayBuffer().then((buf) => {
+            res.send(Buffer.from(buf));
+        });
     } catch (err) {
         next(err);
     }
@@ -87,7 +91,11 @@ export const getPictureData = async (
             throw error;
         }
 
-        res.status(200).json(picture.data);
+        res.status(200);
+        res.type(picture.data.type);
+        picture.data.arrayBuffer().then((buf) => {
+            res.send(Buffer.from(buf));
+        });
     } catch (err) {
         next(err);
     }
@@ -129,10 +137,12 @@ export const uploadPicture = async (
             })
             .toBuffer();
 
+        const fileName = file.originalname.length < 80 ? file.originalname : file.originalname.substring(0, 75) + '...';
+
         const picture = await Picture.create(
             {
                 sortNumber: 1,
-                name: file.originalname,
+                name: fileName,
                 data: new Blob([image], { type: file.mimetype }),
                 thumbnail: new Blob([thumbnail], { type: file.mimetype }),
             },

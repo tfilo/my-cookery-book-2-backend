@@ -20,8 +20,6 @@ const openapiFilePath = path.join(__dirname, 'openapi.json');
 const openapiFile = JSON.parse(fs.readFileSync(openapiFilePath, 'utf-8'));
 const basePath = String(process.env.BASE_PATH);
 
-// TODO XSS protection
-
 app.use(express.json());
 app.use((req, res, next) => {
     res.setHeader(
