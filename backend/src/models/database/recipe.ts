@@ -16,7 +16,7 @@ import { Optional } from 'sequelize/types';
 
 import toSCDF from '../../util/string';
 import Category from './category';
-import IngredientSection from './ingredientSection';
+import RecipeSection from './recipeSection';
 import Picture from './picture';
 import RecipeRecipe from './recipeRecipe';
 import RecipeTag from './recipeTag';
@@ -30,7 +30,7 @@ export interface RecipeAttributes {
     description: string | null;
     descriptionSearch: string | null;
     serves: number | null;
-    method: string;
+    method: string | null;
     sources: string[];
     categoryId: number;
     modifierId: number;
@@ -47,6 +47,7 @@ interface RecipeCreationAttributes
         | 'description'
         | 'descriptionSearch'
         | 'serves'
+        | 'method'
         | 'createdAt'
         | 'updatedAt'
     > {}
@@ -86,7 +87,7 @@ class Recipe extends Model<RecipeAttributes, RecipeCreationAttributes> {
     })
     serves: number;
 
-    @AllowNull(false)
+    @AllowNull
     @Column({
         type: DataType.TEXT,
     })
@@ -122,8 +123,8 @@ class Recipe extends Model<RecipeAttributes, RecipeCreationAttributes> {
     @BelongsTo(() => User)
     modified: User;
 
-    @HasMany(() => IngredientSection)
-    ingredientSections: IngredientSection[];
+    @HasMany(() => RecipeSection)
+    recipeSections: RecipeSection[];
 
     @BelongsToMany(() => Recipe, () => RecipeRecipe, 'id', 'associatedRecipeId')
     associatedRecipes: Recipe[];

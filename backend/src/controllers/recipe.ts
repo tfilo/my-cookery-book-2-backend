@@ -4,7 +4,7 @@ import * as yup from 'yup';
 
 import CustomError from '../models/customError';
 import Ingredient from '../models/database/ingredient';
-import IngredientSection from '../models/database/ingredientSection';
+import RecipeSection from '../models/database/recipeSection';
 import Picture from '../models/database/picture';
 import Recipe, { RecipeAttributes } from '../models/database/recipe';
 import RecipeRecipe from '../models/database/recipeRecipe';
@@ -146,9 +146,9 @@ export const getRecipe = async (
             ],
             include: [
                 {
-                    model: IngredientSection,
-                    as: 'ingredientSections',
-                    attributes: ['id', 'name', 'sortNumber'],
+                    model: RecipeSection,
+                    as: 'recipeSections',
+                    attributes: ['id', 'name', 'sortNumber', 'method'],
                     order: [['sortNumber', SORT_ORDER.ASC]],
                     required: false,
                     include: [
@@ -217,7 +217,7 @@ export const createRecipe = async (
         const tagIds = request.body.tags;
         const associatedRecipeIds = request.body.associatedRecipes;
         const pictures = request.body.pictures;
-        const ingredientSections = request.body.ingredientSections;
+        const recipeSections = request.body.recipeSections;
         const result = await sequelize.transaction(async (t) => {
             const recipe = await Recipe.create(
                 {
@@ -243,7 +243,7 @@ export const createRecipe = async (
             await updateTags(recipe.id, tagIds, t);
             await updateAssociatedRecipes(recipe.id, associatedRecipeIds, t);
             await updatePictures(recipe.id, pictures, t);
-            await updateIngredientSections(recipe.id, ingredientSections, t);
+            await updateRecipeSections(recipe.id, recipeSections, t);
 
             return recipe.id;
         });
@@ -269,7 +269,7 @@ export const updateRecipe = async (
         const tagIds = request.body.tags;
         const associatedRecipeIds = request.body.associatedRecipes;
         const pictures = request.body.pictures;
-        const ingredientSections = request.body.ingredientSections;
+        const recipeSections = request.body.recipeSections;
 
         await sequelize.transaction(async (t) => {
             const recipe = await Recipe.findOne({
@@ -307,7 +307,7 @@ export const updateRecipe = async (
             await updateTags(recipeId, tagIds, t);
             await updateAssociatedRecipes(recipeId, associatedRecipeIds, t);
             await updatePictures(recipeId, pictures, t);
-            await updateIngredientSections(recipeId, ingredientSections, t);
+            await updateRecipeSections(recipeId, recipeSections, t);
         });
         res.status(204).send();
     } catch (err) {
@@ -551,12 +551,13 @@ const updatePictures = async (
     await Promise.all(removedOrphans);
 };
 
-const updateIngredientSections = async (
+const updateRecipeSections = async (
     recipeId: number,
-    ingredientSections: {
+    recipeSections: {
         id?: number;
         name: string;
         sortNumber: number;
+        method: string;
         ingredients: {
             id?: number;
             name: string;
@@ -567,7 +568,7 @@ const updateIngredientSections = async (
     }[],
     t: Transaction
 ) => {
-    const storedIngredientSections = await IngredientSection.findAll({
+    const dbRecipeSections = await RecipeSection.findAll({
         where: {
             recipeId: {
                 [Op.eq]: recipeId,
@@ -577,12 +578,12 @@ const updateIngredientSections = async (
     });
 
     let sectionsToAdd;
-    if (storedIngredientSections.length > 0) {
-        const existingSection = ingredientSections.filter(
-            (is) => is.id !== undefined
+    if (dbRecipeSections.length > 0) {
+        const existingSection = recipeSections.filter(
+            (rs) => rs.id !== undefined
         );
-        const sectionsToRemove = storedIngredientSections.filter(
-            (sis) => existingSection.findIndex((is) => is.id === sis.id) === -1
+        const sectionsToRemove = dbRecipeSections.filter(
+            (dbrs) => existingSection.findIndex((es) => es.id === dbrs.id) === -1
         );
 
         const removedSections = sectionsToRemove.map((str) =>
@@ -593,10 +594,10 @@ const updateIngredientSections = async (
 
         await Promise.all(removedSections);
 
-        sectionsToAdd = ingredientSections.filter((is) => is.id === undefined); // where no id provided, it is new section
+        sectionsToAdd = recipeSections.filter((rs) => rs.id === undefined); // where no id provided, it is new section
 
-        const sectionsToUpdate = storedIngredientSections.filter(
-            (sis) => existingSection.findIndex((is) => is.id === sis.id) > -1
+        const sectionsToUpdate = dbRecipeSections.filter(
+            (dbrs) => existingSection.findIndex((es) => es.id === dbrs.id) > -1
         );
 
         const updatedSections = sectionsToUpdate.map(async (stu) => {
@@ -610,7 +611,7 @@ const updateIngredientSections = async (
 
             const ingredients = await Ingredient.findAll({
                 where: {
-                    ingredientSectionId: {
+                    recipeSectionId: {
                         [Op.eq]: stu.id,
                     },
                 },
@@ -624,9 +625,9 @@ const updateIngredientSections = async (
                 );
 
                 const ingredientsToRemove = ingredients.filter(
-                    (itr) =>
+                    (i) =>
                         ingredientsToUpdate.findIndex(
-                            (itu) => itu.id === itr.id
+                            (itu) => itu.id === i.id
                         ) === -1
                 );
 
@@ -667,7 +668,7 @@ const updateIngredientSections = async (
                 return Ingredient.create(
                     {
                         ...ita,
-                        ingredientSectionId: stu.id,
+                        recipeSectionId: stu.id,
                     },
                     {
                         fields: [
@@ -675,7 +676,7 @@ const updateIngredientSections = async (
                             'sortNumber',
                             'value',
                             'unitId',
-                            'ingredientSectionId',
+                            'recipeSectionId',
                         ],
                         transaction: t,
                     }
@@ -688,9 +689,10 @@ const updateIngredientSections = async (
                 {
                     name: savedSection.name,
                     sortNumber: savedSection.sortNumber,
+                    method: savedSection.method,
                 },
                 {
-                    fields: ['name', 'sortNumber'],
+                    fields: ['name', 'sortNumber', 'method'],
                     transaction: t,
                 }
             );
@@ -698,29 +700,30 @@ const updateIngredientSections = async (
 
         await Promise.all(updatedSections);
     } else {
-        sectionsToAdd = [...ingredientSections];
+        sectionsToAdd = [...recipeSections];
     }
 
-    const createdIngredientSection = sectionsToAdd.map(
-        async (ingredientSection) => {
-            const createdIngredientSection = await IngredientSection.create(
+    const createdRecipeSection = sectionsToAdd.map(
+        async (recipeSection) => {
+            const createdRecipeSection = await RecipeSection.create(
                 {
-                    name: ingredientSection.name,
-                    sortNumber: ingredientSection.sortNumber,
+                    name: recipeSection.name,
+                    sortNumber: recipeSection.sortNumber,
+                    method: recipeSection.method,
                     recipeId: recipeId,
                 },
                 {
-                    fields: ['name', 'sortNumber', 'recipeId'],
+                    fields: ['name', 'sortNumber', 'method', 'recipeId'],
                     transaction: t,
                 }
             );
 
-            const createdIngredients = ingredientSection.ingredients.map(
+            const createdIngredients = recipeSection.ingredients.map(
                 (ingredient) => {
                     return Ingredient.create(
                         {
                             ...ingredient,
-                            ingredientSectionId: createdIngredientSection.id,
+                            recipeSectionId: createdRecipeSection.id,
                         },
                         {
                             fields: [
@@ -728,7 +731,7 @@ const updateIngredientSections = async (
                                 'sortNumber',
                                 'value',
                                 'unitId',
-                                'ingredientSectionId',
+                                'recipeSectionId',
                             ],
                             transaction: t,
                         }
@@ -738,8 +741,8 @@ const updateIngredientSections = async (
 
             await Promise.all(createdIngredients);
 
-            return createdIngredientSection;
+            return createdRecipeSection;
         }
     );
-    await Promise.all(createdIngredientSection);
+    await Promise.all(createdRecipeSection);
 };

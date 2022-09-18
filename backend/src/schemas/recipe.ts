@@ -43,18 +43,19 @@ export const createRecipeSchema = yup
                 name: yup.string().trim().max(80).required(),
                 description: yup.string().defined().trim().max(160).nullable(),
                 serves: yup.number().defined().min(1).max(100).nullable(),
-                method: yup.string().required(),
+                method: yup.string().defined().trim().nullable(),
                 sources: yup
                     .array()
                     .of(yup.string().trim().max(1000).required())
                     .required(),
                 categoryId: yup.number().min(1).required(),
-                ingredientSections: yup
+                recipeSections: yup
                     .array()
                     .of(
                         yup.object({
                             name: yup.string().trim().max(80).required(),
                             sortNumber: yup.number().min(1).required(),
+                            method: yup.string().defined().trim().nullable(),
                             ingredients: yup
                                 .array()
                                 .of(
@@ -112,19 +113,20 @@ export const updateRecipeSchema = yup
                 name: yup.string().trim().max(80).required(),
                 description: yup.string().defined().trim().max(160).nullable(),
                 serves: yup.number().defined().min(1).max(100).optional(),
-                method: yup.string().required(),
+                method: yup.string().defined().trim().nullable(),
                 sources: yup
                     .array()
                     .of(yup.string().trim().max(1000).required())
                     .required(),
                 categoryId: yup.number().min(1).required(),
-                ingredientSections: yup
+                recipeSections: yup
                     .array()
                     .of(
                         yup.object({
                             id: yup.number().min(1).optional(),
                             name: yup.string().trim().max(80).required(),
                             sortNumber: yup.number().min(1).required(),
+                            method: yup.string().defined().trim().nullable(),
                             ingredients: yup
                                 .array()
                                 .of(

@@ -35,6 +35,7 @@ services:
         environment:
             PORT: 8080
             BASE_PATH: '/api'
+            NODE_ENV: 'production'
             DATABASE_PASSWORD: 'cookery2123'
             DATABASE_USER: 'cookery2'
             DATABASE: 'cookery2'

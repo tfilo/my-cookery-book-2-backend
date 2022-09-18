@@ -9,7 +9,7 @@ import {
 } from 'sequelize-typescript';
 import { Optional } from 'sequelize/types';
 
-import IngredientSection from './ingredientSection';
+import RecipeSection from './recipeSection';
 import Unit from './unit';
 
 interface IngredientAttributes {
@@ -18,7 +18,7 @@ interface IngredientAttributes {
     sortNumber: number;
     value: number | null;
     unitId: number;
-    ingredientSectionId: number;
+    recipeSectionId: number;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -63,12 +63,12 @@ class Ingredient extends Model<
     unit: Unit;
 
     @AllowNull(false)
-    @ForeignKey(() => IngredientSection)
+    @ForeignKey(() => RecipeSection)
     @Column
-    ingredientSectionId: number;
+    recipeSectionId: number;
 
-    @BelongsTo(() => IngredientSection)
-    ingredientSection: IngredientSection;
+    @BelongsTo(() => RecipeSection)
+    recipeSection: RecipeSection;
 }
 
 export default Ingredient;

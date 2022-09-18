@@ -1859,7 +1859,8 @@
                     },
                     "method": {
                         "type": "string",
-                        "minLength": 1
+                        "minLength": 1,
+                        "nullable": true
                     },
                     "sources": {
                         "type": "array",
@@ -1883,11 +1884,11 @@
                         "format": "int32",
                         "minimum": 1
                     },
-                    "ingredientSections": {
+                    "recipeSections": {
                         "type": "array",
                         "items": {
                             "type": "object",
-                            "required": ["id", "name", "sortNumber"],
+                            "required": ["id", "name", "sortNumber", "method"],
                             "properties": {
                                 "id": {
                                     "type": "integer",
@@ -1903,6 +1904,11 @@
                                     "type": "integer",
                                     "format": "int32",
                                     "minimum": 1
+                                },
+                                "method": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "nullable": true
                                 },
                                 "ingredients": {
                                     "type": "array",
@@ -2100,7 +2106,7 @@
                     "method",
                     "sources",
                     "categoryId",
-                    "ingredientSections",
+                    "recipeSections",
                     "associatedRecipes",
                     "tags",
                     "pictures"
@@ -2126,7 +2132,8 @@
                     },
                     "method": {
                         "type": "string",
-                        "minLength": 1
+                        "minLength": 1,
+                        "nullable": true
                     },
                     "sources": {
                         "type": "array",
@@ -2140,11 +2147,11 @@
                         "format": "int32",
                         "minimum": 1
                     },
-                    "ingredientSections": {
+                    "recipeSections": {
                         "type": "array",
                         "items": {
                             "type": "object",
-                            "required": ["name", "sortNumber", "ingredients"],
+                            "required": ["name", "sortNumber", "method", "ingredients"],
                             "properties": {
                                 "name": {
                                     "type": "string",
@@ -2155,6 +2162,11 @@
                                     "type": "integer",
                                     "format": "int32",
                                     "minimum": 1
+                                },
+                                "method": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "nullable": true
                                 },
                                 "ingredients": {
                                     "type": "array",
@@ -2243,7 +2255,7 @@
                     "method",
                     "sources",
                     "categoryId",
-                    "ingredientSections",
+                    "recipeSections",
                     "associatedRecipes",
                     "tags",
                     "pictures"
@@ -2269,7 +2281,8 @@
                     },
                     "method": {
                         "type": "string",
-                        "minLength": 1
+                        "minLength": 1,
+                        "nullable": true
                     },
                     "sources": {
                         "type": "array",
@@ -2283,11 +2296,11 @@
                         "format": "int32",
                         "minimum": 1
                     },
-                    "ingredientSections": {
+                    "recipeSections": {
                         "type": "array",
                         "items": {
                             "type": "object",
-                            "required": ["name", "sortNumber", "ingredients"],
+                            "required": ["name", "sortNumber", "method", "ingredients"],
                             "properties": {
                                 "id": {
                                     "type": "integer",
@@ -2303,6 +2316,11 @@
                                     "type": "integer",
                                     "format": "int32",
                                     "minimum": 1
+                                },
+                                "method": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "nullable": true
                                 },
                                 "ingredients": {
                                     "type": "array",
