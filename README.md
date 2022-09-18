@@ -3,7 +3,7 @@ This application is personal cookery book. It's backend is based on Node.js and 
 
 
 ## Build of docker images
-Images can be build using script `build-images.sh`. It will create docker images for frontend and backend using Docker files Docker.frontend and Dockerfile.backend. After build of images you can try run application using `docker-compose up -d`. After successful startup it will provide following services:
+Images can be build using script `build-images.sh`. It will create docker images for frontend and backend using Docker files Docker.frontend and Dockerfile.backend. After build of images you can try run application using `docker compose up -d`. After successful startup it will provide following services:
 
 
 | Name | URL | Description |
