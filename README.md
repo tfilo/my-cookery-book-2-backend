@@ -60,7 +60,7 @@ and fix any errors or warnings if possible. It will ensure to have consistent co
 There is provided Dockerfile and sh script build-image.sh. You can use this script to build docker image.
 
 ## License
-Project is licensed under [MIT](./LICENSE) License. There are 3rd party libraries which can be part of builded docker images. List of this libraries can be found in [LIBRARIES](./LIBRARIES). Other than that this project use development libraries too. Please look at package.json if you are interested in complete list of direct dependencies of this project.
+Project is licensed under [MIT](./LICENSE) License. There are 3rd party libraries which can be part of builded docker images. List of this libraries can be found in [LIBRARIES](./LIBRARIES). Other than that this project use development libraries too. Please look at [package.json](./package.json) if you are interested in complete list of direct dependencies of this project.
 
 ## How to update list of used libraries
 
