@@ -15,16 +15,8 @@
     },
     "servers": [
         {
-            "url": "http://localhost:3000/api",
-            "description": "DEV"
-        },
-        {
             "url": "http://localhost:8080/api",
-            "description": "DEV - backend in docker"
-        },
-        {
-            "url": "http://localhost/api",
-            "description": "PROD"
+            "description": "Development"
         }
     ],
     "tags": [

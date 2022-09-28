@@ -1,7 +1,0 @@
-node_modules
-dist
-npm-debug.log
-Dockerfile
-.env
-.eslintrc.json
-src/tests

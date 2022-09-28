@@ -3,7 +3,7 @@ import 'dotenv/config';
 import { app } from './app';
 import sequelize from './util/database';
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8080;
 
 (async () => {
     if (process.env.NODE_ENV === 'development') {

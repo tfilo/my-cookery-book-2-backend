@@ -1,0 +1,15 @@
+node_modules
+dist
+npm-debug.log
+Dockerfile
+.env
+.eslintrc.json
+src/tests
+.gitignore
+.dockerignore
+build-images.sh
+docker-compose.yaml
+generateLibrariesNotice.sh
+license-report.json
+README.md
+servers.json

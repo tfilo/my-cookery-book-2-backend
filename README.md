@@ -1,26 +1,42 @@
-# My cookery book 2
-This application is personal cookery book. It's backend is based on Node.js and frontend in React. More information about [backend](./backend/README.md) and [frontend](./frontend/README.md) is in separated README.md files inside it's own directories.
+# My cookery book 2 - backend (PROJECT UNDER DEVELOPMENT!!!)
+Backend application providing RestApi build on Express and Node.js. Whole backend is writen in Typescript.
 
+## Technologies required for development
+* Node.js (>=18)
+* Docker (>=20.10.14)
+* Docker compose (>=2.10.2)
 
-## Build of docker images
-Images can be build using script `build-images.sh`. It will create docker images for frontend and backend using Docker files Docker.frontend and Dockerfile.backend. After build of images you can try run application using `docker compose up -d`. After successful startup it will provide following services:
+## Development
+While development it is required to have Postgres database running. It can be runned by prepared `docker-compose.yaml` file. This development environment can be started by command:
+* `docker compose up -d` 
 
+It will run pgAdmin on port 8081 and database on port 5432.
+
+After database is running, you can start development server by commands:
+* `npm install` (only if you didn't run it before or you modifed package.json file)
+* `npm run start:dev`
+
+It will run node.js app on port 8080. It will use environment variables defined inside `.env` file where you can optionaly modify port, basepath etc. If you modified docker-compose.yaml you need modify accordingly this file too to ensure correct configuration of database.
+
+When you are done with development, don't forget to stop database server by running command:
+* `docker compose down`
+
+### Usefull links
 
 | Name | URL | Description |
 |---|---|---|
-| Backend | http://localhost/api | API |
-| Backend Health check | http://localhost/api/health | Health check |
-| Backend Swagger Api | http://localhost/api/api-docs | OpenApi 3 documentation |
-| Frontend | http://localhost | GUI |
-| Mail | http://localhost:8082 | Development mail server |
-| pgAdmin | http://localhost:8083 | Database administration. Password *cookery2123* |
-| Postgres | N/A | Database server running internally in docker compose network |
+| Backend | http://localhost:8080/api | API |
+| Backend Health check | http://localhost:8080/api/health | Health check |
+| Backend Swagger Api | http://localhost:8080/api/api-docs | OpenApi 3 documentation |
+| pgAdmin | http://localhost:8081 | Database administration. Password *cookery2123* |
 
-Ports, passwords and other for production can be changed in `docker-compose.yaml` or it can be run by docker swarm, kubernetes or another orchestration service capable of running docker images.
+## Before commit
+Please before every commit run
+* `npm run lint`
+
+and fix any errors or warnings if possible. It will ensure to have consistent code styling.
 
 ## Environment variables
-
-### Backend
 
 | Name | Type of value | Default | Required | Description |
 |---|---|---|---|---|
@@ -40,13 +56,11 @@ Ports, passwords and other for production can be changed in `docker-compose.yaml
 | THUMBNAIL_DIMENSION | number |320|| Reset url for reset emails|
 | IMAGE_DIMENSION | number |1280|| Reset url for reset emails|
 
-### Frontend
-
-| Name | Type of value | Default | Description |
-|---|---|---|---|
+## Building docker image
+There is provided Dockerfile and sh script build-image.sh. You can use this script to build docker image.
 
 ## License
-Project is licensed under [MIT](./LICENSE) License. There are 3rd party libraries which can be part of builded docker images. List of this libraries can be found in [LIBRARIES](./backend/LIBRARIES) for backend and [LIBRARIES](./frontend/LIBRARIES) for frontend. Other than that this project use development libraries too. Please look at package.json in backend and frontend folder if you are interested in complete list of direct dependencies of this project.
+Project is licensed under [MIT](./LICENSE) License. There are 3rd party libraries which can be part of builded docker images. List of this libraries can be found in [LIBRARIES](./LIBRARIES). Other than that this project use development libraries too. Please look at package.json if you are interested in complete list of direct dependencies of this project.
 
 ## How to update list of used libraries
 

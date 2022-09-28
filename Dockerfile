@@ -1,6 +1,6 @@
 FROM node:18-alpine AS builder
 WORKDIR /usr/src/app
-COPY ./backend/ .
+COPY . .
 RUN npm install --location=global npm@latest
 RUN npm install
 RUN npm run build
