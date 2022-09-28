@@ -41,7 +41,7 @@ and fix any errors or warnings if possible. It will ensure to have consistent co
 | Name | Type of value | Default | Required | Description |
 |---|---|---|---|---|
 | NODE_ENV | string |||Environment 'development' or 'production'
-| PORT | number | 3000 ||Port where backend api will run|
+| PORT | number | 8080 ||Port where backend api will run|
 | BASE_PATH | string | /api ||Base path of api|
 | TOKEN_SIGN_KEY | string || true |Secrete or private key|
 | TOKEN_VALIDITY | string |1h||Length of token validity 1m, 1h, 1d|
