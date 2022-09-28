@@ -45,7 +45,7 @@ and fix any errors or warnings if possible. It will ensure to have consistent co
 | BASE_PATH | string | /api ||Base path of api|
 | TOKEN_SIGN_KEY | string || true |Secrete or private key|
 | TOKEN_VALIDITY | string |1h||Length of token validity 1m, 1h, 1d|
-| REFRESH_TOKEN_VALIDITY | string |10d||Length of refresh token validity 1m, 1h, 1d ...|
+| REFRESH_TOKEN_VALIDITY | string |30d||Length of refresh token validity 1m, 1h, 1d ...|
 | DATABASE_PASSWORD | string || true |Password to database|
 | DATABASE_USER | string || true |Username to database|
 | DATABASE | string||true|Name of database|
@@ -53,8 +53,8 @@ and fix any errors or warnings if possible. It will ensure to have consistent co
 | DATABASE_PORT | number | 5432 ||Port of database|
 | DATABASE_LOGGING | boolean |true||If sequelize should log generated queries|
 | LOGGING_ERROR | boolean | true ||If handled errors should be logged to console|
-| THUMBNAIL_DIMENSION | number |320|| Reset url for reset emails|
-| IMAGE_DIMENSION | number |1280|| Reset url for reset emails|
+| THUMBNAIL_DIMENSION | number |320||Resolution of thumbnail|
+| IMAGE_DIMENSION | number |1280||Resolution of photo|
 
 ## Building docker image
 There is provided Dockerfile and sh script build-image.sh. You can use this script to build docker image.
