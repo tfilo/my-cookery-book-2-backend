@@ -204,7 +204,7 @@ const issueRefreshToken = (user: User) => {
             refresh: true,
         },
         process.env.TOKEN_SIGN_KEY as Secret,
-        { expiresIn: process.env.REFRESH_TOKEN_VALIDITY ?? '10d' }
+        { expiresIn: process.env.REFRESH_TOKEN_VALIDITY ?? '30d' }
     );
     return refreshToken;
 };
