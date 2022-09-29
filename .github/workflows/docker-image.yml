@@ -5,19 +5,32 @@ on:
     tags: [ "*" ]
 
 jobs:
-
-  build:
-
+  lintAndBuild:
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        node-version: [18.x]
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: './package-lock.json'
+    - run: npm ci
+    - run: npm run lint
+    - run: npm build
+         
+  docker:
+    needs: lintAndBuild
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
     - name: docker login
       env:
         DOCKER_USER: ${{secrets.DOCKER_USER}}
         DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-      run: |
-        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+      run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
     - name: Build the Docker image
       run: docker build . -f Dockerfile -t tfilo/my-cookery-book-2-backend:${{github.ref_name}} -t tfilo/my-cookery-book-2-backend:latest
     - name: Docker push
