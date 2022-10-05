@@ -395,7 +395,7 @@
                 }
             }
         },
-        "/picture/byRecipe": {
+        "/picture/byRecipe/{recipeId}": {
             "get": {
                 "operationId": "getPicturesByRecipe",
                 "tags": ["picture"],
