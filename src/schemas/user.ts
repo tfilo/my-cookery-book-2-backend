@@ -6,7 +6,7 @@ export const getUserSchema = yup
     .object({
         params: yup
             .object({
-                userId: yup.number().min(1).required(),
+                userId: yup.number().integer().min(1).required(),
             })
             .required(),
     })
@@ -62,7 +62,7 @@ export const updateUserSchema = yup
     .object({
         params: yup
             .object({
-                userId: yup.number().min(1).required(),
+                userId: yup.number().integer().min(1).required(),
             })
             .required(),
         body: yup
@@ -121,7 +121,7 @@ export const deleteUserSchema = yup
     .object({
         params: yup
             .object({
-                userId: yup.number().min(1).required(),
+                userId: yup.number().integer().min(1).required(),
             })
             .required(),
     })

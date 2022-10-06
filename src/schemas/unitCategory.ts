@@ -4,7 +4,7 @@ export const getUnitCategorySchema = yup
     .object({
         params: yup
             .object({
-                unitCategoryId: yup.number().min(1).required(),
+                unitCategoryId: yup.number().integer().min(1).required(),
             })
             .required(),
     })
@@ -24,7 +24,7 @@ export const updateUnitCategorySchema = yup
     .object({
         params: yup
             .object({
-                unitCategoryId: yup.number().min(1).required(),
+                unitCategoryId: yup.number().integer().min(1).required(),
             })
             .required(),
         body: yup
@@ -39,7 +39,7 @@ export const deleteUnitCategorySchema = yup
     .object({
         params: yup
             .object({
-                unitCategoryId: yup.number().min(1).required(),
+                unitCategoryId: yup.number().integer().min(1).required(),
             })
             .required(),
     })

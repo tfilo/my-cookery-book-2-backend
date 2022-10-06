@@ -4,7 +4,7 @@ export const getCategorySchema = yup
     .object({
         params: yup
             .object({
-                categoryId: yup.number().min(1).required(),
+                categoryId: yup.number().integer().min(1).required(),
             })
             .required(),
     })
@@ -24,7 +24,7 @@ export const updateCategorySchema = yup
     .object({
         params: yup
             .object({
-                categoryId: yup.number().min(1).required(),
+                categoryId: yup.number().integer().min(1).required(),
             })
             .required(),
         body: yup
@@ -39,7 +39,7 @@ export const deleteCategorySchema = yup
     .object({
         params: yup
             .object({
-                categoryId: yup.number().min(1).required(),
+                categoryId: yup.number().integer().min(1).required(),
             })
             .required(),
     })

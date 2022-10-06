@@ -60,7 +60,14 @@
                 "security": [],
                 "responses": {
                     "200": {
-                        "description": "ok"
+                        "description": "ok",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1820,6 +1827,10 @@
                     "method",
                     "sources",
                     "categoryId",
+                    "recipeSections",
+                    "associatedRecipes",
+                    "tags",
+                    "pictures",
                     "modifierId",
                     "creatorId",
                     "createdAt",

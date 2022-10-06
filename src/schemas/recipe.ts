@@ -7,10 +7,10 @@ export const findRecipesSchema = yup
         body: yup
             .object({
                 search: yup.string().defined().max(160).nullable(),
-                categoryId: yup.number().defined().min(1).nullable(),
+                categoryId: yup.number().integer().defined().min(1).nullable(),
                 tags: yup.array().of(yup.number().min(1).required()).required(),
-                page: yup.number().min(0).required(),
-                pageSize: yup.number().min(1).required(),
+                page: yup.number().integer().min(0).required(),
+                pageSize: yup.number().integer().min(1).required(),
                 orderBy: yup
                     .string()
                     .trim()
@@ -30,7 +30,7 @@ export const getRecipeShema = yup
     .object({
         params: yup
             .object({
-                recipeId: yup.number().min(1).required(),
+                recipeId: yup.number().integer().min(1).required(),
             })
             .required(),
     })
@@ -42,19 +42,19 @@ export const createRecipeSchema = yup
             .object({
                 name: yup.string().trim().max(80).required(),
                 description: yup.string().defined().trim().max(160).nullable(),
-                serves: yup.number().defined().min(1).max(100).nullable(),
+                serves: yup.number().integer().defined().min(1).max(100).nullable(),
                 method: yup.string().defined().trim().nullable(),
                 sources: yup
                     .array()
                     .of(yup.string().trim().max(1000).required())
                     .required(),
-                categoryId: yup.number().min(1).required(),
+                categoryId: yup.number().integer().min(1).required(),
                 recipeSections: yup
                     .array()
                     .of(
                         yup.object({
                             name: yup.string().trim().max(80).required(),
-                            sortNumber: yup.number().min(1).required(),
+                            sortNumber: yup.number().integer().min(1).required(),
                             method: yup.string().defined().trim().nullable(),
                             ingredients: yup
                                 .array()
@@ -67,6 +67,7 @@ export const createRecipeSchema = yup
                                             .required(),
                                         sortNumber: yup
                                             .number()
+                                            .integer()
                                             .min(1)
                                             .required(),
                                         value: yup
@@ -74,7 +75,7 @@ export const createRecipeSchema = yup
                                             .defined()
                                             .min(0)
                                             .nullable(),
-                                        unitId: yup.number().min(1).required(),
+                                        unitId: yup.number().integer().min(1).required(),
                                     })
                                 )
                                 .required(),
@@ -83,16 +84,16 @@ export const createRecipeSchema = yup
                     .required(),
                 associatedRecipes: yup
                     .array()
-                    .of(yup.number().min(1).required())
+                    .of(yup.number().integer().min(1).required())
                     .required(),
-                tags: yup.array().of(yup.number().min(1).required()).required(),
+                tags: yup.array().of(yup.number().integer().min(1).required()).required(),
                 pictures: yup
                     .array()
                     .of(
                         yup.object({
-                            id: yup.number().min(1).required(),
+                            id: yup.number().integer().min(1).required(),
                             name: yup.string().trim().max(80).required(),
-                            sortNumber: yup.number().min(1).required(),
+                            sortNumber: yup.number().integer().min(1).required(),
                         })
                     )
                     .required(),
@@ -105,33 +106,33 @@ export const updateRecipeSchema = yup
     .object({
         params: yup
             .object({
-                recipeId: yup.number().min(1).required(),
+                recipeId: yup.number().integer().min(1).required(),
             })
             .required(),
         body: yup
             .object({
                 name: yup.string().trim().max(80).required(),
                 description: yup.string().defined().trim().max(160).nullable(),
-                serves: yup.number().defined().min(1).max(100).optional(),
+                serves: yup.number().integer().defined().min(1).max(100).nullable(),
                 method: yup.string().defined().trim().nullable(),
                 sources: yup
                     .array()
                     .of(yup.string().trim().max(1000).required())
                     .required(),
-                categoryId: yup.number().min(1).required(),
+                categoryId: yup.number().integer().min(1).required(),
                 recipeSections: yup
                     .array()
                     .of(
                         yup.object({
-                            id: yup.number().min(1).optional(),
+                            id: yup.number().integer().min(1).optional(),
                             name: yup.string().trim().max(80).required(),
-                            sortNumber: yup.number().min(1).required(),
+                            sortNumber: yup.number().integer().min(1).required(),
                             method: yup.string().defined().trim().nullable(),
                             ingredients: yup
                                 .array()
                                 .of(
                                     yup.object({
-                                        id: yup.number().min(1).optional(),
+                                        id: yup.number().integer().min(1).optional(),
                                         name: yup
                                             .string()
                                             .trim()
@@ -139,6 +140,7 @@ export const updateRecipeSchema = yup
                                             .required(),
                                         sortNumber: yup
                                             .number()
+                                            .integer()
                                             .min(1)
                                             .required(),
                                         value: yup
@@ -146,7 +148,7 @@ export const updateRecipeSchema = yup
                                             .defined()
                                             .min(0)
                                             .nullable(),
-                                        unitId: yup.number().min(1).required(),
+                                        unitId: yup.number().integer().min(1).required(),
                                     })
                                 )
                                 .required(),
@@ -155,16 +157,16 @@ export const updateRecipeSchema = yup
                     .required(),
                 associatedRecipes: yup
                     .array()
-                    .of(yup.number().min(1).required())
+                    .of(yup.number().integer().min(1).required())
                     .required(),
-                tags: yup.array().of(yup.number().min(1).required()).required(),
+                tags: yup.array().of(yup.number().integer().min(1).required()).required(),
                 pictures: yup
                     .array()
                     .of(
                         yup.object({
-                            id: yup.number().min(1).required(),
+                            id: yup.number().integer().min(1).required(),
                             name: yup.string().trim().max(80).required(),
-                            sortNumber: yup.number().min(1).required(),
+                            sortNumber: yup.number().integer().min(1).required(),
                         })
                     )
                     .required(),
@@ -177,7 +179,7 @@ export const deleteRecipeSchema = yup
     .object({
         params: yup
             .object({
-                recipeId: yup.number().min(1).required(),
+                recipeId: yup.number().integer().min(1).required(),
             })
             .required(),
     })
