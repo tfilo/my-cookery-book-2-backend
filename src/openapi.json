@@ -1612,11 +1612,7 @@
                     "EXPIRED_TOKEN",
                     "INVALID_TOKEN",
                     "UNIQUE_CONSTRAINT_ERROR",
-                    "ACCOUNT_DOESNT_EXIST",
-                    "UNABLE_TO_SENT_REG_EMAIL",
-                    "EMAIL_IN_USE",
-                    "CONSTRAINT_FAILED",
-                    "CONTRACT_OVERLAP"
+                    "CONSTRAINT_FAILED"
                 ]
             },
             "LoginRequest": {
