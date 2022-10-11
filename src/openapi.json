@@ -808,7 +808,7 @@
                     "required": true
                 },
                 "responses": {
-                    "200": {
+                    "201": {
                         "description": "Tag created",
                         "content": {
                             "application/json": {
@@ -1001,7 +1001,7 @@
                     "required": true
                 },
                 "responses": {
-                    "200": {
+                    "201": {
                         "description": "Unit created",
                         "content": {
                             "application/json": {
@@ -1211,7 +1211,7 @@
                     "required": true
                 },
                 "responses": {
-                    "200": {
+                    "201": {
                         "description": "Unit category created",
                         "content": {
                             "application/json": {
@@ -1404,7 +1404,7 @@
                     "required": true
                 },
                 "responses": {
-                    "200": {
+                    "201": {
                         "description": "User created",
                         "content": {
                             "application/json": {
@@ -2624,7 +2624,7 @@
             },
             "SimpleUser": {
                 "type": "object",
-                "required": ["id", "username", "firstName", "lastName"],
+                "required": ["id", "username", "firstName", "lastName", "roles"],
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -2647,28 +2647,32 @@
                         "minLength": 1,
                         "maxLength": 50,
                         "nullable": true
+                    },
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": ["ADMIN", "CREATOR"]
+                        }
                     }
                 }
             },
             "CreateUser": {
                 "type": "object",
-                "required": ["username", "updatePassword", "password"],
+                "required": ["username", "password", "firstName", "lastName", "roles"],
                 "properties": {
                     "username": {
                         "type": "string",
                         "minLength": 4,
-                        "maxLength": 50
-                    },
-                    "updatePassword": {
-                        "type": "boolean"
+                        "maxLength": 50,
+                        "description": "Only a-z 0-9 characters allowed"
                     },
                     "password": {
                         "type": "string",
                         "format": "password",
                         "minLength": 8,
                         "maxLength": 255,
-                        "description": "New password for user. Should be at least 8 characters long, at least one small letter, one capital letter and one number.",
-                        "nullable": true
+                        "description": "New password for user. Should be at least 8 characters long, at least one small letter, one capital letter and one number."
                     },
                     "firstName": {
                         "type": "string",
@@ -2693,7 +2697,42 @@
             },
             "UpdateUser": {
                 "type": "object",
-                "$ref": "#/components/schemas/CreateUser"
+                "required": ["username", "password", "firstName", "lastName", "roles"],
+                "properties": {
+                    "username": {
+                        "type": "string",
+                        "minLength": 4,
+                        "maxLength": 50,
+                        "description": "Only a-z 0-9 characters allowed"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "minLength": 8,
+                        "maxLength": 255,
+                        "description": "If null, password will be not changed. New password for user. Should be at least 8 characters long, at least one small letter, one capital letter and one number.",
+                        "nullable": true
+                    },
+                    "firstName": {
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 50,
+                        "nullable": true
+                    },
+                    "lastName": {
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 50,
+                        "nullable": true
+                    },
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": ["ADMIN", "CREATOR"]
+                        }
+                    }
+                }
             },
             "User": {
                 "type": "object",

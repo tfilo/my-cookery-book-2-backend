@@ -23,10 +23,16 @@ export const getUsers = async (
 ) => {
     try {
         const users = await User.scope('listScope').findAll({
+            include: {
+                model: UserRole,
+                as: 'roles',
+                required: false,
+                attributes: ['roleName'],
+            },
             order: [['username', SORT_ORDER.ASC]],
         });
 
-        res.status(200).json(users);
+        res.status(200).json(users.map(user => transformUserRolesToList(user)));
     } catch (err) {
         next(err);
     }
@@ -70,8 +76,7 @@ export const createUser = async (
 ) => {
     try {
         const request = <yup.InferType<typeof createUserSchema>>req;
-
-        const roles = request.body.roles as ROLE[];
+        const roles = request.body.roles;
         const result = await sequelize.transaction(async (t) => {
             const user = await User.create(request.body, {
                 fields: ['username', 'firstName', 'lastName', 'password'],
@@ -105,10 +110,8 @@ export const updateUser = async (
 ) => {
     try {
         const request = <yup.InferType<typeof updateUserSchema>>(<unknown>req);
-
         const userId = request.params.userId;
-        const updatePassword = request.body.updatePassword;
-        const roles = request.body.roles as ROLE[];
+        const roles = request.body.roles;
         const result = await sequelize.transaction(async (t) => {
             const user = await User.findByPk(userId, {
                 transaction: t,
@@ -126,7 +129,7 @@ export const updateUser = async (
                 'firstName',
                 'lastName',
             ];
-            if (updatePassword) {
+            if (request.body.password) {
                 fields.push('password');
             }
 

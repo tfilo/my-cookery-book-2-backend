@@ -21,7 +21,6 @@ export const createUserSchema = yup
                     .trim()
                     .min(4)
                     .max(50)
-                    .lowercase()
                     .matches(/^[a-z0-9]+/, 'onlyAlphaNumeric')
                     .required(),
                 password: yup
@@ -50,8 +49,7 @@ export const createUserSchema = yup
                     .nullable(),
                 roles: yup
                     .array()
-                    .default([])
-                    .of(yup.string().trim().oneOf(Object.keys(ROLE)).required())
+                    .of(yup.mixed<ROLE>().oneOf(Object.keys(ROLE) as ROLE[]).required())
                     .required(),
             })
             .required(),
@@ -72,27 +70,19 @@ export const updateUserSchema = yup
                     .trim()
                     .min(4)
                     .max(50)
-                    .lowercase()
                     .matches(/^[a-z0-9]+/, 'onlyAlphaNumeric')
                     .required(),
-                updatePassword: yup.boolean().defined().required(),
                 password: yup
                     .string()
+                    .defined()
                     .trim()
-                    .when('updatePassword', {
-                        is: true,
-                        then: (schema) =>
-                            schema
-                                .defined()
-                                .min(8)
-                                .max(255)
-                                .matches(
-                                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
-                                    'simplePassword'
-                                )
-                                .required(),
-                        otherwise: (schema) => schema.defined().nullable(),
-                    }),
+                    .min(8)
+                    .max(255)
+                    .matches(
+                        /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
+                        'simplePassword'
+                    )
+                    .nullable(),
                 firstName: yup
                     .string()
                     .defined()
@@ -109,8 +99,7 @@ export const updateUserSchema = yup
                     .nullable(),
                 roles: yup
                     .array()
-                    .default([])
-                    .of(yup.string().trim().oneOf(Object.keys(ROLE)).required())
+                    .of(yup.mixed<ROLE>().oneOf(Object.keys(ROLE) as ROLE[]).required())
                     .required(),
             })
             .required(),

@@ -17,8 +17,6 @@ import hasError from './middleware/has-error';
 
 export const app = express();
 
-const openapiFilePath = path.join(__dirname, 'openapi.json');
-const openapiFile = JSON.parse(fs.readFileSync(openapiFilePath, 'utf-8'));
 const basePath = String(process.env.BASE_PATH ?? '/api');
 
 app.use(helmet());
@@ -46,12 +44,16 @@ router.use('/unit', unitRoutes);
 router.use('/unitCategory', unitCategoryRoutes);
 router.use('/user', userRoutes);
 
-router.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapiFile));
-router.get('/api-docs/openapi.json', (req, res) => res.json(openapiFile));
-
 router.get('/health', (req, res) => {
     res.send('ok');
 });
+
+if (process.env.NODE_ENV === 'development') {
+    const openapiFilePath = path.join(__dirname, 'openapi.json');
+    const openapiFile = JSON.parse(fs.readFileSync(openapiFilePath, 'utf-8'));
+    router.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapiFile));
+    router.get('/api-docs/openapi.json', (req, res) => res.json(openapiFile));
+}
 
 app.use(basePath, router);
 
