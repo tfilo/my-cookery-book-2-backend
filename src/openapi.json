@@ -2,7 +2,7 @@
     "openapi": "3.0.2",
     "info": {
         "title": "My Cookery Book 2 - backend",
-        "version": "0.0.1",
+        "version": "0.0.2",
         "license": {
             "name": "MIT"
         },
@@ -1766,7 +1766,15 @@
             },
             "RecipeSearchCriteria": {
                 "type": "object",
-                "required": ["search", "categoryId", "tags", "page", "pageSize", "orderBy", "order"],
+                "required": [
+                    "search",
+                    "categoryId",
+                    "tags",
+                    "page",
+                    "pageSize",
+                    "orderBy",
+                    "order"
+                ],
                 "properties": {
                     "search": {
                         "type": "string",
@@ -1798,18 +1806,12 @@
                         "minimum": 1
                     },
                     "orderBy": {
-                        "type": "array",
-                        "items": {
-                            "type": "string",
-                            "enum": ["name", "createdAt", "updatedAt"]
-                        }
+                        "type": "string",
+                        "enum": ["name", "createdAt", "updatedAt"]
                     },
                     "order": {
-                        "type": "array",
-                        "items": {
-                            "type": "string",
-                            "enum": ["ASC", "DESC"]
-                        }
+                        "type": "string",
+                        "enum": ["ASC", "DESC"]
                     }
                 }
             },
@@ -2150,7 +2152,12 @@
                         "type": "array",
                         "items": {
                             "type": "object",
-                            "required": ["name", "sortNumber", "method", "ingredients"],
+                            "required": [
+                                "name",
+                                "sortNumber",
+                                "method",
+                                "ingredients"
+                            ],
                             "properties": {
                                 "name": {
                                     "type": "string",
@@ -2299,7 +2306,12 @@
                         "type": "array",
                         "items": {
                             "type": "object",
-                            "required": ["name", "sortNumber", "method", "ingredients"],
+                            "required": [
+                                "name",
+                                "sortNumber",
+                                "method",
+                                "ingredients"
+                            ],
                             "properties": {
                                 "id": {
                                     "type": "integer",
@@ -2624,7 +2636,13 @@
             },
             "SimpleUser": {
                 "type": "object",
-                "required": ["id", "username", "firstName", "lastName", "roles"],
+                "required": [
+                    "id",
+                    "username",
+                    "firstName",
+                    "lastName",
+                    "roles"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -2659,7 +2677,13 @@
             },
             "CreateUser": {
                 "type": "object",
-                "required": ["username", "password", "firstName", "lastName", "roles"],
+                "required": [
+                    "username",
+                    "password",
+                    "firstName",
+                    "lastName",
+                    "roles"
+                ],
                 "properties": {
                     "username": {
                         "type": "string",
@@ -2697,7 +2721,13 @@
             },
             "UpdateUser": {
                 "type": "object",
-                "required": ["username", "password", "firstName", "lastName", "roles"],
+                "required": [
+                    "username",
+                    "password",
+                    "firstName",
+                    "lastName",
+                    "roles"
+                ],
                 "properties": {
                     "username": {
                         "type": "string",
