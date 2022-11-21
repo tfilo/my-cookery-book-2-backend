@@ -644,7 +644,7 @@
                     "required": true
                 },
                 "responses": {
-                    "201": {
+                    "200": {
                         "description": "Search results",
                         "content": {
                             "application/json": {
