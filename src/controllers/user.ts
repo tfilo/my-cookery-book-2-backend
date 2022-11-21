@@ -32,7 +32,9 @@ export const getUsers = async (
             order: [['username', SORT_ORDER.ASC]],
         });
 
-        res.status(200).json(users.map(user => transformUserRolesToList(user)));
+        res.status(200).json(
+            users.map((user) => transformUserRolesToList(user))
+        );
     } catch (err) {
         next(err);
     }
@@ -124,13 +126,16 @@ export const updateUser = async (
                 throw error;
             }
 
-            const fields: (keyof UserAttributes)[] = [
-                'username',
-                'firstName',
-                'lastName',
-            ];
             if (request.body.password) {
-                fields.push('password');
+                await user.update(
+                    {
+                        password: request.body.password,
+                    },
+                    {
+                        fields: ['password'],
+                        transaction: t,
+                    }
+                );
             }
 
             await user.update(
@@ -140,7 +145,7 @@ export const updateUser = async (
                     lastName: request.body.lastName,
                 },
                 {
-                    fields,
+                    fields: ['username', 'firstName', 'lastName'],
                     transaction: t,
                 }
             );
