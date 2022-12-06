@@ -67,7 +67,9 @@ class Ingredient extends Model<
     @Column
     recipeSectionId: number;
 
-    @BelongsTo(() => RecipeSection)
+    @BelongsTo(() => RecipeSection, {
+        onDelete: 'CASCADE',
+    })
     recipeSection: RecipeSection;
 }
 

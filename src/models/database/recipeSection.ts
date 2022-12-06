@@ -54,7 +54,9 @@ class RecipeSection extends Model<
     })
     method: string;
 
-    @HasMany(() => Ingredient)
+    @HasMany(() => Ingredient, {
+        onDelete: 'CASCADE',
+    })
     ingredients: Ingredient[];
 
     @AllowNull(false)
@@ -62,7 +64,9 @@ class RecipeSection extends Model<
     @Column
     recipeId: number;
 
-    @BelongsTo(() => Recipe)
+    @BelongsTo(() => Recipe, {
+        onDelete: 'CASCADE',
+    })
     recipe: Recipe;
 }
 

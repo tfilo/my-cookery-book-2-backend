@@ -162,7 +162,6 @@ export const getRecipe = async (
                                 'value',
                                 'unitId',
                             ],
-                            order: [['sortNumber', SORT_ORDER.ASC]],
                             required: false,
                         },
                     ],
@@ -189,6 +188,7 @@ export const getRecipe = async (
                     required: false,
                 },
             ],
+            order: [['recipeSections' ,'sortNumber', SORT_ORDER.ASC], ['recipeSections', 'ingredients', 'sortNumber', SORT_ORDER.ASC]]
         });
 
         if (!recipe) {
@@ -574,6 +574,12 @@ const updateRecipeSections = async (
                 [Op.eq]: recipeId,
             },
         },
+        include: [
+            {
+                model: Ingredient,
+                as: 'ingredients',
+            },
+        ],
         transaction: t,
     });
 
@@ -583,9 +589,9 @@ const updateRecipeSections = async (
             (rs) => rs.id !== undefined
         );
         const sectionsToRemove = dbRecipeSections.filter(
-            (dbrs) => existingSection.findIndex((es) => es.id === dbrs.id) === -1
+            (dbrs) =>
+                existingSection.findIndex((es) => es.id === dbrs.id) === -1
         );
-
         const removedSections = sectionsToRemove.map((str) =>
             str.destroy({
                 transaction: t,
@@ -593,7 +599,6 @@ const updateRecipeSections = async (
         );
 
         await Promise.all(removedSections);
-
         sectionsToAdd = recipeSections.filter((rs) => rs.id === undefined); // where no id provided, it is new section
 
         const sectionsToUpdate = dbRecipeSections.filter(
@@ -608,25 +613,15 @@ const updateRecipeSections = async (
                 error.statusCode = 404;
                 throw error;
             }
-
-            const ingredients = await Ingredient.findAll({
-                where: {
-                    recipeSectionId: {
-                        [Op.eq]: stu.id,
-                    },
-                },
-                transaction: t,
-            });
-
             let ingredientsToAdd;
-            if (ingredients.length > 0) {
+            if (stu.ingredients.length > 0) {
                 const ingredientsToUpdate = savedSection.ingredients.filter(
                     (i) => i.id !== undefined
                 );
 
-                const ingredientsToRemove = ingredients.filter(
+                const ingredientsToRemove = stu.ingredients.filter(
                     (i) =>
-                        ingredientsToUpdate.findIndex(
+                        savedSection.ingredients.findIndex(
                             (itu) => itu.id === i.id
                         ) === -1
                 );
@@ -639,8 +634,11 @@ const updateRecipeSections = async (
 
                 await Promise.all(removedIngredients);
 
-                const updatedIngredients = ingredients.map((i) => {
-                    const savedIngredient = ingredientsToUpdate.find(
+                const updatedIngredients = ingredientsToUpdate.map((i) => {
+
+                    console.log('Updating', i);
+
+                    const savedIngredient = stu.ingredients.find(
                         (itu) => itu.id === i.id
                     );
                     if (!savedIngredient) {
@@ -649,7 +647,7 @@ const updateRecipeSections = async (
                         error.statusCode = 404;
                         throw error;
                     }
-                    return i.update(savedIngredient, {
+                    return savedIngredient.update(i, {
                         fields: ['name', 'sortNumber', 'value', 'unitId'],
                         transaction: t,
                     });
@@ -703,46 +701,44 @@ const updateRecipeSections = async (
         sectionsToAdd = [...recipeSections];
     }
 
-    const createdRecipeSection = sectionsToAdd.map(
-        async (recipeSection) => {
-            const createdRecipeSection = await RecipeSection.create(
-                {
-                    name: recipeSection.name,
-                    sortNumber: recipeSection.sortNumber,
-                    method: recipeSection.method,
-                    recipeId: recipeId,
-                },
-                {
-                    fields: ['name', 'sortNumber', 'method', 'recipeId'],
-                    transaction: t,
-                }
-            );
+    const createdRecipeSection = sectionsToAdd.map(async (recipeSection) => {
+        const createdRecipeSection = await RecipeSection.create(
+            {
+                name: recipeSection.name,
+                sortNumber: recipeSection.sortNumber,
+                method: recipeSection.method,
+                recipeId: recipeId,
+            },
+            {
+                fields: ['name', 'sortNumber', 'method', 'recipeId'],
+                transaction: t,
+            }
+        );
 
-            const createdIngredients = recipeSection.ingredients.map(
-                (ingredient) => {
-                    return Ingredient.create(
-                        {
-                            ...ingredient,
-                            recipeSectionId: createdRecipeSection.id,
-                        },
-                        {
-                            fields: [
-                                'name',
-                                'sortNumber',
-                                'value',
-                                'unitId',
-                                'recipeSectionId',
-                            ],
-                            transaction: t,
-                        }
-                    );
-                }
-            );
+        const createdIngredients = recipeSection.ingredients.map(
+            (ingredient) => {
+                return Ingredient.create(
+                    {
+                        ...ingredient,
+                        recipeSectionId: createdRecipeSection.id,
+                    },
+                    {
+                        fields: [
+                            'name',
+                            'sortNumber',
+                            'value',
+                            'unitId',
+                            'recipeSectionId',
+                        ],
+                        transaction: t,
+                    }
+                );
+            }
+        );
 
-            await Promise.all(createdIngredients);
+        await Promise.all(createdIngredients);
 
-            return createdRecipeSection;
-        }
-    );
+        return createdRecipeSection;
+    });
     await Promise.all(createdRecipeSection);
 };

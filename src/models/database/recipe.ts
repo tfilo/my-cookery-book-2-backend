@@ -123,7 +123,9 @@ class Recipe extends Model<RecipeAttributes, RecipeCreationAttributes> {
     @BelongsTo(() => User)
     modified: User;
 
-    @HasMany(() => RecipeSection)
+    @HasMany(() => RecipeSection, {
+        onDelete: 'CASCADE',
+    })
     recipeSections: RecipeSection[];
 
     @BelongsToMany(() => Recipe, () => RecipeRecipe, 'id', 'associatedRecipeId')
@@ -132,7 +134,9 @@ class Recipe extends Model<RecipeAttributes, RecipeCreationAttributes> {
     @BelongsToMany(() => Tag, () => RecipeTag)
     tags: Tag[];
 
-    @HasMany(() => Picture)
+    @HasMany(() => Picture, {
+        onDelete: 'CASCADE',
+    })
     pictures: Picture[];
 
     @BeforeUpdate
