@@ -188,7 +188,10 @@ export const getRecipe = async (
                     required: false,
                 },
             ],
-            order: [['recipeSections' ,'sortNumber', SORT_ORDER.ASC], ['recipeSections', 'ingredients', 'sortNumber', SORT_ORDER.ASC]]
+            order: [
+                ['recipeSections', 'sortNumber', SORT_ORDER.ASC],
+                ['recipeSections', 'ingredients', 'sortNumber', SORT_ORDER.ASC],
+            ],
         });
 
         if (!recipe) {
@@ -635,7 +638,6 @@ const updateRecipeSections = async (
                 await Promise.all(removedIngredients);
 
                 const updatedIngredients = ingredientsToUpdate.map((i) => {
-
                     console.log('Updating', i);
 
                     const savedIngredient = stu.ingredients.find(
