@@ -48,11 +48,11 @@ export const getPictureThumbnail = async (
         );
 
         const pictureId = request.params.pictureId;
-        const thumbnail = await Picture.findByPk(pictureId, {
+        const picture = await Picture.findByPk(pictureId, {
             attributes: ['thumbnail'],
         });
 
-        if (!thumbnail) {
+        if (!picture) {
             const error = new CustomError();
             error.code = CUSTOM_ERROR_CODES.NOT_FOUND;
             error.statusCode = 404;
@@ -60,10 +60,9 @@ export const getPictureThumbnail = async (
         }
 
         res.status(200);
-        res.type(thumbnail.thumbnail.type);
-        thumbnail.thumbnail.arrayBuffer().then((buf) => {
-            res.send(Buffer.from(buf));
-        });
+        res.setHeader('Content-Type', 'image/jpeg');
+        res.setHeader('Content-Length', picture.thumbnail.length);
+        res.end(picture.thumbnail);
     } catch (err) {
         next(err);
     }
@@ -92,10 +91,9 @@ export const getPictureData = async (
         }
 
         res.status(200);
-        res.type(picture.data.type);
-        picture.data.arrayBuffer().then((buf) => {
-            res.send(Buffer.from(buf));
-        });
+        res.setHeader('Content-Type', 'image/jpeg');
+        res.setHeader('Content-Length', picture.data.length);
+        res.end(picture.data);
     } catch (err) {
         next(err);
     }
@@ -143,8 +141,8 @@ export const uploadPicture = async (
             {
                 sortNumber: 1,
                 name: fileName,
-                data: new Blob([image], { type: file.mimetype }),
-                thumbnail: new Blob([thumbnail], { type: file.mimetype }),
+                data: image,
+                thumbnail: thumbnail,
             },
             {
                 fields: ['sortNumber', 'name', 'data', 'thumbnail'],

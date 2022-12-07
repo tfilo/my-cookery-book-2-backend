@@ -15,8 +15,8 @@ export interface PictureAttributes {
     id: number;
     sortNumber: number;
     name: string;
-    data: Blob;
-    thumbnail: Blob;
+    data: Buffer;
+    thumbnail: Buffer;
     recipeId: number | null;
     createdAt: Date;
     updatedAt: Date;
@@ -48,13 +48,13 @@ class Picture extends Model<PictureAttributes, PictureCreationAttributes> {
     @Column({
         type: DataType.BLOB,
     })
-    data: Blob;
+    data: Buffer;
 
     @AllowNull(false)
     @Column({
         type: DataType.BLOB,
     })
-    thumbnail: Blob;
+    thumbnail: Buffer;
 
     @AllowNull
     @ForeignKey(() => Recipe)
