@@ -33,7 +33,9 @@ class Tag extends Model<TagAttributes, TagCreationAttributes> {
     })
     name: string;
 
-    @BelongsToMany(() => Recipe, () => RecipeTag)
+    @BelongsToMany(() => Recipe, {
+        through: { model: () => RecipeTag },
+    })
     recipes: Recipe[];
 }
 

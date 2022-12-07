@@ -131,7 +131,9 @@ class Recipe extends Model<RecipeAttributes, RecipeCreationAttributes> {
     @BelongsToMany(() => Recipe, () => RecipeRecipe, 'id', 'associatedRecipeId')
     associatedRecipes: Recipe[];
 
-    @BelongsToMany(() => Tag, () => RecipeTag)
+    @BelongsToMany(() => Tag, {
+        through: { model: () => RecipeTag },
+    })
     tags: Tag[];
 
     @HasMany(() => Picture, {

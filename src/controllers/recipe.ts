@@ -176,6 +176,9 @@ export const getRecipe = async (
                 {
                     model: Tag,
                     as: 'tags',
+                    through: {
+                        attributes: []
+                    },
                     attributes: ['id', 'name'],
                     order: [['name', SORT_ORDER.ASC]],
                     required: false,

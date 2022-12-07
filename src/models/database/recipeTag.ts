@@ -1,4 +1,4 @@
-import { Table, Column, Model, ForeignKey } from 'sequelize-typescript';
+import { Table, Column, Model, ForeignKey, BelongsTo } from 'sequelize-typescript';
 import { Optional } from 'sequelize/types';
 
 import Recipe from './recipe';
@@ -26,9 +26,15 @@ class RecipeTag extends Model<
     @Column
     recipeId: number;
 
+    @BelongsTo(() => Recipe)
+    recipe: Recipe;
+
     @ForeignKey(() => Tag)
     @Column
     tagId: number;
+
+    @BelongsTo(() => Tag)
+    tag: Tag;
 }
 
 export default RecipeTag;
