@@ -1886,7 +1886,7 @@
                         "type": "array",
                         "items": {
                             "type": "object",
-                            "required": ["id", "name", "sortNumber", "method"],
+                            "required": ["id", "name", "sortNumber", "method", "ingredients"],
                             "properties": {
                                 "id": {
                                     "type": "integer",
