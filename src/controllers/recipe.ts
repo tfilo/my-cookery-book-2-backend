@@ -149,7 +149,6 @@ export const getRecipe = async (
                     model: RecipeSection,
                     as: 'recipeSections',
                     attributes: ['id', 'name', 'sortNumber', 'method'],
-                    order: [['sortNumber', SORT_ORDER.ASC]],
                     required: false,
                     include: [
                         {
@@ -170,7 +169,6 @@ export const getRecipe = async (
                     model: Recipe,
                     as: 'associatedRecipes',
                     attributes: ['id', 'name', 'description'],
-                    order: [['name', SORT_ORDER.ASC]],
                     required: false,
                 },
                 {
@@ -180,20 +178,21 @@ export const getRecipe = async (
                         attributes: [],
                     },
                     attributes: ['id', 'name'],
-                    order: [['name', SORT_ORDER.ASC]],
                     required: false,
                 },
                 {
                     model: Picture,
                     as: 'pictures',
                     attributes: ['id', 'name', 'sortNumber'],
-                    order: [['sortNumber', SORT_ORDER.ASC]],
                     required: false,
                 },
             ],
             order: [
                 ['recipeSections', 'sortNumber', SORT_ORDER.ASC],
                 ['recipeSections', 'ingredients', 'sortNumber', SORT_ORDER.ASC],
+                ['associatedRecipes', 'name', SORT_ORDER.ASC],
+                ['tags', 'name', SORT_ORDER.ASC],
+                ['pictures', 'sortNumber', SORT_ORDER.ASC],
             ],
         });
 
