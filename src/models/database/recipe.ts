@@ -73,7 +73,7 @@ class Recipe extends Model<RecipeAttributes, RecipeCreationAttributes> {
     @Column({
         type: DataType.STRING(160),
     })
-    description: string;
+    description: string | null;
 
     @AllowNull
     @Column({
@@ -145,9 +145,9 @@ class Recipe extends Model<RecipeAttributes, RecipeCreationAttributes> {
     @BeforeCreate
     static makeUpperCase(instance: Recipe) {
         instance.nameSearch = toSCDF(instance.name).toLowerCase().trim();
-        instance.descriptionSearch = toSCDF(instance.description)
-            .toLowerCase()
-            .trim();
+        instance.descriptionSearch = instance.description
+            ? toSCDF(instance.description).toLowerCase().trim()
+            : '';
     }
 }
 
