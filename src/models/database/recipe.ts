@@ -11,6 +11,7 @@ import {
     BeforeUpdate,
     BeforeCreate,
     BelongsToMany,
+    HookOptions,
 } from 'sequelize-typescript';
 import { Optional } from 'sequelize/types';
 
@@ -128,7 +129,9 @@ class Recipe extends Model<RecipeAttributes, RecipeCreationAttributes> {
     })
     recipeSections: RecipeSection[];
 
-    @BelongsToMany(() => Recipe, () => RecipeRecipe, 'id', 'associatedRecipeId')
+    @BelongsToMany(() => Recipe, {
+        through: { model: () => RecipeRecipe },
+    })
     associatedRecipes: Recipe[];
 
     @BelongsToMany(() => Tag, {
@@ -140,15 +143,6 @@ class Recipe extends Model<RecipeAttributes, RecipeCreationAttributes> {
         onDelete: 'CASCADE',
     })
     pictures: Picture[];
-
-    @BeforeUpdate
-    @BeforeCreate
-    static makeUpperCase(instance: Recipe) {
-        instance.nameSearch = toSCDF(instance.name).toLowerCase().trim();
-        instance.descriptionSearch = instance.description
-            ? toSCDF(instance.description).toLowerCase().trim()
-            : '';
-    }
 }
 
 export default Recipe;

@@ -168,6 +168,9 @@ export const getRecipe = async (
                 {
                     model: Recipe,
                     as: 'associatedRecipes',
+                    through: {
+                        attributes: [],
+                    },
                     attributes: ['id', 'name', 'description'],
                     required: false,
                 },
@@ -223,17 +226,22 @@ export const createRecipe = async (
         const associatedRecipeIds = request.body.associatedRecipes;
         const pictures = request.body.pictures;
         const recipeSections = request.body.recipeSections;
+
         const result = await sequelize.transaction(async (t) => {
             const recipe = await Recipe.create(
                 {
                     ...request.body,
+                    nameSearch: toSCDF(request.body.name).toLowerCase().trim(),
+                    descriptionSearch: toSCDF(request.body.description).toLowerCase().trim(),
                     creatorId: request.userId,
                     modifierId: request.userId,
                 },
                 {
                     fields: [
                         'name',
+                        'nameSearch',
                         'description',
+                        'descriptionSearch',
                         'serves',
                         'method',
                         'sources',
@@ -294,11 +302,18 @@ export const updateRecipe = async (
             }
 
             await recipe.update(
-                { ...request.body, modifierId: request.userId },
+                { 
+                    ...request.body,
+                    nameSearch: toSCDF(request.body.name).toLowerCase().trim(),
+                    descriptionSearch: toSCDF(request.body.description).toLowerCase().trim(),
+                    modifierId: request.userId
+                },
                 {
                     fields: [
                         'name',
+                        'nameSearch',
                         'description',
+                        'descriptionSearch',
                         'serves',
                         'method',
                         'sources',
@@ -409,6 +424,7 @@ const updateAssociatedRecipes = async (
     associatedRecipeIds: number[],
     t: Transaction
 ) => {
+    console.log('updateAssociatedRecipes', associatedRecipeIds);
     const storedAssociatedRecipes = await RecipeRecipe.findAll({
         where: {
             recipeId: {
