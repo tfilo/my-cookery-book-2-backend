@@ -8,14 +8,10 @@ import {
     Unique,
     ForeignKey,
     BelongsTo,
-    BeforeUpdate,
-    BeforeCreate,
     BelongsToMany,
-    HookOptions,
 } from 'sequelize-typescript';
 import { Optional } from 'sequelize/types';
 
-import toSCDF from '../../util/string';
 import Category from './category';
 import RecipeSection from './recipeSection';
 import Picture from './picture';

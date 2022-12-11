@@ -232,7 +232,9 @@ export const createRecipe = async (
                 {
                     ...request.body,
                     nameSearch: toSCDF(request.body.name).toLowerCase().trim(),
-                    descriptionSearch: toSCDF(request.body.description).toLowerCase().trim(),
+                    descriptionSearch: toSCDF(request.body.description)
+                        .toLowerCase()
+                        .trim(),
                     creatorId: request.userId,
                     modifierId: request.userId,
                 },
@@ -302,11 +304,13 @@ export const updateRecipe = async (
             }
 
             await recipe.update(
-                { 
+                {
                     ...request.body,
                     nameSearch: toSCDF(request.body.name).toLowerCase().trim(),
-                    descriptionSearch: toSCDF(request.body.description).toLowerCase().trim(),
-                    modifierId: request.userId
+                    descriptionSearch: toSCDF(request.body.description)
+                        .toLowerCase()
+                        .trim(),
+                    modifierId: request.userId,
                 },
                 {
                     fields: [
