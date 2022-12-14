@@ -124,89 +124,111 @@ export const getRecipe = async (
     try {
         const request = <yup.InferType<typeof getRecipeShema>>(<unknown>req);
 
-        const recipeId = request.params.recipeId;
-        const recipe = await Recipe.findOne({
-            where: {
-                id: {
-                    [Op.eq]: recipeId,
+        const result = await sequelize.transaction(async (t) => {
+            const recipeId = request.params.recipeId;
+            const recipe = await Recipe.findOne({
+                where: {
+                    id: {
+                        [Op.eq]: recipeId,
+                    },
                 },
-            },
-            attributes: [
-                'id',
-                'name',
-                'description',
-                'serves',
-                'method',
-                'sources',
-                'categoryId',
-                'modifierId',
-                'creatorId',
-                'createdAt',
-                'updatedAt',
-            ],
-            include: [
-                {
-                    model: RecipeSection,
-                    as: 'recipeSections',
-                    attributes: ['id', 'name', 'sortNumber', 'method'],
-                    required: false,
-                    include: [
-                        {
-                            model: Ingredient,
-                            as: 'ingredients',
-                            attributes: [
-                                'id',
-                                'name',
-                                'sortNumber',
-                                'value',
-                                'unitId',
-                            ],
-                            required: false,
+                transaction: t,
+                attributes: [
+                    'id',
+                    'name',
+                    'description',
+                    'serves',
+                    'method',
+                    'sources',
+                    'categoryId',
+                    'modifierId',
+                    'creatorId',
+                    'createdAt',
+                    'updatedAt',
+                ],
+                include: [
+                    {
+                        model: RecipeSection,
+                        as: 'recipeSections',
+                        attributes: ['id', 'name', 'sortNumber', 'method'],
+                        required: false,
+                        include: [
+                            {
+                                model: Ingredient,
+                                as: 'ingredients',
+                                attributes: [
+                                    'id',
+                                    'name',
+                                    'sortNumber',
+                                    'value',
+                                    'unitId',
+                                ],
+                                required: false,
+                            },
+                        ],
+                    },
+                    {
+                        model: Tag,
+                        as: 'tags',
+                        through: {
+                            attributes: [],
                         },
+                        attributes: ['id', 'name'],
+                        required: false,
+                    },
+                    {
+                        model: Picture,
+                        as: 'pictures',
+                        attributes: ['id', 'name', 'sortNumber'],
+                        required: false,
+                    },
+                ],
+                order: [
+                    ['recipeSections', 'sortNumber', SORT_ORDER.ASC],
+                    [
+                        'recipeSections',
+                        'ingredients',
+                        'sortNumber',
+                        SORT_ORDER.ASC,
                     ],
-                },
-                {
-                    model: Recipe,
-                    as: 'associatedRecipes',
-                    through: {
-                        attributes: [],
+                    ['tags', 'name', SORT_ORDER.ASC],
+                    ['pictures', 'sortNumber', SORT_ORDER.ASC],
+                ],
+            });
+
+            if (!recipe) {
+                const error = new CustomError();
+                error.code = CUSTOM_ERROR_CODES.NOT_FOUND;
+                error.statusCode = 404;
+                throw error;
+            }
+
+            const associatedRecipeIds = await RecipeRecipe.findAll({
+                where: {
+                    recipeId: {
+                        [Op.eq]: recipeId,
                     },
-                    attributes: ['id', 'name', 'description'],
-                    required: false,
                 },
-                {
-                    model: Tag,
-                    as: 'tags',
-                    through: {
-                        attributes: [],
+                transaction: t,
+                attributes: ['associatedRecipeId'],
+            }).then((data) => {
+                return data.map((arId) => arId.associatedRecipeId);
+            });
+
+            const associatedRecipes = await Recipe.findAll({
+                where: {
+                    id: {
+                        [Op.in]: associatedRecipeIds,
                     },
-                    attributes: ['id', 'name'],
-                    required: false,
                 },
-                {
-                    model: Picture,
-                    as: 'pictures',
-                    attributes: ['id', 'name', 'sortNumber'],
-                    required: false,
-                },
-            ],
-            order: [
-                ['recipeSections', 'sortNumber', SORT_ORDER.ASC],
-                ['recipeSections', 'ingredients', 'sortNumber', SORT_ORDER.ASC],
-                ['associatedRecipes', 'name', SORT_ORDER.ASC],
-                ['tags', 'name', SORT_ORDER.ASC],
-                ['pictures', 'sortNumber', SORT_ORDER.ASC],
-            ],
+                transaction: t,
+                attributes: ['id', 'name', 'description'],
+                order: [['name', SORT_ORDER.ASC]],
+            });
+
+            return { ...recipe.toJSON(), associatedRecipes };
         });
-
-        if (!recipe) {
-            const error = new CustomError();
-            error.code = CUSTOM_ERROR_CODES.NOT_FOUND;
-            error.statusCode = 404;
-            throw error;
-        }
-
-        res.status(200).json(recipe);
+        res.status(200).json(result);
     } catch (err) {
         next(err);
     }
@@ -428,8 +450,7 @@ const updateAssociatedRecipes = async (
     associatedRecipeIds: number[],
     t: Transaction
 ) => {
-    console.log('updateAssociatedRecipes', associatedRecipeIds);
-    const storedAssociatedRecipes = await RecipeRecipe.findAll({
+    await RecipeRecipe.destroy({
         where: {
             recipeId: {
                 [Op.eq]: recipeId,
@@ -438,37 +459,9 @@ const updateAssociatedRecipes = async (
         transaction: t,
     });
 
-    let associatedRecipesToAdd;
-    if (storedAssociatedRecipes.length > 0) {
-        const storedAssociatedRecipesToRemove = storedAssociatedRecipes.filter(
-            (sar) =>
-                associatedRecipeIds.findIndex(
-                    (arId) => arId === sar.associatedRecipeId
-                ) === -1
-        );
-
-        const removedAssociatedRecipes = storedAssociatedRecipesToRemove.map(
-            (sartr) =>
-                sartr.destroy({
-                    transaction: t,
-                })
-        );
-
-        await Promise.all(removedAssociatedRecipes);
-
-        associatedRecipesToAdd = associatedRecipeIds.filter(
-            (arid) =>
-                storedAssociatedRecipes.findIndex(
-                    (sar) => sar.associatedRecipeId === arid
-                ) === -1
-        );
-    } else {
-        associatedRecipesToAdd = [...associatedRecipeIds];
-    }
-
-    const createdAssociatedRecipes = associatedRecipesToAdd.map(
-        (associatedRecipeId) => {
-            return RecipeRecipe.create(
+    const createdAssociatedRecipes = associatedRecipeIds.map(
+        (associatedRecipeId) =>
+            RecipeRecipe.create(
                 {
                     recipeId: recipeId,
                     associatedRecipeId: associatedRecipeId,
@@ -476,8 +469,7 @@ const updateAssociatedRecipes = async (
                 {
                     transaction: t,
                 }
-            );
-        }
+            )
     );
 
     await Promise.all(createdAssociatedRecipes);

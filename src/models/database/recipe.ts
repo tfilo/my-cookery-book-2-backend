@@ -128,12 +128,12 @@ class Recipe extends Model<RecipeAttributes, RecipeCreationAttributes> {
     @BelongsToMany(() => Recipe, {
         through: { model: () => RecipeRecipe },
     })
-    associatedRecipes: Array<Recipe & {RecipeRecipe: RecipeRecipe}>;
+    associatedRecipes: Recipe[];
 
     @BelongsToMany(() => Tag, {
         through: { model: () => RecipeTag },
     })
-    tags: Array<Tag & {RecipeTag: RecipeTag}>;
+    tags: Tag[];
 
     @HasMany(() => Picture, {
         onDelete: 'CASCADE',
