@@ -124,111 +124,89 @@ export const getRecipe = async (
     try {
         const request = <yup.InferType<typeof getRecipeShema>>(<unknown>req);
 
-        const result = await sequelize.transaction(async (t) => {
-            const recipeId = request.params.recipeId;
-            const recipe = await Recipe.findOne({
-                where: {
-                    id: {
-                        [Op.eq]: recipeId,
-                    },
+        const recipeId = request.params.recipeId;
+        const recipe = await Recipe.findOne({
+            where: {
+                id: {
+                    [Op.eq]: recipeId,
                 },
-                transaction: t,
-                attributes: [
-                    'id',
-                    'name',
-                    'description',
-                    'serves',
-                    'method',
-                    'sources',
-                    'categoryId',
-                    'modifierId',
-                    'creatorId',
-                    'createdAt',
-                    'updatedAt',
-                ],
-                include: [
-                    {
-                        model: RecipeSection,
-                        as: 'recipeSections',
-                        attributes: ['id', 'name', 'sortNumber', 'method'],
-                        required: false,
-                        include: [
-                            {
-                                model: Ingredient,
-                                as: 'ingredients',
-                                attributes: [
-                                    'id',
-                                    'name',
-                                    'sortNumber',
-                                    'value',
-                                    'unitId',
-                                ],
-                                required: false,
-                            },
-                        ],
-                    },
-                    {
-                        model: Tag,
-                        as: 'tags',
-                        through: {
-                            attributes: [],
+            },
+            attributes: [
+                'id',
+                'name',
+                'description',
+                'serves',
+                'method',
+                'sources',
+                'categoryId',
+                'modifierId',
+                'creatorId',
+                'createdAt',
+                'updatedAt',
+            ],
+            include: [
+                {
+                    model: RecipeSection,
+                    as: 'recipeSections',
+                    attributes: ['id', 'name', 'sortNumber', 'method'],
+                    required: false,
+                    include: [
+                        {
+                            model: Ingredient,
+                            as: 'ingredients',
+                            attributes: [
+                                'id',
+                                'name',
+                                'sortNumber',
+                                'value',
+                                'unitId',
+                            ],
+                            required: false,
                         },
-                        attributes: ['id', 'name'],
-                        required: false,
-                    },
-                    {
-                        model: Picture,
-                        as: 'pictures',
-                        attributes: ['id', 'name', 'sortNumber'],
-                        required: false,
-                    },
-                ],
-                order: [
-                    ['recipeSections', 'sortNumber', SORT_ORDER.ASC],
-                    [
-                        'recipeSections',
-                        'ingredients',
-                        'sortNumber',
-                        SORT_ORDER.ASC,
                     ],
-                    ['tags', 'name', SORT_ORDER.ASC],
-                    ['pictures', 'sortNumber', SORT_ORDER.ASC],
-                ],
-            });
-
-            if (!recipe) {
-                const error = new CustomError();
-                error.code = CUSTOM_ERROR_CODES.NOT_FOUND;
-                error.statusCode = 404;
-                throw error;
-            }
-
-            const associatedRecipeIds = await RecipeRecipe.findAll({
-                where: {
-                    recipeId: {
-                        [Op.eq]: recipeId,
-                    },
                 },
-                transaction: t,
-                attributes: ['associatedRecipeId'],
-            }).then((data) => {
-                return data.map((arId) => arId.associatedRecipeId);
-            });
-
-            const associatedRecipes = await Recipe.findAll({
-                where: {
-                    id: {
-                        [Op.in]: associatedRecipeIds,
+                {
+                    model: Recipe,
+                    as: 'associatedRecipes',
+                    through: {
+                        attributes: [],
                     },
+                    attributes: ['id', 'name', 'description'],
+                    required: false,
                 },
-                transaction: t,
-                attributes: ['id', 'name', 'description'],
-                order: [['name', SORT_ORDER.ASC]],
-            });
-
-            return { ...recipe.toJSON(), associatedRecipes };
+                {
+                    model: Tag,
+                    as: 'tags',
+                    through: {
+                        attributes: [],
+                    },
+                    attributes: ['id', 'name'],
+                    required: false,
+                },
+                {
+                    model: Picture,
+                    as: 'pictures',
+                    attributes: ['id', 'name', 'sortNumber'],
+                    required: false,
+                },
+            ],
+            order: [
+                ['recipeSections', 'sortNumber', SORT_ORDER.ASC],
+                ['recipeSections', 'ingredients', 'sortNumber', SORT_ORDER.ASC],
+                ['associatedRecipes', 'name', SORT_ORDER.ASC],
+                ['tags', 'name', SORT_ORDER.ASC],
+                ['pictures', 'sortNumber', SORT_ORDER.ASC],
+            ],
         });
-        res.status(200).json(result);
+
+        if (!recipe) {
+            const error = new CustomError();
+            error.code = CUSTOM_ERROR_CODES.NOT_FOUND;
+            error.statusCode = 404;
+            throw error;
+        }
+
+        res.status(200).json(recipe);
     } catch (err) {
         next(err);
     }

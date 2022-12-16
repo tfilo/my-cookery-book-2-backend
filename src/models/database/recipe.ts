@@ -15,10 +15,10 @@ import { Optional } from 'sequelize/types';
 import Category from './category';
 import RecipeSection from './recipeSection';
 import Picture from './picture';
-import RecipeRecipe from './recipeRecipe';
 import RecipeTag from './recipeTag';
 import Tag from './tag';
 import User from './user';
+import RecipeRecipe from './recipeRecipe';
 
 export interface RecipeAttributes {
     id: number;
@@ -125,15 +125,11 @@ class Recipe extends Model<RecipeAttributes, RecipeCreationAttributes> {
     })
     recipeSections: RecipeSection[];
 
-    @BelongsToMany(() => Recipe, {
-        through: { model: () => RecipeRecipe },
-    })
-    associatedRecipes: Recipe[];
+    @BelongsToMany(() => Recipe, () => RecipeRecipe, 'recipeId', 'associatedRecipeId')
+    associatedRecipes: Array<Recipe & {RecipeRecipe: RecipeRecipe}>;
 
-    @BelongsToMany(() => Tag, {
-        through: { model: () => RecipeTag },
-    })
-    tags: Tag[];
+    @BelongsToMany(() => Tag, () => RecipeTag)
+    tags: Array<Tag & {RecipeTag: RecipeTag}>;
 
     @HasMany(() => Picture, {
         onDelete: 'CASCADE',
