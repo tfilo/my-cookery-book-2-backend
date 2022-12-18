@@ -291,16 +291,18 @@ const port = process.env.PORT || 8080;
             )[0];
         }
 
-        await RecipeRecipe.findOrCreate({
-            where: {
-                recipeId: soup?.id,
-                associatedRecipeId: noodles?.id,
-            },
-            defaults: {
-                recipeId: soup?.id,
-                associatedRecipeId: noodles?.id,
-            },
-        });
+        if (soup && noodles) {
+            await RecipeRecipe.findOrCreate({
+                where: {
+                    recipeId: soup?.id,
+                    associatedRecipeId: noodles?.id,
+                },
+                defaults: {
+                    recipeId: soup?.id,
+                    associatedRecipeId: noodles?.id,
+                },
+            });
+        }
     }
 
     app.listen(port, () => console.info(`Server running on port ${port}`));
