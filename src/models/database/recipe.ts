@@ -118,7 +118,7 @@ class Recipe extends Model<RecipeAttributes, RecipeCreationAttributes> {
     modifierId: number;
 
     @BelongsTo(() => User)
-    modified: User;
+    modifier: User;
 
     @HasMany(() => RecipeSection, {
         onDelete: 'CASCADE',

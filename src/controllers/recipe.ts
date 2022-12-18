@@ -21,6 +21,7 @@ import {
 } from '../schemas/recipe';
 import sequelize from '../util/database';
 import toSCDF from '../util/string';
+import User from '../models/database/user';
 
 export const findRecipes = async (
     req: Request,
@@ -187,6 +188,18 @@ export const getRecipe = async (
                     model: Picture,
                     as: 'pictures',
                     attributes: ['id', 'name', 'sortNumber'],
+                    required: false,
+                },
+                {
+                    model: User,
+                    as: 'creator',
+                    attributes: ['username', 'firstName', 'lastName'],
+                    required: false,
+                },
+                {
+                    model: User,
+                    as: 'modifier',
+                    attributes: ['username', 'firstName', 'lastName'],
                     required: false,
                 },
             ],

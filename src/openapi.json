@@ -75,7 +75,9 @@
         "/auth/login": {
             "post": {
                 "operationId": "login",
-                "tags": ["auth"],
+                "tags": [
+                    "auth"
+                ],
                 "security": [],
                 "requestBody": {
                     "content": {
@@ -113,14 +115,18 @@
         "/auth/refresh": {
             "post": {
                 "operationId": "refreshToken",
-                "tags": ["auth"],
+                "tags": [
+                    "auth"
+                ],
                 "security": [],
                 "requestBody": {
                     "content": {
                         "application/json": {
                             "schema": {
                                 "type": "object",
-                                "required": ["refreshToken"],
+                                "required": [
+                                    "refreshToken"
+                                ],
                                 "properties": {
                                     "refreshToken": {
                                         "type": "string",
@@ -155,7 +161,9 @@
         "/auth/password": {
             "patch": {
                 "operationId": "updatePassword",
-                "tags": ["auth"],
+                "tags": [
+                    "auth"
+                ],
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -185,7 +193,9 @@
         "/auth/user": {
             "get": {
                 "operationId": "user",
-                "tags": ["auth"],
+                "tags": [
+                    "auth"
+                ],
                 "responses": {
                     "200": {
                         "description": "Authenticated user info",
@@ -212,7 +222,9 @@
         "/category": {
             "get": {
                 "operationId": "getCategories",
-                "tags": ["category"],
+                "tags": [
+                    "category"
+                ],
                 "responses": {
                     "200": {
                         "description": "List of categories",
@@ -237,7 +249,9 @@
             },
             "post": {
                 "operationId": "createCategory",
-                "tags": ["category"],
+                "tags": [
+                    "category"
+                ],
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -277,7 +291,9 @@
         "/category/{categoryId}": {
             "get": {
                 "operationId": "getCategory",
-                "tags": ["category"],
+                "tags": [
+                    "category"
+                ],
                 "parameters": [
                     {
                         "in": "path",
@@ -317,7 +333,9 @@
             },
             "put": {
                 "operationId": "updateCategory",
-                "tags": ["category"],
+                "tags": [
+                    "category"
+                ],
                 "parameters": [
                     {
                         "in": "path",
@@ -370,7 +388,9 @@
             },
             "delete": {
                 "operationId": "deleteCategory",
-                "tags": ["category"],
+                "tags": [
+                    "category"
+                ],
                 "parameters": [
                     {
                         "in": "path",
@@ -405,7 +425,9 @@
         "/picture/byRecipe/{recipeId}": {
             "get": {
                 "operationId": "getPicturesByRecipe",
-                "tags": ["picture"],
+                "tags": [
+                    "picture"
+                ],
                 "parameters": [
                     {
                         "in": "path",
@@ -447,7 +469,9 @@
         "/picture/thumbnail/{pictureId}": {
             "get": {
                 "operationId": "getPictureThumbnail",
-                "tags": ["picture"],
+                "tags": [
+                    "picture"
+                ],
                 "parameters": [
                     {
                         "in": "path",
@@ -490,7 +514,9 @@
         "/picture/data/{pictureId}": {
             "get": {
                 "operationId": "getPictureData",
-                "tags": ["picture"],
+                "tags": [
+                    "picture"
+                ],
                 "parameters": [
                     {
                         "in": "path",
@@ -533,7 +559,9 @@
         "/picture/upload": {
             "post": {
                 "operationId": "uploadPicture",
-                "tags": ["picture"],
+                "tags": [
+                    "picture"
+                ],
                 "requestBody": {
                     "content": {
                         "multipart/form-data": {
@@ -557,7 +585,9 @@
                             "application/json": {
                                 "schema": {
                                     "type": "object",
-                                    "required": ["id"],
+                                    "required": [
+                                        "id"
+                                    ],
                                     "properties": {
                                         "id": {
                                             "type": "integer",
@@ -584,7 +614,9 @@
         "/recipe": {
             "post": {
                 "operationId": "createRecipe",
-                "tags": ["recipe"],
+                "tags": [
+                    "recipe"
+                ],
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -602,7 +634,9 @@
                             "application/json": {
                                 "schema": {
                                     "type": "object",
-                                    "required": ["id"],
+                                    "required": [
+                                        "id"
+                                    ],
                                     "properties": {
                                         "id": {
                                             "type": "integer",
@@ -632,7 +666,9 @@
         "/recipe/find": {
             "post": {
                 "operationId": "findRecipe",
-                "tags": ["recipe"],
+                "tags": [
+                    "recipe"
+                ],
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -672,7 +708,9 @@
         "/recipe/{recipeId}": {
             "get": {
                 "operationId": "getRecipe",
-                "tags": ["recipe"],
+                "tags": [
+                    "recipe"
+                ],
                 "parameters": [
                     {
                         "in": "path",
@@ -712,7 +750,9 @@
             },
             "put": {
                 "operationId": "updateRecipe",
-                "tags": ["recipe"],
+                "tags": [
+                    "recipe"
+                ],
                 "parameters": [
                     {
                         "in": "path",
@@ -758,7 +798,9 @@
             },
             "delete": {
                 "operationId": "deleteRecipe",
-                "tags": ["recipe"],
+                "tags": [
+                    "recipe"
+                ],
                 "parameters": [
                     {
                         "in": "path",
@@ -793,7 +835,9 @@
         "/tag": {
             "post": {
                 "operationId": "createTag",
-                "tags": ["tag"],
+                "tags": [
+                    "tag"
+                ],
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -831,7 +875,9 @@
             },
             "get": {
                 "operationId": "getTags",
-                "tags": ["tag"],
+                "tags": [
+                    "tag"
+                ],
                 "responses": {
                     "200": {
                         "description": "List of tags",
@@ -858,7 +904,9 @@
         "/tag/{tagId}": {
             "get": {
                 "operationId": "getTag",
-                "tags": ["tag"],
+                "tags": [
+                    "tag"
+                ],
                 "parameters": [
                     {
                         "in": "path",
@@ -898,7 +946,9 @@
             },
             "put": {
                 "operationId": "updatetag",
-                "tags": ["tag"],
+                "tags": [
+                    "tag"
+                ],
                 "parameters": [
                     {
                         "in": "path",
@@ -951,7 +1001,9 @@
             },
             "delete": {
                 "operationId": "deleteTag",
-                "tags": ["tag"],
+                "tags": [
+                    "tag"
+                ],
                 "parameters": [
                     {
                         "in": "path",
@@ -986,7 +1038,9 @@
         "/unit": {
             "post": {
                 "operationId": "createUnit",
-                "tags": ["unit"],
+                "tags": [
+                    "unit"
+                ],
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -1026,7 +1080,9 @@
         "/unit/byUnitCategory/{unitCategoryId}": {
             "get": {
                 "operationId": "getUnitsByUnitCategory",
-                "tags": ["unit"],
+                "tags": [
+                    "unit"
+                ],
                 "parameters": [
                     {
                         "in": "path",
@@ -1068,7 +1124,9 @@
         "/unit/{unitId}": {
             "get": {
                 "operationId": "getUnit",
-                "tags": ["unit"],
+                "tags": [
+                    "unit"
+                ],
                 "parameters": [
                     {
                         "in": "path",
@@ -1108,7 +1166,9 @@
             },
             "put": {
                 "operationId": "updateUnit",
-                "tags": ["unit"],
+                "tags": [
+                    "unit"
+                ],
                 "parameters": [
                     {
                         "in": "path",
@@ -1161,7 +1221,9 @@
             },
             "delete": {
                 "operationId": "deleteUnit",
-                "tags": ["unit"],
+                "tags": [
+                    "unit"
+                ],
                 "parameters": [
                     {
                         "in": "path",
@@ -1196,7 +1258,9 @@
         "/unitCategory": {
             "post": {
                 "operationId": "createUnitCategory",
-                "tags": ["unitCategory"],
+                "tags": [
+                    "unitCategory"
+                ],
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -1234,7 +1298,9 @@
             },
             "get": {
                 "operationId": "getUnitCategories",
-                "tags": ["unitCategory"],
+                "tags": [
+                    "unitCategory"
+                ],
                 "responses": {
                     "200": {
                         "description": "List of unit categories",
@@ -1261,7 +1327,9 @@
         "/unitCategory/{unitCategoryId}": {
             "get": {
                 "operationId": "getUnitCategory",
-                "tags": ["unitCategory"],
+                "tags": [
+                    "unitCategory"
+                ],
                 "parameters": [
                     {
                         "in": "path",
@@ -1301,7 +1369,9 @@
             },
             "put": {
                 "operationId": "updateUnitCategory",
-                "tags": ["unitCategory"],
+                "tags": [
+                    "unitCategory"
+                ],
                 "parameters": [
                     {
                         "in": "path",
@@ -1354,7 +1424,9 @@
             },
             "delete": {
                 "operationId": "deleteUnitCategory",
-                "tags": ["unitCategory"],
+                "tags": [
+                    "unitCategory"
+                ],
                 "parameters": [
                     {
                         "in": "path",
@@ -1389,7 +1461,9 @@
         "/user": {
             "post": {
                 "operationId": "createUser",
-                "tags": ["user"],
+                "tags": [
+                    "user"
+                ],
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -1427,7 +1501,9 @@
             },
             "get": {
                 "operationId": "getUsers",
-                "tags": ["user"],
+                "tags": [
+                    "user"
+                ],
                 "responses": {
                     "200": {
                         "description": "List of users",
@@ -1454,7 +1530,9 @@
         "/user/{userId}": {
             "get": {
                 "operationId": "getUser",
-                "tags": ["user"],
+                "tags": [
+                    "user"
+                ],
                 "parameters": [
                     {
                         "in": "path",
@@ -1494,7 +1572,9 @@
             },
             "put": {
                 "operationId": "updateUser",
-                "tags": ["user"],
+                "tags": [
+                    "user"
+                ],
                 "parameters": [
                     {
                         "in": "path",
@@ -1547,7 +1627,9 @@
             },
             "delete": {
                 "operationId": "deleteUser",
-                "tags": ["user"],
+                "tags": [
+                    "user"
+                ],
                 "parameters": [
                     {
                         "in": "path",
@@ -1591,11 +1673,17 @@
         "schemas": {
             "RoleEnum": {
                 "type": "string",
-                "enum": ["ADMIN", "CREATOR"]
+                "enum": [
+                    "ADMIN",
+                    "CREATOR"
+                ]
             },
             "SortOrderEnum": {
                 "type": "string",
-                "enum": ["ASC", "DESC"]
+                "enum": [
+                    "ASC",
+                    "DESC"
+                ]
             },
             "ErrorTypeEnum": {
                 "type": "string",
@@ -1614,7 +1702,10 @@
             },
             "LoginRequest": {
                 "type": "object",
-                "required": ["username", "password"],
+                "required": [
+                    "username",
+                    "password"
+                ],
                 "properties": {
                     "username": {
                         "type": "string",
@@ -1629,7 +1720,10 @@
             },
             "TokenResponse": {
                 "type": "object",
-                "required": ["token", "refreshToken"],
+                "required": [
+                    "token",
+                    "refreshToken"
+                ],
                 "properties": {
                     "token": {
                         "type": "string",
@@ -1643,7 +1737,10 @@
             },
             "UpdatePasswordRequest": {
                 "type": "object",
-                "required": ["password", "newPassword"],
+                "required": [
+                    "password",
+                    "newPassword"
+                ],
                 "properties": {
                     "password": {
                         "type": "string",
@@ -1662,7 +1759,11 @@
             },
             "AuthenticatedUser": {
                 "type": "object",
-                "required": ["username", "firstName", "lastName"],
+                "required": [
+                    "username",
+                    "firstName",
+                    "lastName"
+                ],
                 "properties": {
                     "username": {
                         "type": "string",
@@ -1685,7 +1786,10 @@
             },
             "SimpleCategory": {
                 "type": "object",
-                "required": ["id", "name"],
+                "required": [
+                    "id",
+                    "name"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -1701,7 +1805,9 @@
             },
             "CreateCategory": {
                 "type": "object",
-                "required": ["name"],
+                "required": [
+                    "name"
+                ],
                 "properties": {
                     "name": {
                         "type": "string",
@@ -1716,7 +1822,12 @@
             },
             "Category": {
                 "type": "object",
-                "required": ["id", "name", "createdAt", "updatedAt"],
+                "required": [
+                    "id",
+                    "name",
+                    "createdAt",
+                    "updatedAt"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -1742,7 +1853,11 @@
             },
             "SimplePicture": {
                 "type": "object",
-                "required": ["id", "name", "sortNumber"],
+                "required": [
+                    "id",
+                    "name",
+                    "sortNumber"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -1804,11 +1919,18 @@
                     },
                     "orderBy": {
                         "type": "string",
-                        "enum": ["name", "createdAt", "updatedAt"]
+                        "enum": [
+                            "name",
+                            "createdAt",
+                            "updatedAt"
+                        ]
                     },
                     "order": {
                         "type": "string",
-                        "enum": ["ASC", "DESC"]
+                        "enum": [
+                            "ASC",
+                            "DESC"
+                        ]
                     }
                 }
             },
@@ -1827,7 +1949,9 @@
                     "tags",
                     "pictures",
                     "modifierId",
+                    "modifier",
                     "creatorId",
+                    "creator",
                     "createdAt",
                     "updatedAt"
                 ],
@@ -1877,16 +2001,76 @@
                         "format": "int32",
                         "minimum": 1
                     },
+                    "modifier": {
+                        "type": "object",
+                        "required": [
+                            "username",
+                            "firstName",
+                            "lastName"
+                        ],
+                        "properties": {
+                            "username": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 50
+                            },
+                            "firstName": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 50,
+                                "nullable": true
+                            },
+                            "lastName": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 50,
+                                "nullable": true
+                            }
+                        }
+                    },
                     "creatorId": {
                         "type": "integer",
                         "format": "int32",
                         "minimum": 1
                     },
+                    "creator": {
+                        "type": "object",
+                        "required": [
+                            "username",
+                            "firstName",
+                            "lastName"
+                        ],
+                        "properties": {
+                            "username": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 50
+                            },
+                            "firstName": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 50,
+                                "nullable": true
+                            },
+                            "lastName": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 50,
+                                "nullable": true
+                            }
+                        }
+                    },
                     "recipeSections": {
                         "type": "array",
                         "items": {
                             "type": "object",
-                            "required": ["id", "name", "sortNumber", "method", "ingredients"],
+                            "required": [
+                                "id",
+                                "name",
+                                "sortNumber",
+                                "method",
+                                "ingredients"
+                            ],
                             "properties": {
                                 "id": {
                                     "type": "integer",
@@ -1956,7 +2140,11 @@
                         "type": "array",
                         "items": {
                             "type": "object",
-                            "required": ["id", "name", "description"],
+                            "required": [
+                                "id",
+                                "name",
+                                "description"
+                            ],
                             "properties": {
                                 "id": {
                                     "type": "integer",
@@ -1981,7 +2169,10 @@
                         "type": "array",
                         "items": {
                             "type": "object",
-                            "required": ["id", "name"],
+                            "required": [
+                                "id",
+                                "name"
+                            ],
                             "properties": {
                                 "id": {
                                     "type": "integer",
@@ -2000,7 +2191,11 @@
                         "type": "array",
                         "items": {
                             "type": "object",
-                            "required": ["id", "name", "sortNumber"],
+                            "required": [
+                                "id",
+                                "name",
+                                "sortNumber"
+                            ],
                             "properties": {
                                 "id": {
                                     "type": "integer",
@@ -2034,7 +2229,12 @@
             },
             "SimpleRecipePage": {
                 "type": "object",
-                "required": ["page", "pageSize", "rows", "count"],
+                "required": [
+                    "page",
+                    "pageSize",
+                    "rows",
+                    "count"
+                ],
                 "properties": {
                     "page": {
                         "type": "integer",
@@ -2061,7 +2261,12 @@
             },
             "SimpleRecipe": {
                 "type": "object",
-                "required": ["id", "name", "description", "pictures"],
+                "required": [
+                    "id",
+                    "name",
+                    "description",
+                    "pictures"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -2083,7 +2288,9 @@
                         "type": "array",
                         "items": {
                             "type": "object",
-                            "required": ["id"],
+                            "required": [
+                                "id"
+                            ],
                             "properties": {
                                 "id": {
                                     "type": "integer",
@@ -2227,7 +2434,11 @@
                         "type": "array",
                         "items": {
                             "type": "object",
-                            "required": ["id", "name", "sortNumber"],
+                            "required": [
+                                "id",
+                                "name",
+                                "sortNumber"
+                            ],
                             "properties": {
                                 "id": {
                                     "type": "integer",
@@ -2391,7 +2602,11 @@
                         "type": "array",
                         "items": {
                             "type": "object",
-                            "required": ["id", "name", "sortNumber"],
+                            "required": [
+                                "id",
+                                "name",
+                                "sortNumber"
+                            ],
                             "properties": {
                                 "id": {
                                     "type": "integer",
@@ -2415,7 +2630,12 @@
             },
             "Tag": {
                 "type": "object",
-                "required": ["id", "name", "createdAt", "updatedAt"],
+                "required": [
+                    "id",
+                    "name",
+                    "createdAt",
+                    "updatedAt"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -2441,7 +2661,10 @@
             },
             "SimpleTag": {
                 "type": "object",
-                "required": ["id", "name"],
+                "required": [
+                    "id",
+                    "name"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -2457,7 +2680,9 @@
             },
             "CreateTag": {
                 "type": "object",
-                "required": ["name"],
+                "required": [
+                    "name"
+                ],
                 "properties": {
                     "name": {
                         "type": "string",
@@ -2472,7 +2697,12 @@
             },
             "UnitCategory": {
                 "type": "object",
-                "required": ["id", "name", "createdAt", "updatedAt"],
+                "required": [
+                    "id",
+                    "name",
+                    "createdAt",
+                    "updatedAt"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -2498,7 +2728,10 @@
             },
             "SimpleUnitCategory": {
                 "type": "object",
-                "required": ["id", "name"],
+                "required": [
+                    "id",
+                    "name"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -2514,7 +2747,9 @@
             },
             "CreateUnitCategory": {
                 "type": "object",
-                "required": ["name"],
+                "required": [
+                    "name"
+                ],
                 "properties": {
                     "name": {
                         "type": "string",
@@ -2576,7 +2811,12 @@
             },
             "SimpleUnit": {
                 "type": "object",
-                "required": ["id", "name", "abbreviation", "required"],
+                "required": [
+                    "id",
+                    "name",
+                    "abbreviation",
+                    "required"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -2667,7 +2907,10 @@
                         "type": "array",
                         "items": {
                             "type": "string",
-                            "enum": ["ADMIN", "CREATOR"]
+                            "enum": [
+                                "ADMIN",
+                                "CREATOR"
+                            ]
                         }
                     }
                 }
@@ -2711,7 +2954,10 @@
                         "type": "array",
                         "items": {
                             "type": "string",
-                            "enum": ["ADMIN", "CREATOR"]
+                            "enum": [
+                                "ADMIN",
+                                "CREATOR"
+                            ]
                         }
                     }
                 }
@@ -2756,7 +3002,10 @@
                         "type": "array",
                         "items": {
                             "type": "string",
-                            "enum": ["ADMIN", "CREATOR"]
+                            "enum": [
+                                "ADMIN",
+                                "CREATOR"
+                            ]
                         }
                     }
                 }
@@ -2799,7 +3048,10 @@
                         "type": "array",
                         "items": {
                             "type": "string",
-                            "enum": ["ADMIN", "CREATOR"]
+                            "enum": [
+                                "ADMIN",
+                                "CREATOR"
+                            ]
                         }
                     },
                     "createdAt": {
@@ -2816,7 +3068,9 @@
             },
             "Error": {
                 "type": "object",
-                "required": ["code"],
+                "required": [
+                    "code"
+                ],
                 "properties": {
                     "message": {
                         "type": "string"
