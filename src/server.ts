@@ -242,51 +242,53 @@ const port = process.env.PORT || 8080;
         });
 
         let soup: Recipe | undefined = undefined;
-        let soupCreated: boolean = false;
         if (createdSoupCat) {
-            [soup, soupCreated] = await Recipe.findOrCreate({
-                where: {
-                    name: 'Polievka',
-                },
-                defaults: {
-                    name: 'Polievka',
-                    categoryId: soupCat.id,
-                    creatorId: user.id,
-                    modifierId: user.id,
-                    method: 'Toto je vymyslený postup na fiktívnu polievku',
-                    sources: ['vymyslený recept'],
-                    description: 'Výborná polievka',
-                    nameSearch: toSCDF('Polievka').toLowerCase().trim(),
-                    descriptionSearch: toSCDF('Výborná polievka')
-                        .toLowerCase()
-                        .trim(),
-                    serves: 8,
-                },
-            });
+            soup = (
+                await Recipe.findOrCreate({
+                    where: {
+                        name: 'Polievka',
+                    },
+                    defaults: {
+                        name: 'Polievka',
+                        categoryId: soupCat.id,
+                        creatorId: user.id,
+                        modifierId: user.id,
+                        method: 'Toto je vymyslený postup na fiktívnu polievku',
+                        sources: ['vymyslený recept'],
+                        description: 'Výborná polievka',
+                        nameSearch: toSCDF('Polievka').toLowerCase().trim(),
+                        descriptionSearch: toSCDF('Výborná polievka')
+                            .toLowerCase()
+                            .trim(),
+                        serves: 8,
+                    },
+                })
+            )[0];
         }
 
         let noodles: Recipe | undefined = undefined;
-        let noodlesCreated: boolean = false;
         if (sideDishesCreated) {
-            [noodles, noodlesCreated] = await Recipe.findOrCreate({
-                where: {
-                    name: 'Rezance',
-                },
-                defaults: {
-                    name: 'Rezance',
-                    categoryId: sideDishes.id,
-                    creatorId: user.id,
-                    modifierId: user.id,
-                    method: 'Toto je vymyslený postup na rezance pre fiktívnu polievku',
-                    sources: ['uvar rezance podla postupu na obale'],
-                    description: 'Klasicke rezance k polievke',
-                    nameSearch: toSCDF('Rezance').toLowerCase().trim(),
-                    descriptionSearch: toSCDF('Klasicke rezance k polievke')
-                        .toLowerCase()
-                        .trim(),
-                    serves: 8,
-                },
-            });
+            noodles = (
+                await Recipe.findOrCreate({
+                    where: {
+                        name: 'Rezance',
+                    },
+                    defaults: {
+                        name: 'Rezance',
+                        categoryId: sideDishes.id,
+                        creatorId: user.id,
+                        modifierId: user.id,
+                        method: 'Toto je vymyslený postup na rezance pre fiktívnu polievku',
+                        sources: ['uvar rezance podla postupu na obale'],
+                        description: 'Klasicke rezance k polievke',
+                        nameSearch: toSCDF('Rezance').toLowerCase().trim(),
+                        descriptionSearch: toSCDF('Klasicke rezance k polievke')
+                            .toLowerCase()
+                            .trim(),
+                        serves: 8,
+                    },
+                })
+            )[0];
         }
 
         await RecipeRecipe.findOrCreate({
@@ -297,7 +299,7 @@ const port = process.env.PORT || 8080;
             defaults: {
                 recipeId: soup?.id,
                 associatedRecipeId: noodles?.id,
-            }
+            },
         });
     }
 
