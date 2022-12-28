@@ -22,6 +22,7 @@ import {
 import sequelize from '../util/database';
 import toSCDF from '../util/string';
 import User from '../models/database/user';
+import Unit from '../models/database/unit';
 
 export const findRecipes = async (
     req: Request,
@@ -181,6 +182,13 @@ export const getRecipe = async (
                                 'sortNumber',
                                 'value',
                                 'unitId',
+                            ],
+                            include: [
+                                {
+                                    model: Unit,
+                                    as: 'unit',
+                                    attributes: ['name', 'abbreviation'],
+                                },
                             ],
                             required: false,
                         },
