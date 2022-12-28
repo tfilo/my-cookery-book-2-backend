@@ -33,23 +33,16 @@ export const findRecipes = async (
 
         const limit = request.body.pageSize;
         const offset = request.body.pageSize * request.body.page;
-        const orderBy = request.body.orderBy === 'name' ? 'nameSearch' : request.body.orderBy;
+        const orderBy =
+            request.body.orderBy === 'name'
+                ? 'nameSearch'
+                : request.body.orderBy;
         const order = request.body.order;
         const categoryId = request.body.categoryId;
         const tagIds = request.body.tags;
         const search = request.body.search;
 
         const recipeCriteria: WhereOptions<RecipeAttributes>[] = [];
-        const include: IncludeOptions[] = [
-            {
-                model: Picture,
-                as: 'pictures',
-                attributes: ['id'],
-                required: false,
-                limit: 1,
-                order: [['sortNumber', SORT_ORDER.ASC]],
-            },
-        ];
 
         if (categoryId) {
             recipeCriteria.push({
@@ -77,24 +70,57 @@ export const findRecipes = async (
         }
 
         if (tagIds && tagIds.length > 0) {
-            include.push({
-                model: Tag,
-                as: 'tags',
-                attributes: [],
-                required: true,
+            const tags = await RecipeTag.findAll({
+                attributes: [
+                    'recipeId',
+                    [sequelize.fn('COUNT', sequelize.col('recipeId')), 'count'],
+                ],
                 where: {
-                    id: {
-                        [Op.in]: [tagIds],
+                    tagId: {
+                        [Op.in]: tagIds,
                     },
+                },
+                group: ['recipeId'],
+            });
+            const recipeIdsByTag = tags
+                .filter(
+                    (t) =>
+                        (
+                            t.toJSON() as unknown as {
+                                recipeId: number;
+                                count: string;
+                            }
+                        ).count === `${tagIds.length}`
+                )
+                .map(
+                    (t) =>
+                        (
+                            t.toJSON() as unknown as {
+                                recipeId: number;
+                                count: string;
+                            }
+                        ).recipeId
+                );
+            recipeCriteria.push({
+                id: {
+                    [Op.in]: recipeIdsByTag,
                 },
             });
         }
 
         const recipes = await Recipe.findAndCountAll({
             where: { [Op.and]: recipeCriteria },
-            include,
+            include: {
+                model: Picture,
+                as: 'pictures',
+                attributes: ['id'],
+                required: false,
+                limit: 1,
+                order: [['sortNumber', SORT_ORDER.ASC]],
+            },
             attributes: ['id', 'name', 'description'],
             distinct: true,
+            subQuery: false,
             limit,
             offset,
             order: [[orderBy!.toString(), order!.toString()]],
