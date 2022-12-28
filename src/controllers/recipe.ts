@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { IncludeOptions, Op, Transaction, WhereOptions } from 'sequelize';
+import { Op, Transaction, WhereOptions } from 'sequelize';
 import * as yup from 'yup';
 
 import CustomError from '../models/customError';
