@@ -33,17 +33,11 @@ export const findRecipes = async (
 
         const limit = request.body.pageSize;
         const offset = request.body.pageSize * request.body.page;
-        const orderBy = request.body.orderBy;
+        const orderBy = request.body.orderBy === 'name' ? 'nameSearch' : request.body.orderBy;
         const order = request.body.order;
         const categoryId = request.body.categoryId;
         const tagIds = request.body.tags;
         const search = request.body.search;
-
-        console.log(
-            `findRecipes ->  categoryId: ${categoryId} , tagIds: ${JSON.stringify(
-                tagIds
-            )}, search: '${search}'`
-        );
 
         const recipeCriteria: WhereOptions<RecipeAttributes>[] = [];
         const include: IncludeOptions[] = [
