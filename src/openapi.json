@@ -2125,7 +2125,8 @@
                                                 "type": "number",
                                                 "format": "double",
                                                 "example": "1.23",
-                                                "minimum": 0
+                                                "minimum": 0,
+                                                "nullable": true
                                             },
                                             "unitId": {
                                                 "type": "integer",
@@ -2425,7 +2426,8 @@
                                                 "type": "number",
                                                 "format": "double",
                                                 "example": "1.23",
-                                                "minimum": 0
+                                                "minimum": 0,
+                                                "nullable": true
                                             },
                                             "unitId": {
                                                 "type": "integer",
@@ -2594,7 +2596,8 @@
                                                 "type": "number",
                                                 "format": "double",
                                                 "example": "1.23",
-                                                "minimum": 0
+                                                "minimum": 0,
+                                                "nullable": true
                                             },
                                             "unitId": {
                                                 "type": "integer",
