@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build -f Dockerfile -t my-cookery-book-2-backend:latest .
+docker build -f Dockerfile -t tfilo/my-cookery-book-2-backend:latest .

@@ -2080,7 +2080,8 @@
                                 "name": {
                                     "type": "string",
                                     "minLength": 1,
-                                    "maxLength": 80
+                                    "maxLength": 80,
+                                    "nullable": true
                                 },
                                 "sortNumber": {
                                     "type": "integer",
@@ -2366,7 +2367,8 @@
                                 "name": {
                                     "type": "string",
                                     "minLength": 1,
-                                    "maxLength": 80
+                                    "maxLength": 80,
+                                    "nullable": true
                                 },
                                 "sortNumber": {
                                     "type": "integer",
@@ -2529,7 +2531,8 @@
                                 "name": {
                                     "type": "string",
                                     "minLength": 1,
-                                    "maxLength": 80
+                                    "maxLength": 80,
+                                    "nullable": true
                                 },
                                 "sortNumber": {
                                     "type": "integer",

@@ -40,7 +40,7 @@ class RecipeSection extends Model<
     @Column({
         type: DataType.STRING(80),
     })
-    name: string;
+    name: string | null;
 
     @AllowNull(false)
     @Column({

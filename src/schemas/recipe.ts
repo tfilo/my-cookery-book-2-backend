@@ -53,7 +53,7 @@ export const createRecipeSchema = yup
                     .array()
                     .of(
                         yup.object({
-                            name: yup.string().trim().max(80).required(),
+                            name: yup.string().defined().trim().max(80).nullable(),
                             sortNumber: yup.number().integer().min(1).required(),
                             method: yup.string().defined().trim().nullable(),
                             ingredients: yup
@@ -125,7 +125,7 @@ export const updateRecipeSchema = yup
                     .of(
                         yup.object({
                             id: yup.number().integer().min(1).optional(),
-                            name: yup.string().trim().max(80).required(),
+                            name: yup.string().defined().trim().max(80).nullable(),
                             sortNumber: yup.number().integer().min(1).required(),
                             method: yup.string().defined().trim().nullable(),
                             ingredients: yup

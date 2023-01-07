@@ -563,9 +563,9 @@ const updateRecipeSections = async (
     recipeId: number,
     recipeSections: {
         id?: number;
-        name: string;
+        name: string | null;
         sortNumber: number;
-        method: string;
+        method: string | null;
         ingredients: {
             id?: number;
             name: string;
