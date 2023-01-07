@@ -10,6 +10,10 @@ const sequelize = new Sequelize({
     port: (process.env.DATABASE_PORT ?? 5432) as number,
     models: [path.join(__dirname, '..', 'models', 'database')],
     logging: process.env.DATABASE_LOGGING === 'false' ? false : console.log,
+    define: {
+        charset: 'utf8',
+        collate: 'utf8_general_ci',
+    },
 });
 
 export default sequelize;

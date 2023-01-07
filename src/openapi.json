@@ -2102,7 +2102,8 @@
                                             "name",
                                             "sortNumber",
                                             "value",
-                                            "unitId"
+                                            "unitId",
+                                            "unit"
                                         ],
                                         "properties": {
                                             "id": {
@@ -2130,6 +2131,25 @@
                                                 "type": "integer",
                                                 "format": "int32",
                                                 "minimum": 1
+                                            },
+                                            "unit": {
+                                                "type": "object",
+                                                "required": [
+                                                    "name",
+                                                    "abbreviation"
+                                                ],
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string",
+                                                        "minLength": 1,
+                                                        "maxLength": 80
+                                                    },
+                                                    "abbreviation": {
+                                                        "type": "string",
+                                                        "minLength": 1,
+                                                        "maxLength": 20
+                                                    }
+                                                }
                                             }
                                         }
                                     }
