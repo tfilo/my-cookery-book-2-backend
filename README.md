@@ -1,4 +1,4 @@
-# My cookery book 2 - backend (PROJECT UNDER DEVELOPMENT!!!)
+# My cookery book 2 - backend
 Backend application providing RestApi build on Express and Node.js. Whole backend is writen in Typescript.
 
 ## Technologies required for development
