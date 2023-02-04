@@ -2287,7 +2287,8 @@
                     "id",
                     "name",
                     "description",
-                    "pictures"
+                    "pictures",
+                    "creator"
                 ],
                 "properties": {
                     "id": {
@@ -2319,6 +2320,33 @@
                                     "format": "int32",
                                     "minimum": 1
                                 }
+                            }
+                        }
+                    },
+                    "creator": {
+                        "type": "object",
+                        "required": [
+                            "username",
+                            "firstName",
+                            "lastName"
+                        ],
+                        "properties": {
+                            "username": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 50
+                            },
+                            "firstName": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 50,
+                                "nullable": true
+                            },
+                            "lastName": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 50,
+                                "nullable": true
                             }
                         }
                     }
