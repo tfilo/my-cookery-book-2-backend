@@ -111,23 +111,15 @@ export const findRecipes = async (
 
         const recipes = await Recipe.findAndCountAll({
             where: { [Op.and]: recipeCriteria },
-            include: [
-                {
-                    model: Picture,
-                    as: 'pictures',
-                    attributes: ['id'],
-                    required: false,
-                    limit: 1,
-                    order: [['sortNumber', SORT_ORDER.ASC]],
-                },
-                {
-                    model: User,
-                    as: 'creator',
-                    attributes: ['username', 'firstName', 'lastName'],
-                    required: false,
-                },
-            ],
-            attributes: ['id', 'name', 'description'],
+            include: {
+                model: Picture,
+                as: 'pictures',
+                attributes: ['id'],
+                required: false,
+                limit: 1,
+                order: [['sortNumber', SORT_ORDER.ASC]],
+            },
+            attributes: ['id', 'name', 'description', 'creatorId'],
             distinct: true,
             subQuery: false,
             limit,
