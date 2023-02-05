@@ -13,5 +13,6 @@
         "strictPropertyInitialization": false,
         "skipLibCheck": true,
         "typeRoots": ["./node_modules/@types", "./src/types"]
-    }
+    },
+    "exclude": ["./src/tests", "node_modules", "dist"]
 }

@@ -4,10 +4,10 @@ bcryptjs              2.4.3              Daniel Wirtz <dcode@dcode.io>          
 dotenv                16.0.3             n/a                                                               BSD-2-Clause  git://github.com/motdotla/dotenv.git
 express               4.18.2             TJ Holowaychuk <tj@vision-media.ca>                               MIT           git+https://github.com/expressjs/express.git
 helmet                6.0.1              Adam Baldwin <adam@npmjs.com> (https://evilpacket.net)            MIT           git://github.com/helmetjs/helmet.git
-jsonwebtoken          8.5.1              auth0                                                             MIT           git+https://github.com/auth0/node-jsonwebtoken.git
-luxon                 2.5.2              Isaac Cambron                                                     MIT           git+https://github.com/moment/luxon.git
+jsonwebtoken          9.0.0              auth0                                                             MIT           git+https://github.com/auth0/node-jsonwebtoken.git
+luxon                 3.2.1              Isaac Cambron                                                     MIT           git+https://github.com/moment/luxon.git
 multer                1.4.5-lts.1        n/a                                                               MIT           git+https://github.com/expressjs/multer.git
-pg                    8.8.0              Brian Carlson <brian.m.carlson@gmail.com>                         MIT           git://github.com/brianc/node-postgres.git
+pg                    8.9.0              Brian Carlson <brian.m.carlson@gmail.com>                         MIT           git://github.com/brianc/node-postgres.git
 reflect-metadata      0.1.13             Ron Buckton ron.buckton@microsoft.com http://github.com/rbuckton  Apache-2.0    git+https://github.com/rbuckton/reflect-metadata.git
 sequelize             6.28.0             n/a                                                               MIT           git+https://github.com/sequelize/sequelize.git
 sequelize-typescript  2.1.5              Robin Buschmann                                                   MIT           git+https://github.com/RobinBuschmann/sequelize-typescript.git
