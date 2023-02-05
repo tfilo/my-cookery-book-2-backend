@@ -1,4 +1,4 @@
-# My cookery book 2 - backend
+# My cookery book 2 - backend ![tests](https://github.com/tfilo/my-cookery-book-2-backend/actions/workflows/node.js.yml/badge.svg?branch=main)
 
 Backend application providing RestApi build on Express and Node.js. Whole backend is writen in Typescript.
 
