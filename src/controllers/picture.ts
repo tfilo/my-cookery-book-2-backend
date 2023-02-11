@@ -113,7 +113,7 @@ export const uploadPicture = async (
             ? +process.env.IMAGE_DIMENSION
             : 1280;
 
-        const image = await sharp(file.buffer)
+        const image = await sharp(file.buffer, { failOnError: false })
             .resize(imageDimension, imageDimension, {
                 fit: 'inside',
             })
@@ -124,7 +124,7 @@ export const uploadPicture = async (
             })
             .toBuffer();
 
-        const thumbnail = await sharp(file.buffer)
+        const thumbnail = await sharp(file.buffer, { failOnError: false })
             .resize(thumbnailDimension, thumbnailDimension, {
                 fit: 'cover',
             })
