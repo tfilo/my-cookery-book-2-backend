@@ -671,8 +671,6 @@ const updateRecipeSections = async (
                 await Promise.all(removedIngredients);
 
                 const updatedIngredients = ingredientsToUpdate.map((i) => {
-                    console.log('Updating', i);
-
                     const savedIngredient = stu.ingredients.find(
                         (itu) => itu.id === i.id
                     );
