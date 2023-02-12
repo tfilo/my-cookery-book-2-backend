@@ -32,5 +32,29 @@ export default async () => {
         password: 'Simple123',
     });
 
+    users.admin = (await User.findByPk(users.admin.id, {
+        include: {
+            model: UserRole,
+            required: false,
+            attributes: ['roleName'],
+        },
+    }))!;
+
+    users.creator = (await User.findByPk(users.creator.id, {
+        include: {
+            model: UserRole,
+            required: false,
+            attributes: ['roleName'],
+        },
+    }))!;
+
+    users.simple = (await User.findByPk(users.simple.id, {
+        include: {
+            model: UserRole,
+            required: false,
+            attributes: ['roleName'],
+        },
+    }))!;
+
     return users;
 };

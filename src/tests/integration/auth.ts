@@ -16,6 +16,8 @@ import Chai from 'chai';
 import chaiExclude from 'chai-exclude';
 import createUsers from '../data/user-data';
 import User from '../../models/database/user';
+import { issueRefreshToken, issueToken } from '../../util/token';
+import { processError } from '../utils/error';
 
 Chai.use(chaiExclude);
 const expect = Chai.expect;
@@ -80,200 +82,145 @@ describe('Auth', () => {
     });
 
     it('should login', async () => {
-        try {
-            const res = await authApi.login({
+        const res = await authApi
+            .login({
                 username: 'admin',
                 password: 'Admin123',
-            });
+            })
+            .catch(processError);
 
-            expect(res.token).to.be.a('string');
-            expect(res.refreshToken).to.be.a('string');
-        } catch (err) {
-            expect.fail('should never fail');
-        }
+        expect(res.token).to.be.a('string');
+        expect(res.refreshToken).to.be.a('string');
     });
 
     it('should try to login and fail', async () => {
-        try {
-            const res = await authApi
-                .login({
-                    username: 'admin',
-                    password: 'admin123',
-                })
-                .catch(async (err: any) => {
-                    expect(err.status).to.equal(401);
-                    if ('json' in err) {
-                        return await err.json();
-                    }
-                    return err;
-                });
-            expect(res.code).to.equal('INVALID_CREDENTIALS');
-            expect(res.message).to.equal('');
-        } catch (err) {
-            expect.fail('should never fail');
-        }
+        const res = await authApi
+            .login({
+                username: 'admin',
+                password: 'admin123',
+            })
+            .catch(processError);
+        expect(res).to.eql({
+            statusCode: 401,
+            code: 'INVALID_CREDENTIALS',
+            message: '',
+        });
     });
 
     it('should refresh', async () => {
-        try {
-            const res = await authApi.login({
-                username: 'admin',
-                password: 'Admin123',
-            });
+        const refreshToken = issueRefreshToken(users.admin);
 
-            expect(res.token).to.be.a('string');
-            expect(res.refreshToken).to.be.a('string');
+        const refreshed = await authApi
+            .refreshToken({
+                refreshToken: refreshToken,
+            })
+            .catch(processError);
 
-            const refreshed = await authApi.refreshToken({
-                refreshToken: res.refreshToken,
-            });
-
-            expect(refreshed.token).to.be.a('string');
-            expect(refreshed.refreshToken).to.be.a('string');
-        } catch (err) {
-            expect.fail('should never fail');
-        }
+        expect(refreshed.token).to.be.a('string');
+        expect(refreshed.refreshToken).to.be.a('string');
     });
 
     it('should change password', async () => {
-        try {
-            // login and save token
-            const res = await authApi.login({
-                username: 'admin',
-                password: 'Admin123',
-            });
-            setToken(res.token);
+        // prepare valid token
+        const token = issueToken(users.admin);
+        setToken(token);
 
-            const updated = await authApi.updatePassword({
+        const updated = await authApi
+            .updatePassword({
                 password: 'Admin123',
                 newPassword: 'Admin1234',
-            });
-            expect(updated.status).to.equals(204);
+            })
+            .catch(processError);
+        expect(updated.status).to.equals(204);
 
-            // verify new password
-            const res2 = await authApi.login({
+        // verify new password
+        const res = await authApi
+            .login({
                 username: 'admin',
                 password: 'Admin1234',
-            });
-            expect(res2.token).to.be.a('string');
-            expect(res2.refreshToken).to.be.a('string');
-        } catch (err) {
-            expect.fail('should never fail');
-        }
+            })
+            .catch(processError);
+        expect(res.token).to.be.a('string');
+        expect(res.refreshToken).to.be.a('string');
     });
 
     it('should try to change password and fail', async () => {
-        try {
-            // login and save token
-            const res = await authApi.login({
-                username: 'admin',
+        // prepare valid token
+        const token = issueToken(users.admin);
+        setToken(token);
+
+        const res1 = await authApi
+            .updatePassword({
                 password: 'Admin123',
-            });
-            setToken(res.token);
+                newPassword: 'admin1234',
+            })
+            .catch(processError);
+        expect(res1).to.eql({
+            statusCode: 422,
+            message: '',
+            code: 'VALIDATION_FAILED',
+            fields: { newPassword: 'simplePassword' },
+        });
 
-            const res1 = await authApi
-                .updatePassword({
-                    password: 'Admin123',
-                    newPassword: 'admin1234',
-                })
-                .catch(async (err: any) => {
-                    expect(err.status).to.equal(422);
-                    if ('json' in err) {
-                        return await err.json();
-                    }
-                    return err;
-                });
-            expect(res1.code).to.equal('VALIDATION_FAILED');
-            expect(res1.fields).to.eql({ newPassword: 'simplePassword' });
+        const res2 = await authApi
+            .updatePassword({
+                password: 'Admin123',
+                newPassword: 'Adminadmin',
+            })
+            .catch(processError);
+        expect(res2).to.eql({
+            statusCode: 422,
+            message: '',
+            code: 'VALIDATION_FAILED',
+            fields: { newPassword: 'simplePassword' },
+        });
 
-            const res2 = await authApi
-                .updatePassword({
-                    password: 'Admin123',
-                    newPassword: 'Adminadmin',
-                })
-                .catch(async (err: any) => {
-                    expect(err.status).to.equal(422);
-                    if ('json' in err) {
-                        return await err.json();
-                    }
-                    return err;
-                });
-            expect(res2.code).to.equal('VALIDATION_FAILED');
-            expect(res2.fields).to.eql({
-                newPassword: 'simplePassword',
-            });
+        const res3 = await authApi
+            .updatePassword({
+                password: 'Admin123',
+                newPassword: 'Admin1',
+            })
+            .catch(processError);
+        expect(res3).to.eql({
+            statusCode: 422,
+            message: '',
+            code: 'VALIDATION_FAILED',
+            fields: { newPassword: 'simplePassword' },
+        });
 
-            const res3 = await authApi
-                .updatePassword({
-                    password: 'Admin123',
-                    newPassword: 'Admin1',
-                })
-                .catch(async (err: any) => {
-                    expect(err.status).to.equal(422);
-                    if ('json' in err) {
-                        return await err.json();
-                    }
-                    return err;
-                });
-            expect(res3.code).to.equal('VALIDATION_FAILED');
-            expect(res3.fields).to.eql({
-                newPassword: 'simplePassword',
-            });
-
-            const res4 = await authApi
-                .updatePassword({
-                    password: 'Admin123',
-                    newPassword: 'aaaaaaa',
-                })
-                .catch(async (err: any) => {
-                    expect(err.status).to.equal(422);
-                    if ('json' in err) {
-                        return await err.json();
-                    }
-                    return err;
-                });
-            expect(res4.code).to.equal('VALIDATION_FAILED');
-            expect(res4.fields).to.eql({
-                newPassword: 'simplePassword',
-            });
-        } catch (err) {
-            expect.fail('should never fail');
-        }
+        const res4 = await authApi
+            .updatePassword({
+                password: 'Admin123',
+                newPassword: 'aaaaaaa',
+            })
+            .catch(processError);
+        expect(res4).to.eql({
+            statusCode: 422,
+            message: '',
+            code: 'VALIDATION_FAILED',
+            fields: { newPassword: 'simplePassword' },
+        });
     });
 
     it('should get authenticated user', async () => {
-        try {
-            // login and save token
-            const res = await authApi.login({
-                username: 'admin',
-                password: 'Admin123',
-            });
-            setToken(res.token);
+        // prepare valid token
+        const token = issueToken(users.admin);
+        setToken(token);
 
-            const res2 = await authApi.user();
-            expect(res2).to.eql({
-                username: 'admin',
-                firstName: 'Best',
-                lastName: 'Admin',
-            });
-        } catch (err) {
-            expect.fail('should never fail');
-        }
+        const res = await authApi.user().catch(processError);
+        expect(res).to.eql({
+            username: 'admin',
+            firstName: 'Best',
+            lastName: 'Admin',
+        });
     });
 
     it('should try get authenticated user without token', async () => {
-        try {
-            const res = await authApi.user().catch(async (err: any) => {
-                expect(err.status).to.equal(401);
-                if ('json' in err) {
-                    return await err.json();
-                }
-                return err;
-            });
-            expect(res.code).to.equal('INVALID_CREDENTIALS');
-            expect(res.message).to.equal('');
-        } catch (err) {
-            expect.fail('should never fail');
-        }
+        const res = await authApi.user().catch(processError);
+        expect(res).to.eql({
+            statusCode: 401,
+            code: 'INVALID_CREDENTIALS',
+            message: '',
+        });
     });
 });

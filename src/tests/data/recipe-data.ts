@@ -1,13 +1,17 @@
+import Category from '../../models/database/category';
 import Ingredient from '../../models/database/ingredient';
 import Recipe from '../../models/database/recipe';
 import RecipeSection from '../../models/database/recipeSection';
 import RecipeTag from '../../models/database/recipeTag';
 import Tag from '../../models/database/tag';
 import Unit from '../../models/database/unit';
+import User from '../../models/database/user';
 
 export default async (
     tags: { [key: string]: Tag },
-    units: { [key: string]: Unit }
+    units: { [key: string]: Unit },
+    categories: { [key: string]: Category },
+    users: { [key: string]: User }
 ) => {
     const recipes: { [key: string]: Recipe } = {};
 
@@ -19,9 +23,9 @@ export default async (
         serves: 6,
         method: 'Some method how to cook chicken',
         sources: ['www.some.page.com'],
-        categoryId: 1,
-        creatorId: 1,
-        modifierId: 1,
+        categoryId: categories.main.id,
+        creatorId: users.creator.id,
+        modifierId: users.creator.id,
     });
 
     await RecipeTag.create({

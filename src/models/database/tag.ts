@@ -35,6 +35,7 @@ class Tag extends Model<TagAttributes, TagCreationAttributes> {
 
     @BelongsToMany(() => Recipe, {
         through: { model: () => RecipeTag },
+        onDelete: 'RESTRICT',
     })
     recipes: Recipe[];
 }
