@@ -7,12 +7,12 @@ export default async () => {
         name: 'Length',
     });
 
-    unitCategories.weight = await UnitCategory.create({
-        name: 'Weight',
-    });
-
     unitCategories.other = await UnitCategory.create({
         name: 'Other',
+    });
+
+    unitCategories.weight = await UnitCategory.create({
+        name: 'Weight',
     });
     
     return unitCategories;

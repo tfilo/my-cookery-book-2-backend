@@ -85,7 +85,7 @@ export const createUser = async (
                 transaction: t,
             });
 
-            updateRoles(roles, user.id, t);
+            await updateRoles(roles, user.id, t);
 
             const userWithRoles = await User.findByPk(user.id, {
                 include: {
@@ -150,7 +150,7 @@ export const updateUser = async (
                 }
             );
 
-            updateRoles(roles, user.id, t);
+            await updateRoles(roles, user.id, t);
 
             const userWithRoles = await User.findByPk(user.id, {
                 include: {

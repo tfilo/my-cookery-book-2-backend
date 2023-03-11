@@ -369,7 +369,7 @@ describe('Tag', () => {
         });
     });
 
-    it('should try to delete and fail on constraints', async () => {
+    it('should try to delete tag and fail on constraints', async () => {
         // prepare recipes mock data with constraint to meat tag
         const unitCategories = await createUnitCategories();
         const units = await createUnits(unitCategories);
