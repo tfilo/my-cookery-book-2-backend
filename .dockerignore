@@ -1,15 +1,27 @@
+#npm and node
 node_modules
-dist
 npm-debug.log
-Dockerfile
-.env
-.eslintrc.json
+
+#build
+dist
+
+#tests
 src/tests
-.gitignore
-.dockerignore
-build-images.sh
+
+#docker
+Dockerfile
 docker-compose.yaml
+
+#helper scripts and configs
+build-images.sh
 generateLibrariesNotice.sh
 license-report.json
 README.md
 servers.json
+openapi-generator-plus.yml
+replace-config.js
+.env
+.eslintrc.json
+.github
+.gitignore
+.dockerignore

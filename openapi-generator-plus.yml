@@ -1,10 +1,10 @@
 # OpenAPI Generator Plus generator configuration
 #
 # The path (relative to this configuration file) or a URL for your API specification
-inputPath: ../openapi.json
+inputPath: src/openapi.json
 
 # The path (relative to this configuration file) where the generated API should be output
-outputPath: ./openapi
+outputPath: src/tests/openapi
 
 # The name of the generator template used
 generator: "@openapi-generator-plus/typescript-fetch-node-client-generator"
