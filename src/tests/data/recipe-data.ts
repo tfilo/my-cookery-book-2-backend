@@ -1,5 +1,6 @@
 import Category from '../../models/database/category';
 import Ingredient from '../../models/database/ingredient';
+import Picture from '../../models/database/picture';
 import Recipe from '../../models/database/recipe';
 import RecipeSection from '../../models/database/recipeSection';
 import RecipeTag from '../../models/database/recipeTag';
@@ -11,7 +12,7 @@ export default async (
     tags: { [key: string]: Tag },
     units: { [key: string]: Unit },
     categories: { [key: string]: Category },
-    users: { [key: string]: User }
+    users: { [key: string]: User },
 ) => {
     const recipes: { [key: string]: Recipe } = {};
 

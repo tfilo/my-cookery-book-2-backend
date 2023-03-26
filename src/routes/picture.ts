@@ -68,7 +68,7 @@ router.post(
             error.code = CUSTOM_ERROR_CODES.VALIDATION_FAILED;
             error.statusCode = 422;
             error.fields = {
-                file: 'required',
+                file: 'invalidValue',
             };
             next(error);
         }
