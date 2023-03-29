@@ -1,6 +1,5 @@
 import Category from '../../models/database/category';
 import Ingredient from '../../models/database/ingredient';
-import Picture from '../../models/database/picture';
 import Recipe from '../../models/database/recipe';
 import RecipeSection from '../../models/database/recipeSection';
 import RecipeTag from '../../models/database/recipeTag';
@@ -15,6 +14,8 @@ export default async (
     users: { [key: string]: User },
 ) => {
     const recipes: { [key: string]: Recipe } = {};
+    const sections: { [key: string]: RecipeSection} = {};
+    const ingredients: { [key: string]: Ingredient} = {};
 
     recipes.chicken = await Recipe.create({
         name: 'Chicken',
@@ -34,43 +35,47 @@ export default async (
         tagId: tags.meat.id,
     });
 
-    const section1 = await RecipeSection.create({
+    sections.section1 = await RecipeSection.create({
         name: 'Main section',
         sortNumber: 1,
         method: 'Some method on main section',
         recipeId: recipes.chicken.id,
     });
 
-    await Ingredient.create({
+    ingredients.chicken = await Ingredient.create({
         name: 'Chicken',
         sortNumber: 1,
         value: 1.2,
         unitId: units.kilogram.id,
-        recipeSectionId: section1.id,
+        recipeSectionId: sections.section1.id,
     });
 
-    await Ingredient.create({
+    ingredients.paprica = await Ingredient.create({
         name: 'Paprica',
         sortNumber: 2,
         value: 20,
         unitId: units.gram.id,
-        recipeSectionId: section1.id,
+        recipeSectionId: sections.section1.id,
     });
 
-    const section2 = await RecipeSection.create({
+    sections.section2 = await RecipeSection.create({
         name: 'Rice section',
         sortNumber: 2,
         method: 'Cook rice and serve it with chicken',
         recipeId: recipes.chicken.id,
     });
 
-    await Ingredient.create({
+    ingredients.rice = await Ingredient.create({
         name: 'Rice',
         sortNumber: 1,
         value: 15,
         unitId: units.dekagram.id,
-        recipeSectionId: section2.id,
+        recipeSectionId: sections.section2.id,
     });
 
-    return recipes;
+    return {
+        recipes,
+        sections,
+        ingredients,
+    };
 };

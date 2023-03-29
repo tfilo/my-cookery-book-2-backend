@@ -15,5 +15,12 @@ export default async (recipes: { [key: string]: Recipe }) => {
         recipeId: recipes.chicken.id,
     });
 
+    pictures.notAssigned = await Picture.create({
+        data: picture,
+        thumbnail: thumbnail,
+        name: 'test2.jpg',
+        sortNumber: 1,
+    });
+
     return pictures;
 };
