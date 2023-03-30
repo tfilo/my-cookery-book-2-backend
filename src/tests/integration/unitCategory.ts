@@ -156,7 +156,7 @@ describe('Unit Category', () => {
         setToken(token);
 
         const res = await unitCategoryApi
-            .getUnitCategory(100000)
+            .getUnitCategory(9999999)
             .catch(processError);
         expect(res).to.eql({
             statusCode: 404,

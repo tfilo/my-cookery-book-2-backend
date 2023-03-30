@@ -159,7 +159,7 @@ describe('User', () => {
         const token = issueToken(users.admin);
         setToken(token);
 
-        const res = await userApi.getUser(100000).catch(processError);
+        const res = await userApi.getUser(9999999).catch(processError);
         expect(res).to.eql({
             statusCode: 404,
             code: 'NOT_FOUND',

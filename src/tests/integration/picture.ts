@@ -95,7 +95,8 @@ describe('Picture', () => {
         const units = await createUnits(unitCategories);
         const categories = await createCategories();
         const tags = await createTags();
-        recipes = await createRecipes(tags, units, categories, users);
+        const recipesData = await createRecipes(tags, units, categories, users);
+        recipes = recipesData.recipes;
         pictures = await createPictures(recipes);
     });
 
@@ -107,16 +108,14 @@ describe('Picture', () => {
         const res = await pictureApi
             .getPicturesByRecipe(recipes.chicken.id)
             .catch(processError);
-        expect(res).has.lengthOf(Object.keys(pictures).length);
-        expect(res).to.eql(
-            Object.keys(pictures).map((k) => {
-                return {
-                    id: pictures[k].id,
-                    name: pictures[k].name,
-                    sortNumber: pictures[k].sortNumber,
-                };
-            })
-        );
+        expect(res).has.lengthOf(1);
+        expect(res).to.eql([
+            {
+                id: pictures.sample.id,
+                name: pictures.sample.name,
+                sortNumber: pictures.sample.sortNumber,
+            },
+        ]);
     });
 
     it('should try get all pictures of recipe and fail on authentication', async () => {

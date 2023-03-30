@@ -298,47 +298,114 @@ describe('Recipe', () => {
             updatedAt: recipes.chicken.updatedAt.toISOString(),
         });
     });
-    /*
-    it('should try get recipe by id and fail on authentication', async () => {
-        try {
 
-        } catch (err) {
-            expect.fail('should never fail');
-        }
+    it('should try get recipe by id and fail on authentication', async () => {
+        const res = await recipeApi
+            .getRecipe(recipes.chicken.id)
+            .catch(processError);
+
+        expect(res).to.eql({
+            statusCode: 401,
+            code: 'INVALID_CREDENTIALS',
+            message: '',
+        });
     });
 
     it('should try get recipe by id and fail on recipe not exists', async () => {
-        try {
+        // prepare valid token
+        const token = issueToken(users.admin);
+        setToken(token);
 
-        } catch (err) {
-            expect.fail('should never fail');
-        }
+        const res = await recipeApi.getRecipe(9999999).catch(processError);
+
+        expect(res).to.eql({
+            statusCode: 404,
+            code: 'NOT_FOUND',
+            message: '',
+        });
     });
 
-    it('should create recipe', async () => {
-        try {
+    it('should create recipe with minimal data', async () => {
+        // prepare valid token
+        const token = issueToken(users.creator);
+        setToken(token);
 
-        } catch (err) {
-            expect.fail('should never fail');
-        }
+        const res = await recipeApi
+            .createRecipe({
+                name: 'Test recipe',
+                description: null,
+                serves: null,
+                method: null,
+                sources: [],
+                categoryId: categories.main.id,
+                recipeSections: [],
+                tags: [],
+                pictures: [],
+                associatedRecipes: [],
+            })
+            .catch(processError);
+
+        expect(res.id).to.be.a('number');
     });
+
+    // TODO create recipe with full data fields
 
     it('should try create recipe and fail on roles', async () => {
-        try {
+        // prepare valid token
+        const token = issueToken(users.simple);
+        setToken(token);
 
-        } catch (err) {
-            expect.fail('should never fail');
-        }
+        const res = await recipeApi
+            .createRecipe({
+                name: 'Test recipe',
+                description: null,
+                serves: null,
+                method: null,
+                sources: [],
+                categoryId: categories.main.id,
+                recipeSections: [],
+                tags: [],
+                pictures: [],
+                associatedRecipes: [],
+            })
+            .catch(processError);
+
+        expect(res).to.eql({
+            statusCode: 403,
+            code: 'FORBIDEN',
+            message: '',
+        });
     });
 
     it('should try create recipe and fail on duplicity', async () => {
-        try {
+        // prepare valid token
+        const token = issueToken(users.creator);
+        setToken(token);
 
-        } catch (err) {
-            expect.fail('should never fail');
-        }
+        const res = await recipeApi
+            .createRecipe({
+                name: 'Chicken',
+                description: null,
+                serves: null,
+                method: null,
+                sources: [],
+                categoryId: categories.main.id,
+                recipeSections: [],
+                tags: [],
+                pictures: [],
+                associatedRecipes: [],
+            })
+            .catch(processError);
+
+        expect(res).to.eql({
+            code: 'UNIQUE_CONSTRAINT_ERROR',
+            fields: {
+                name: 'not_unique',
+            },
+            statusCode: 409,
+        });
     });
-
+    /*
     it('should try create recipe and fail on validation', async () => {
         try {
 
@@ -378,29 +445,42 @@ describe('Recipe', () => {
             expect.fail('should never fail');
         }
     });
+    */
 
     it('should delete recipe', async () => {
-        try {
-
-        } catch (err) {
-            expect.fail('should never fail');
-        }
+        // prepare valid token
+        const token = issueToken(users.admin);
+        setToken(token);
+        const res = await recipeApi
+            .deleteRecipe(recipes.chicken.id)
+            .catch(processError);
+        expect(res.status).to.equals(204);
     });
 
-    it('should try recipe tag and fail on roles', async () => {
-        try {
-
-        } catch (err) {
-            expect.fail('should never fail');
-        }
+    it('should try delete recipe and fail on roles', async () => {
+        // prepare valid token
+        const token = issueToken(users.simple);
+        setToken(token);
+        const res = await recipeApi
+            .deleteRecipe(recipes.chicken.id)
+            .catch(processError);
+        expect(res).to.eql({
+            statusCode: 403,
+            code: 'FORBIDEN',
+            message: '',
+        });
     });
 
-    it('should try recipe tag and fail on tag not exists', async () => {
-        try {
+    it('should try delete recipe and fail on recipe not exists', async () => {
+        // prepare valid token
+        const token = issueToken(users.admin);
+        setToken(token);
 
-        } catch (err) {
-            expect.fail('should never fail');
-        }
+        const res = await recipeApi.deleteRecipe(9999999).catch(processError);
+        expect(res).to.eql({
+            statusCode: 404,
+            code: 'NOT_FOUND',
+            message: '',
+        });
     });
-    */
 });

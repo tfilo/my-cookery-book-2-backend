@@ -135,7 +135,7 @@ describe('Unit', () => {
         setToken(token);
 
         const res = await unitApi
-            .getUnitsByUnitCategory(100000)
+            .getUnitsByUnitCategory(9999999)
             .catch(processError);
 
         expect(res).to.eql([]);
@@ -176,7 +176,7 @@ describe('Unit', () => {
         const token = issueToken(users.admin);
         setToken(token);
 
-        const res = await unitApi.getUnit(100000).catch(processError);
+        const res = await unitApi.getUnit(9999999).catch(processError);
         expect(res).to.eql({
             statusCode: 404,
             code: 'NOT_FOUND',
