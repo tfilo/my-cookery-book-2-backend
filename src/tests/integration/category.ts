@@ -23,7 +23,7 @@ import createTags from '../data/tag-data';
 import User from '../../models/database/user';
 import { issueToken } from '../../util/token';
 import Category from '../../models/database/category';
-import { processError } from '../utils/error';
+import { processError } from '../util/error';
 
 Chai.use(chaiExclude);
 const expect = Chai.expect;

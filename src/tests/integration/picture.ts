@@ -26,7 +26,7 @@ import User from '../../models/database/user';
 import { issueToken } from '../../util/token';
 import Picture from '../../models/database/picture';
 import Recipe from '../../models/database/recipe';
-import { processError } from '../utils/error';
+import { processError } from '../util/error';
 import { buffer } from 'stream/consumers';
 
 Chai.use(chaiExclude);

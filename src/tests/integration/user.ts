@@ -17,7 +17,7 @@ import chaiExclude from 'chai-exclude';
 import createUsers from '../data/user-data';
 import User from '../../models/database/user';
 import { issueToken } from '../../util/token';
-import { processError } from '../utils/error';
+import { processError } from '../util/error';
 
 Chai.use(chaiExclude);
 const expect = Chai.expect;

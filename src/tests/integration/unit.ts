@@ -21,7 +21,7 @@ import User from '../../models/database/user';
 import UnitCategory from '../../models/database/unitCategory';
 import Unit from '../../models/database/unit';
 import { issueToken } from '../../util/token';
-import { processError } from '../utils/error';
+import { processError } from '../util/error';
 
 Chai.use(chaiExclude);
 const expect = Chai.expect;

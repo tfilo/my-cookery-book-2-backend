@@ -28,7 +28,7 @@ import Unit from '../../models/database/unit';
 import Category from '../../models/database/category';
 import Recipe from '../../models/database/recipe';
 import { issueToken } from '../../util/token';
-import { processError } from '../utils/error';
+import { processError } from '../util/error';
 import Picture from '../../models/database/picture';
 import RecipeSection from '../../models/database/recipeSection';
 import Ingredient from '../../models/database/ingredient';

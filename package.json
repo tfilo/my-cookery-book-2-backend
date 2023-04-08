@@ -13,7 +13,7 @@
         "build:compile": "tsc",
         "build:copyOpenapi": "cpy 'src/openapi.json' dist/ --flat",
         "tests": "npm run tests:clean && npm run tests:generateOpenapi && npm run tests:unit && npm run tests:integration",
-        "tests:unit": "",
+        "tests:unit": "ts-mocha 'src/tests/unit/**/*.ts' --timeout 5000",
         "tests:integration": "ts-mocha 'src/tests/integration/**/*.ts' --timeout 300000 --exit",
         "tests:clean": "del-cli src/tests/openapi",
         "tests:generateOpenapi": "openapi-generator-plus -c openapi-generator-plus.yml && replace-in-file --configFile=replace-config.js",

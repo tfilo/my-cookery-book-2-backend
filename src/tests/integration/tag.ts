@@ -23,7 +23,7 @@ import createRecipes from '../data/recipe-data';
 import User from '../../models/database/user';
 import Tag from '../../models/database/tag';
 import { issueToken } from '../../util/token';
-import { processError } from '../utils/error';
+import { processError } from '../util/error';
 
 Chai.use(chaiExclude);
 const expect = Chai.expect;
