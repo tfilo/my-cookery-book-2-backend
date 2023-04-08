@@ -23,6 +23,8 @@ import sequelize from '../util/database';
 import toSCDF from '../util/string';
 import User from '../models/database/user';
 import Unit from '../models/database/unit';
+import { ROLE } from '../models/roleEnum';
+import { checkRoles } from '../middleware/is-auth';
 
 export const findRecipes = async (
     req: Request,
@@ -318,7 +320,10 @@ export const updateRecipe = async (
 ) => {
     try {
         const request = <
-            yup.InferType<typeof updateRecipeSchema> & { userId: number }
+            yup.InferType<typeof updateRecipeSchema> & {
+                userId: number;
+                userRoles: ROLE[];
+            }
         >(<unknown>req);
 
         const recipeId = request.params.recipeId;
@@ -342,6 +347,15 @@ export const updateRecipe = async (
                 error.code = CUSTOM_ERROR_CODES.NOT_FOUND;
                 error.statusCode = 404;
                 throw error;
+            }
+
+            if (recipe.creatorId !== request.userId) {
+                if (!checkRoles(request.userRoles, [ROLE.ADMIN])) {
+                    const error = new CustomError();
+                    error.code = CUSTOM_ERROR_CODES.FORBIDEN;
+                    error.statusCode = 403;
+                    throw error;
+                }
             }
 
             await recipe.update(
@@ -386,26 +400,38 @@ export const deleteRecipe = async (
     next: NextFunction
 ) => {
     try {
-        const request = <yup.InferType<typeof deleteRecipeSchema>>(
-            (<unknown>req)
-        );
+        const request = <
+            yup.InferType<typeof deleteRecipeSchema> & {
+                userId: number;
+                userRoles: ROLE[];
+            }
+        >(<unknown>req);
 
         const recipeId = request.params.recipeId;
         await sequelize.transaction(async (t) => {
-            const destroyed = await Recipe.destroy({
-                where: {
-                    id: recipeId,
-                },
+            const recipe = await Recipe.findByPk(recipeId, {
                 transaction: t,
             });
 
-            if (destroyed !== 1) {
-                // should delete exactly one
+            if (!recipe) {
                 const error = new CustomError();
                 error.code = CUSTOM_ERROR_CODES.NOT_FOUND;
                 error.statusCode = 404;
                 throw error;
             }
+
+            if (recipe.creatorId !== request.userId) {
+                if (!checkRoles(request.userRoles, [ROLE.ADMIN])) {
+                    const error = new CustomError();
+                    error.code = CUSTOM_ERROR_CODES.FORBIDEN;
+                    error.statusCode = 403;
+                    throw error;
+                }
+            }
+
+            recipe.destroy({
+                transaction: t,
+            });
         });
         res.status(204).json();
     } catch (err) {

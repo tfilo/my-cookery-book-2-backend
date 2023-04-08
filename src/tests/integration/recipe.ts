@@ -11,7 +11,7 @@ dotenv.config({ path: path.join('src', 'tests', '.env') });
 
 import { app } from '../../app';
 import sequelize from '../../util/database';
-import { Api, AuthApi, Configuration, RecipeApi } from '../openapi';
+import { Api, Configuration, RecipeApi } from '../openapi';
 import Chai from 'chai';
 import chaiExclude from 'chai-exclude';
 import createUsers from '../data/user-data';
@@ -23,7 +23,6 @@ import createTags from '../data/tag-data';
 import createPictures from '../data/picture-data';
 import User from '../../models/database/user';
 import Tag from '../../models/database/tag';
-import { createUnit } from '../../controllers/unit';
 import UnitCategory from '../../models/database/unitCategory';
 import Unit from '../../models/database/unit';
 import Category from '../../models/database/category';
@@ -405,47 +404,501 @@ describe('Recipe', () => {
             statusCode: 409,
         });
     });
-    /*
-    it('should try create recipe and fail on validation', async () => {
-        try {
 
-        } catch (err) {
-            expect.fail('should never fail');
-        }
+    it('should try create recipe and fail on validation', async () => {
+        // prepare valid token
+        const token = issueToken(users.creator);
+        setToken(token);
+
+        const res1 = await recipeApi
+            .createRecipe({
+                name: 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
+                description:
+                    'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
+                serves: 101,
+                method: undefined!,
+                sources: [
+                    'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
+                ],
+                categoryId: 0,
+                recipeSections: [
+                    {
+                        name: 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
+                        sortNumber: 0,
+                        method: undefined!,
+                        ingredients: [
+                            {
+                                name: 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
+                                sortNumber: 0,
+                                value: -1,
+                                unitId: 0,
+                            },
+                        ],
+                    },
+                ],
+                associatedRecipes: [0],
+                tags: [0],
+                pictures: [
+                    {
+                        id: 0,
+                        name: 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
+                        sortNumber: 0,
+                    },
+                ],
+            })
+            .catch(processError);
+
+        expect(res1).to.eql({
+            message: '',
+            code: 'VALIDATION_FAILED',
+            fields: {
+                name: { key: 'maxLength', values: { max: 80 } },
+                description: { key: 'maxLength', values: { max: 160 } },
+                serves: { key: 'max', values: { max: 100 } },
+                method: 'defined',
+                'sources[0]': { key: 'maxLength', values: { max: 1000 } },
+                categoryId: { key: 'min', values: { min: 1 } },
+                'recipeSections[0].name': {
+                    key: 'maxLength',
+                    values: { max: 80 },
+                },
+                'recipeSections[0].sortNumber': {
+                    key: 'min',
+                    values: { min: 1 },
+                },
+                'recipeSections[0].method': 'defined',
+                'recipeSections[0].ingredients[0].name': {
+                    key: 'maxLength',
+                    values: { max: 80 },
+                },
+                'recipeSections[0].ingredients[0].sortNumber': {
+                    key: 'min',
+                    values: { min: 1 },
+                },
+                'recipeSections[0].ingredients[0].value': {
+                    key: 'min',
+                    values: { min: 0 },
+                },
+                'recipeSections[0].ingredients[0].unitId': {
+                    key: 'min',
+                    values: { min: 1 },
+                },
+                'associatedRecipes[0]': { key: 'min', values: { min: 1 } },
+                'tags[0]': { key: 'min', values: { min: 1 } },
+                'pictures[0].id': { key: 'min', values: { min: 1 } },
+                'pictures[0].name': { key: 'maxLength', values: { max: 80 } },
+                'pictures[0].sortNumber': { key: 'min', values: { min: 1 } },
+            },
+            statusCode: 422,
+        });
+
+        const res2 = await recipeApi
+            .createRecipe({
+                name: '',
+                description: '',
+                serves: 0,
+                method: undefined!,
+                sources: undefined!,
+                categoryId: undefined!,
+                recipeSections: [
+                    {
+                        name: '',
+                        sortNumber: 0,
+                        method: undefined!,
+                        ingredients: [
+                            {
+                                name: '',
+                                sortNumber: undefined!,
+                                value: undefined!,
+                                unitId: undefined!,
+                            },
+                        ],
+                    },
+                ],
+                associatedRecipes: undefined!,
+                tags: undefined!,
+                pictures: [
+                    {
+                        id: undefined!,
+                        name: '',
+                        sortNumber: undefined!,
+                    },
+                ],
+            })
+            .catch(processError);
+
+        expect(res2).to.eql({
+            message: '',
+            code: 'VALIDATION_FAILED',
+            fields: {
+                name: 'required',
+                serves: { key: 'min', values: { min: 1 } },
+                method: 'defined',
+                sources: 'required',
+                categoryId: 'required',
+                'recipeSections[0].sortNumber': {
+                    key: 'min',
+                    values: { min: 1 },
+                },
+                'recipeSections[0].method': 'defined',
+                'recipeSections[0].ingredients[0].name': 'required',
+                'recipeSections[0].ingredients[0].sortNumber': 'required',
+                'recipeSections[0].ingredients[0].value': 'defined',
+                'recipeSections[0].ingredients[0].unitId': 'required',
+                associatedRecipes: 'required',
+                tags: 'required',
+                'pictures[0].id': 'required',
+                'pictures[0].name': 'required',
+                'pictures[0].sortNumber': 'required',
+            },
+            statusCode: 422,
+        });
     });
 
     it('should update recipe', async () => {
-        try {
+        // prepare valid token
+        const token = issueToken(users.admin);
+        setToken(token);
 
-        } catch (err) {
-            expect.fail('should never fail');
-        }
+        const res1 = await recipeApi
+            .updateRecipe(recipes.chicken.id, {
+                name: 'Chicken Updated',
+                description: 'Crispy chicken updated',
+                serves: 3,
+                method: 'Some method how to cook chicken after update',
+                sources: ['www.some.page.com', 'www.some.other.page.com'],
+                categoryId: categories.side.id,
+                recipeSections: [
+                    {
+                        name: 'Section 1',
+                        sortNumber: 1,
+                        method: 'Just follow recipe',
+                        ingredients: [
+                            {
+                                name: 'Chicken',
+                                sortNumber: 1,
+                                value: 1,
+                                unitId: units.kilogram.id,
+                            },
+                        ],
+                    },
+                ],
+                tags: [tags.meat.id],
+                pictures: [
+                    {
+                        id: pictures.notAssigned.id,
+                        name: 'Image of recipe',
+                        sortNumber: 1,
+                    },
+                ],
+                associatedRecipes: [],
+            })
+            .catch(processError);
+
+        expect(res1.status).to.equal(204);
+
+        const res2 = await recipeApi
+            .getRecipe(recipes.chicken.id)
+            .catch(processError);
+
+        expect(res2)
+            .excluding(['createdAt', 'updatedAt'])
+            .to.eql({
+                id: 1,
+                name: 'Chicken Updated',
+                description: 'Crispy chicken updated',
+                serves: 3,
+                method: 'Some method how to cook chicken after update',
+                sources: ['www.some.page.com', 'www.some.other.page.com'],
+                categoryId: categories.side.id,
+                modifierId: users.admin.id,
+                creatorId: users.creator.id,
+                recipeSections: [
+                    {
+                        id: 3,
+                        name: 'Section 1',
+                        sortNumber: 1,
+                        method: 'Just follow recipe',
+                        ingredients: [
+                            {
+                                id: 4,
+                                name: 'Chicken',
+                                sortNumber: 1,
+                                value: 1,
+                                unitId: units.kilogram.id,
+                                unit: { name: 'Kilogram', abbreviation: 'kg' },
+                            },
+                        ],
+                    },
+                ],
+                associatedRecipes: [],
+                tags: [{ id: 1, name: 'Meat' }],
+                pictures: [{ id: 2, name: 'Image of recipe', sortNumber: 1 }],
+                creator: {
+                    username: 'creator',
+                    firstName: null,
+                    lastName: null,
+                },
+                modifier: {
+                    username: 'admin',
+                    firstName: 'Best',
+                    lastName: 'Admin',
+                },
+            });
+
+        expect(res2.createdAt).to.be.a('string');
+        expect(res2.updatedAt).to.be.a('string');
     });
 
     it('should try update recipe and fail on roles', async () => {
-        try {
+        // prepare valid token
+        const token = issueToken(users.simple);
+        setToken(token);
 
-        } catch (err) {
-            expect.fail('should never fail');
-        }
+        const res = await recipeApi
+            .updateRecipe(recipes.chicken.id, {
+                name: 'Simple update',
+                description: null,
+                serves: null,
+                method: null,
+                sources: [],
+                categoryId: categories.main.id,
+                recipeSections: [],
+                tags: [],
+                pictures: [],
+                associatedRecipes: [],
+            })
+            .catch(processError);
+
+        expect(res).to.eql({
+            statusCode: 403,
+            code: 'FORBIDEN',
+            message: '',
+        });
+    });
+
+    it('should try update recipe and fail on not recipe owner or admin', async () => {
+        // prepare valid token
+        const token = issueToken(users.creator2);
+        setToken(token);
+
+        const res = await recipeApi
+            .updateRecipe(recipes.chicken.id, {
+                name: 'Simple update',
+                description: null,
+                serves: null,
+                method: null,
+                sources: [],
+                categoryId: categories.main.id,
+                recipeSections: [],
+                tags: [],
+                pictures: [],
+                associatedRecipes: [],
+            })
+            .catch(processError);
+
+        expect(res).to.eql({
+            statusCode: 403,
+            code: 'FORBIDEN',
+            message: '',
+        });
     });
 
     it('should try update recipe and fail on duplicity', async () => {
-        try {
+        // prepare valid token
+        const token = issueToken(users.creator);
+        setToken(token);
 
-        } catch (err) {
-            expect.fail('should never fail');
-        }
+        //Create new recipe
+        const res1 = await recipeApi
+            .createRecipe({
+                name: 'Test recipe',
+                description: null,
+                serves: null,
+                method: null,
+                sources: [],
+                categoryId: categories.main.id,
+                recipeSections: [],
+                tags: [],
+                pictures: [],
+                associatedRecipes: [],
+            })
+            .catch(processError);
+        expect(res1.id).to.be.a('number');
+
+        const res2 = await recipeApi
+            .updateRecipe(recipes.chicken.id, {
+                name: 'Test recipe',
+                description: null,
+                serves: null,
+                method: null,
+                sources: [],
+                categoryId: categories.main.id,
+                recipeSections: [],
+                tags: [],
+                pictures: [],
+                associatedRecipes: [],
+            })
+            .catch(processError);
+
+        expect(res2).to.eql({
+            code: 'UNIQUE_CONSTRAINT_ERROR',
+            fields: {
+                name: 'not_unique',
+            },
+            statusCode: 409,
+        });
     });
 
     it('should try update recipe and fail on validation', async () => {
-        try {
+        // prepare valid token
+        const token = issueToken(users.creator);
+        setToken(token);
 
-        } catch (err) {
-            expect.fail('should never fail');
-        }
+        const res1 = await recipeApi
+            .updateRecipe(recipes.chicken.id, {
+                name: 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
+                description:
+                    'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
+                serves: 101,
+                method: undefined!,
+                sources: [
+                    'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
+                ],
+                categoryId: 0,
+                recipeSections: [
+                    {
+                        name: 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
+                        sortNumber: 0,
+                        method: undefined!,
+                        ingredients: [
+                            {
+                                name: 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
+                                sortNumber: 0,
+                                value: -1,
+                                unitId: 0,
+                            },
+                        ],
+                    },
+                ],
+                associatedRecipes: [0],
+                tags: [0],
+                pictures: [
+                    {
+                        id: 0,
+                        name: 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
+                        sortNumber: 0,
+                    },
+                ],
+            })
+            .catch(processError);
+
+        expect(res1).to.eql({
+            message: '',
+            code: 'VALIDATION_FAILED',
+            fields: {
+                name: { key: 'maxLength', values: { max: 80 } },
+                description: { key: 'maxLength', values: { max: 160 } },
+                serves: { key: 'max', values: { max: 100 } },
+                method: 'defined',
+                'sources[0]': { key: 'maxLength', values: { max: 1000 } },
+                categoryId: { key: 'min', values: { min: 1 } },
+                'recipeSections[0].name': {
+                    key: 'maxLength',
+                    values: { max: 80 },
+                },
+                'recipeSections[0].sortNumber': {
+                    key: 'min',
+                    values: { min: 1 },
+                },
+                'recipeSections[0].method': 'defined',
+                'recipeSections[0].ingredients[0].name': {
+                    key: 'maxLength',
+                    values: { max: 80 },
+                },
+                'recipeSections[0].ingredients[0].sortNumber': {
+                    key: 'min',
+                    values: { min: 1 },
+                },
+                'recipeSections[0].ingredients[0].value': {
+                    key: 'min',
+                    values: { min: 0 },
+                },
+                'recipeSections[0].ingredients[0].unitId': {
+                    key: 'min',
+                    values: { min: 1 },
+                },
+                'associatedRecipes[0]': { key: 'min', values: { min: 1 } },
+                'tags[0]': { key: 'min', values: { min: 1 } },
+                'pictures[0].id': { key: 'min', values: { min: 1 } },
+                'pictures[0].name': { key: 'maxLength', values: { max: 80 } },
+                'pictures[0].sortNumber': { key: 'min', values: { min: 1 } },
+            },
+            statusCode: 422,
+        });
+
+        const res2 = await recipeApi
+            .updateRecipe(recipes.chicken.id, {
+                name: '',
+                description: '',
+                serves: 0,
+                method: undefined!,
+                sources: undefined!,
+                categoryId: undefined!,
+                recipeSections: [
+                    {
+                        name: '',
+                        sortNumber: 0,
+                        method: undefined!,
+                        ingredients: [
+                            {
+                                name: '',
+                                sortNumber: undefined!,
+                                value: undefined!,
+                                unitId: undefined!,
+                            },
+                        ],
+                    },
+                ],
+                associatedRecipes: undefined!,
+                tags: undefined!,
+                pictures: [
+                    {
+                        id: undefined!,
+                        name: '',
+                        sortNumber: undefined!,
+                    },
+                ],
+            })
+            .catch(processError);
+
+        expect(res2).to.eql({
+            message: '',
+            code: 'VALIDATION_FAILED',
+            fields: {
+                name: 'required',
+                serves: { key: 'min', values: { min: 1 } },
+                method: 'defined',
+                sources: 'required',
+                categoryId: 'required',
+                'recipeSections[0].sortNumber': {
+                    key: 'min',
+                    values: { min: 1 },
+                },
+                'recipeSections[0].method': 'defined',
+                'recipeSections[0].ingredients[0].name': 'required',
+                'recipeSections[0].ingredients[0].sortNumber': 'required',
+                'recipeSections[0].ingredients[0].value': 'defined',
+                'recipeSections[0].ingredients[0].unitId': 'required',
+                associatedRecipes: 'required',
+                tags: 'required',
+                'pictures[0].id': 'required',
+                'pictures[0].name': 'required',
+                'pictures[0].sortNumber': 'required',
+            },
+            statusCode: 422,
+        });
     });
-    */
 
     it('should delete recipe', async () => {
         // prepare valid token

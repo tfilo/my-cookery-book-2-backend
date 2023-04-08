@@ -109,7 +109,7 @@ class Recipe extends Model<RecipeAttributes, RecipeCreationAttributes> {
     @Column
     creatorId: number;
 
-    @BelongsTo(() => User)
+    @BelongsTo(() => User, 'creatorId')
     creator: User;
 
     @AllowNull(false)
@@ -117,7 +117,7 @@ class Recipe extends Model<RecipeAttributes, RecipeCreationAttributes> {
     @Column
     modifierId: number;
 
-    @BelongsTo(() => User)
+    @BelongsTo(() => User, 'modifierId')
     modifier: User;
 
     @HasMany(() => RecipeSection, {

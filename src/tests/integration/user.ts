@@ -317,7 +317,7 @@ describe('User', () => {
 
         const res = await userApi
             .updateUser(users.creator.id, {
-                username: 'creator2',
+                username: 'creator3',
                 password: null,
                 firstName: null,
                 lastName: null,
@@ -325,7 +325,7 @@ describe('User', () => {
             })
             .catch(processError);
         expect(res.id).to.equal(users.creator.id);
-        expect(res.username).to.equal('creator2');
+        expect(res.username).to.equal('creator3');
         expect(res.firstName).to.be.null;
         expect(res.lastName).to.be.null;
         expect(res.roles).to.eql([]);
@@ -340,7 +340,7 @@ describe('User', () => {
 
         const res = await userApi
             .updateUser(users.creator.id, {
-                username: 'creator2',
+                username: 'creator3',
                 password: null,
                 firstName: null,
                 lastName: null,

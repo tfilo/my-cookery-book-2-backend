@@ -27,6 +27,16 @@ export default async () => {
         roleName: ROLE.CREATOR,
     });
 
+    users.creator2 = await User.create({
+        username: 'creator2',
+        password: 'Creator2123',
+    });
+
+    await UserRole.create({
+        userId: users.creator2.id,
+        roleName: ROLE.CREATOR,
+    });
+
     users.simple = await User.create({
         username: 'simple',
         password: 'Simple123',
@@ -41,6 +51,14 @@ export default async () => {
     }))!;
 
     users.creator = (await User.findByPk(users.creator.id, {
+        include: {
+            model: UserRole,
+            required: false,
+            attributes: ['roleName'],
+        },
+    }))!;
+
+    users.creator2 = (await User.findByPk(users.creator2.id, {
         include: {
             model: UserRole,
             required: false,

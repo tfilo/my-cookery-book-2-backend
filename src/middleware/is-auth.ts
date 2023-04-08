@@ -11,17 +11,16 @@ import CustomError from '../models/customError';
 import { CUSTOM_ERROR_CODES } from '../models/errorCodes';
 import { ROLE } from '../models/roleEnum';
 
-const checkRoles = (userRoles: string[], allowedRoles?: ROLE | ROLE[]) => {
+export const checkRoles = (userRoles: string[], allowedRoles?: ROLE | ROLE[]) => {
     if (allowedRoles && allowedRoles.length > 0) {
         if (Array.isArray(allowedRoles)) {
             for (const arole of allowedRoles) {
-                if (userRoles.findIndex((urole) => urole === arole) > -1) {
+                if (userRoles.includes(arole)) {
                     return true;
                 }
             }
         } else if (typeof allowedRoles === 'string') {
-            // TODO check if enum value === string but it should :)
-            if (userRoles.findIndex((urole) => urole === allowedRoles) > -1) {
+            if (userRoles.includes(allowedRoles)) {
                 return true;
             }
         }
