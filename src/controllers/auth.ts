@@ -284,11 +284,12 @@ export const resetPassword = async (
                 await user.update(
                     { password: newPassword, uuid: null },
                     {
+                        fields: ['password', 'uuid'],
                         transaction: t,
                     }
                 );
-                return true;
             }
+            return true;
         });
         if (success) {
             res.status(204).send();

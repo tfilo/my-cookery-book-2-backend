@@ -25,7 +25,7 @@ const expect = Chai.expect;
 
 const port = process.env.PORT || 13000;
 
-let token: string;
+let token: string = '';
 const setToken = (t: string) => {
     token = t;
 };
