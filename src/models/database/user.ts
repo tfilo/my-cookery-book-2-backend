@@ -39,6 +39,19 @@ interface UserCreationAttributes
     attributes: { exclude: ['password', 'uuid'] },
 }))
 @Scopes(() => ({
+    fullScope: {
+        attributes: [
+            'id',
+            'username',
+            'password',
+            'firstName',
+            'lastName',
+            'email',
+            'uuid',
+            'confirmed',
+            'notifications',
+        ],
+    },
     authScope: {
         attributes: ['id', 'username', 'password', 'confirmed'],
         include: {

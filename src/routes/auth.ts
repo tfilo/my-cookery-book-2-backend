@@ -12,7 +12,6 @@ import {
     refreshTokenSchema,
     resetPasswordLinkSchema,
     resetPasswordSchema,
-    updatePasswordSchema,
 } from '../schemas/auth';
 
 const loginLimiter = rateLimit({
@@ -31,19 +30,6 @@ const loginLimiter = rateLimit({
 const refreshLimiter = rateLimit({
     windowMs: 10 * 60 * 1000, // 10 minutes
     max: 20,
-    standardHeaders: true,
-    legacyHeaders: false,
-    handler: (request, response, next, options) => {
-        const error = new CustomError();
-        error.code = CUSTOM_ERROR_CODES.TOO_MANY_REQUESTS;
-        error.statusCode = 429;
-        next(error);
-    },
-});
-
-const updatePasswordLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 10 minutes
-    max: 6,
     standardHeaders: true,
     legacyHeaders: false,
     handler: (request, response, next, options) => {
@@ -107,14 +93,6 @@ router.post(
     refreshLimiter,
     validate(refreshTokenSchema),
     authController.refreshToken
-);
-
-router.patch(
-    '/password',
-    updatePasswordLimiter,
-    isAuth(),
-    validate(updatePasswordSchema),
-    authController.updatePassword
 );
 
 router.patch(

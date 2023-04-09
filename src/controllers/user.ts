@@ -3,6 +3,7 @@ import { Transaction } from 'sequelize';
 import * as yup from 'yup';
 import { v4 as uuidv4 } from 'uuid';
 import Handlebars from 'handlebars';
+import bcrypt from 'bcryptjs';
 
 import CustomError from '../models/customError';
 import User, { UserAttributes } from '../models/database/user';
@@ -15,6 +16,7 @@ import {
     deleteUserSchema,
     getUserSchema,
     resentConfirmationSchema,
+    updateProfileSchema,
     updateUserSchema,
 } from '../schemas/user';
 import sequelize from '../util/database';
@@ -84,14 +86,14 @@ export const createUser = async (
         const request = <yup.InferType<typeof createUserSchema>>req;
         const roles = request.body.roles;
         const result = await sequelize.transaction(async (t) => {
-            const userUUID = uuidv4();
+            const uuid = uuidv4();
 
             const user = await User.create(
                 {
                     ...request.body,
                     confirmed: false,
                     notifications: false,
-                    uuid: userUUID,
+                    uuid,
                 },
                 {
                     fields: [
@@ -122,7 +124,7 @@ export const createUser = async (
             await sendConfirmationEmail(
                 request.body.username,
                 request.body.email,
-                userUUID,
+                uuid,
                 request.body.firstName,
                 request.body.lastName
             );
@@ -193,6 +195,107 @@ export const resentConfirmation = async (
     }
 };
 
+export const updateUserProfile = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const request = <
+            yup.InferType<typeof updateProfileSchema> & { userId: number }
+        >(<unknown>req);
+
+        const userId = +request.userId;
+        const password = request.body.password;
+        const newPassword = request.body.newPassword;
+        await sequelize.transaction(async (t) => {
+            const user = await User.scope('fullScope').findByPk(userId, {
+                transaction: t,
+            });
+
+            if (!user) {
+                const error = new CustomError();
+                error.code = CUSTOM_ERROR_CODES.NOT_FOUND;
+                error.statusCode = 404;
+                throw error;
+            }
+
+            const isValid = await bcrypt.compare(password, user.password);
+
+            if (!isValid) {
+                const error = new CustomError();
+                error.code = CUSTOM_ERROR_CODES.INVALID_CREDENTIALS;
+                error.statusCode = 401;
+                throw error;
+            }
+
+            const updatedEmail = user.email !== request.body.email;
+            const confirmed = updatedEmail ? false : user.confirmed;
+            const notifications = !confirmed
+                ? false
+                : request.body.notifications;
+            const uuid = updatedEmail ? uuidv4() : user.uuid; // preserve old UUID if email not updated
+            if (!confirmed && request.body.notifications) {
+                const error = new CustomError();
+                error.code = CUSTOM_ERROR_CODES.VALIDATION_FAILED;
+                error.statusCode = 422;
+                error.fields = {
+                    notifications: 'invalidValue',
+                };
+                throw error;
+            }
+
+            if (newPassword) {
+                await user.update(
+                    {
+                        password: newPassword,
+                    },
+                    {
+                        fields: ['password'],
+                        transaction: t,
+                    }
+                );
+            }
+
+            await user.update(
+                {
+                    firstName: request.body.firstName,
+                    lastName: request.body.lastName,
+                    email: request.body.email,
+                    confirmed,
+                    notifications,
+                    uuid,
+                },
+                {
+                    fields: [
+                        'firstName',
+                        'lastName',
+                        'email',
+                        'confirmed',
+                        'notifications',
+                        'uuid',
+                    ],
+                    transaction: t,
+                }
+            );
+
+            if (updatedEmail && uuid) {
+                await sendConfirmationEmail(
+                    user.username,
+                    request.body.email,
+                    uuid,
+                    request.body.firstName,
+                    request.body.lastName
+                );
+            }
+        });
+
+        res.status(204).send();
+    } catch (err) {
+        next(err);
+    }
+};
+
 export const updateUser = async (
     req: Request,
     res: Response,
@@ -203,7 +306,7 @@ export const updateUser = async (
         const userId = request.params.userId;
         const roles = request.body.roles;
         const result = await sequelize.transaction(async (t) => {
-            const user = await User.findByPk(userId, {
+            const user = await User.scope('fullScope').findByPk(userId, {
                 transaction: t,
             });
 

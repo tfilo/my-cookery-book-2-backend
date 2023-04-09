@@ -746,4 +746,132 @@ describe('User', () => {
         expect(receivedEmail.html).to.be.a('string');
         expect(receivedEmail.text).to.equal(receivedEmail.html); // in tests template both are same so result should be same too
     });
+
+    it('should change user profile including password', async () => {
+        const maildev = new MailDev({
+            smtp: Number(process.env.EMAIL_PORT),
+            disableWeb: true,
+            silent: true,
+        });
+        let receivedEmail: any;
+        try {
+            maildev.listen();
+            const receivedEmailPromise = new Promise((resolve) => {
+                maildev.on('new', (email) => {
+                    resolve(email);
+                });
+            });
+            // prepare valid token
+            const token = issueToken(users.admin);
+            setToken(token);
+
+            const updated = await userApi
+                .updateProfile({
+                    password: 'Admin123',
+                    newPassword: 'Admin1234',
+                    email: 'testX@test.test',
+                    firstName: 'AAAA',
+                    lastName: 'BBBB',
+                    notifications: false,
+                })
+                .catch(processError);
+            expect(updated.status).to.equal(204);
+            receivedEmail = await receivedEmailPromise;
+        } finally {
+            maildev.close();
+        }
+
+        expect(receivedEmail.subject).to.equal(
+            'My Cookery Book 2: Email confirmation'
+        );
+        expect(receivedEmail.from).to.eql([
+            {
+                address: process.env.EMAIL_FROM,
+                name: '',
+            },
+        ]);
+        expect(receivedEmail.to).to.eql([
+            {
+                address: 'testX@test.test',
+                name: '',
+            },
+        ]);
+        expect(receivedEmail.text).to.be.a('string');
+        expect(receivedEmail.html).to.be.a('string');
+        expect(receivedEmail.text).to.equal(receivedEmail.html); // in tests template both are same so result should be same too
+    });
+
+    it('should try to change password and fail', async () => {
+        // prepare valid token
+        const token = issueToken(users.admin);
+        setToken(token);
+
+        const res1 = await userApi
+            .updateProfile({
+                password: 'Admin123',
+                newPassword: 'admin1234',
+                email: 'test@test.test',
+                firstName: 'AAAA',
+                lastName: 'BBBB',
+                notifications: false,
+            })
+            .catch(processError);
+        expect(res1).to.eql({
+            statusCode: 422,
+            message: '',
+            code: 'VALIDATION_FAILED',
+            fields: { newPassword: 'simplePassword' },
+        });
+
+        const res2 = await userApi
+            .updateProfile({
+                password: 'Admin123',
+                newPassword: 'Adminadmin',
+                email: 'test@test.test',
+                firstName: 'AAAA',
+                lastName: 'BBBB',
+                notifications: false,
+            })
+            .catch(processError);
+        expect(res2).to.eql({
+            statusCode: 422,
+            message: '',
+            code: 'VALIDATION_FAILED',
+            fields: { newPassword: 'simplePassword' },
+        });
+
+        const res3 = await userApi
+            .updateProfile({
+                password: 'Admin123',
+                newPassword: 'Admin1',
+                email: 'test@test.test',
+                firstName: 'AAAA',
+                lastName: 'BBBB',
+                notifications: false,
+            })
+            .catch(processError);
+        expect(res3).to.eql({
+            statusCode: 422,
+            message: '',
+            code: 'VALIDATION_FAILED',
+            fields: { newPassword: 'simplePassword' },
+        });
+
+        const res4 = await userApi
+            .updateProfile({
+                password: 'Admin123',
+                newPassword: 'aaaaaaa',
+                email: 'test@test.test',
+                firstName: 'AAAA',
+                lastName: 'BBBB',
+                notifications: false,
+            })
+            .catch(processError);
+        expect(res4).to.eql({
+            statusCode: 422,
+            message: '',
+            code: 'VALIDATION_FAILED',
+            fields: { newPassword: 'simplePassword' },
+        });
+    });
 });

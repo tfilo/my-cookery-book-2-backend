@@ -15,7 +15,6 @@ import {
     refreshTokenSchema,
     resetPasswordLinkSchema,
     resetPasswordSchema,
-    updatePasswordSchema,
 } from '../schemas/auth';
 import { issueRefreshToken, issueToken } from '../util/token';
 import { sendMail } from '../util/email';
@@ -96,57 +95,6 @@ export const refreshToken = async (
             token: newToken,
             refreshToken: newRefreshToken,
         });
-    } catch (err) {
-        next(err);
-    }
-};
-
-export const updatePassword = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
-    try {
-        const request = <
-            yup.InferType<typeof updatePasswordSchema> & { userId: number }
-        >req;
-
-        const userId = +request.userId;
-        const password = request.body.password;
-        const newPassword = request.body.newPassword;
-
-        await sequelize.transaction(async (t) => {
-            const user = await User.scope('authScope').findOne({
-                where: {
-                    id: userId,
-                },
-                transaction: t,
-            });
-
-            if (!user) {
-                const error = new CustomError();
-                error.code = CUSTOM_ERROR_CODES.INVALID_CREDENTIALS;
-                error.statusCode = 401;
-                throw error;
-            }
-
-            const isValid = await bcrypt.compare(password, user.password);
-
-            if (!isValid) {
-                const error = new CustomError();
-                error.code = CUSTOM_ERROR_CODES.INVALID_CREDENTIALS;
-                error.statusCode = 401;
-                throw error;
-            }
-
-            await user.update(
-                { password: newPassword },
-                {
-                    transaction: t,
-                }
-            );
-        });
-        res.status(204).send();
     } catch (err) {
         next(err);
     }

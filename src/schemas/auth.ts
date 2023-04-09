@@ -21,26 +21,6 @@ export const refreshTokenSchema = yup
     })
     .required();
 
-export const updatePasswordSchema = yup
-    .object({
-        body: yup
-            .object({
-                password: yup.string().trim().max(255).required(),
-                newPassword: yup
-                    .string()
-                    .trim()
-                    .min(8)
-                    .max(255)
-                    .matches(
-                        /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
-                        'simplePassword'
-                    )
-                    .required(),
-            })
-            .required(),
-    })
-    .required();
-
 export const confirmSchema = yup
     .object({
         body: yup

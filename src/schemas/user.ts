@@ -62,6 +62,28 @@ export const createUserSchema = yup
     })
     .required();
 
+export const updateProfileSchema = yup.object({
+    body: yup
+        .object({
+            password: yup.string().trim().max(255).required(),
+            newPassword: yup
+                .string()
+                .trim()
+                .min(8)
+                .max(255)
+                .matches(
+                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
+                    'simplePassword'
+                )
+                .required(),
+            firstName: yup.string().defined().trim().min(3).max(50).nullable(),
+            lastName: yup.string().defined().trim().min(3).max(50).nullable(),
+            email: yup.string().trim().min(5).max(320).email().required(),
+            notifications: yup.boolean().default(false).required(),
+        })
+        .required(),
+});
+
 export const updateUserSchema = yup
     .object({
         params: yup

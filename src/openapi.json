@@ -164,41 +164,6 @@
                 }
             }
         },
-        "/auth/password": {
-            "patch": {
-                "operationId": "updatePassword",
-                "tags": [
-                    "auth"
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/UpdatePasswordRequest"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "responses": {
-                    "204": {
-                        "description": "Successful password update"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/UnauthorizedError"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/UnprocessableEntity"
-                    },
-                    "429": {
-                        "$ref": "#/components/responses/TooManyRequestsError"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/InternalServerError"
-                    }
-                }
-            }
-        },
         "/auth/reset": {
             "post": {
                 "operationId": "resetPasswordLink",
@@ -1651,6 +1616,38 @@
                 }
             }
         },
+        "/user/updateProfile": {
+            "patch": {
+                "operationId": "updateProfile",
+                "tags": [
+                    "user"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateProfileRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "Successful profile update"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntity"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
+            }
+        },
         "/user/resendConfirmation/{userId}": {
             "patch": {
                 "operationId": "resendConfirmation",
@@ -1944,11 +1941,15 @@
                     }
                 }
             },
-            "UpdatePasswordRequest": {
+            "UpdateProfileRequest": {
                 "type": "object",
                 "required": [
                     "password",
-                    "newPassword"
+                    "newPassword",
+                    "firstName",
+                    "lastName",
+                    "email",
+                    "notifications"
                 ],
                 "properties": {
                     "password": {
@@ -1960,9 +1961,30 @@
                     "newPassword": {
                         "type": "string",
                         "format": "password",
+                        "nullable": true,
                         "minLength": 8,
                         "maxLength": 255,
                         "description": "New password for user. Should be at least 8 characters long, at least one small letter, one capital letter and one number."
+                    },
+                    "firstName": {
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 50,
+                        "nullable": true
+                    },
+                    "lastName": {
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 50,
+                        "nullable": true
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 320
+                    },
+                    "notifications": {
+                        "type": "boolean"
                     }
                 }
             },

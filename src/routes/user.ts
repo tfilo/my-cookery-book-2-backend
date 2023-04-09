@@ -9,6 +9,7 @@ import {
     deleteUserSchema,
     getUserSchema,
     resentConfirmationSchema,
+    updateProfileSchema,
     updateUserSchema,
 } from '../schemas/user';
 
@@ -35,6 +36,13 @@ router.patch(
     isAuth(ROLE.ADMIN),
     validate(resentConfirmationSchema),
     userController.resentConfirmation
+);
+
+router.patch(
+    '/updateProfile',
+    isAuth(),
+    validate(updateProfileSchema),
+    userController.updateUserProfile
 );
 
 router.put(
