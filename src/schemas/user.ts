@@ -40,6 +40,7 @@ export const createUserSchema = yup
                     .min(3)
                     .max(50)
                     .nullable(),
+                email: yup.string().trim().min(5).max(320).email().required(),
                 lastName: yup
                     .string()
                     .defined()
@@ -49,7 +50,12 @@ export const createUserSchema = yup
                     .nullable(),
                 roles: yup
                     .array()
-                    .of(yup.mixed<ROLE>().oneOf(Object.keys(ROLE) as ROLE[]).required())
+                    .of(
+                        yup
+                            .mixed<ROLE>()
+                            .oneOf(Object.keys(ROLE) as ROLE[])
+                            .required()
+                    )
                     .required(),
             })
             .required(),
@@ -97,10 +103,27 @@ export const updateUserSchema = yup
                     .min(3)
                     .max(50)
                     .nullable(),
+                email: yup.string().trim().min(5).max(320).email().required(),
+                notifications: yup.boolean().default(false).required(),
                 roles: yup
                     .array()
-                    .of(yup.mixed<ROLE>().oneOf(Object.keys(ROLE) as ROLE[]).required())
+                    .of(
+                        yup
+                            .mixed<ROLE>()
+                            .oneOf(Object.keys(ROLE) as ROLE[])
+                            .required()
+                    )
                     .required(),
+            })
+            .required(),
+    })
+    .required();
+
+export const resentConfirmationSchema = yup
+    .object({
+        params: yup
+            .object({
+                userId: yup.number().integer().min(1).required(),
             })
             .required(),
     })

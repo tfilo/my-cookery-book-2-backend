@@ -8,6 +8,7 @@ import {
     createUserSchema,
     deleteUserSchema,
     getUserSchema,
+    resentConfirmationSchema,
     updateUserSchema,
 } from '../schemas/user';
 
@@ -27,6 +28,13 @@ router.post(
     isAuth(ROLE.ADMIN),
     validate(createUserSchema),
     userController.createUser
+);
+
+router.patch(
+    '/resendConfirmation/:userId',
+    isAuth(ROLE.ADMIN),
+    validate(resentConfirmationSchema),
+    userController.resentConfirmation
 );
 
 router.put(

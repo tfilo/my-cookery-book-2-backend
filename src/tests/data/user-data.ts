@@ -10,6 +10,9 @@ export default async () => {
         firstName: 'Best',
         lastName: 'Admin',
         password: 'Admin123',
+        email: 'admin@test.test',
+        confirmed: true,
+        notifications: false,
     });
 
     await UserRole.create({
@@ -20,6 +23,9 @@ export default async () => {
     users.creator = await User.create({
         username: 'creator',
         password: 'Creator123',
+        email: 'creator@test.test',
+        confirmed: true,
+        notifications: true,
     });
 
     await UserRole.create({
@@ -30,6 +36,10 @@ export default async () => {
     users.creator2 = await User.create({
         username: 'creator2',
         password: 'Creator2123',
+        email: 'creator2@test.test',
+        confirmed: false,
+        notifications: false,
+        uuid: '511f1466-02b4-4605-af0f-eaf33afc8dd0',
     });
 
     await UserRole.create({
@@ -40,6 +50,9 @@ export default async () => {
     users.simple = await User.create({
         username: 'simple',
         password: 'Simple123',
+        email: 'simple@test.test',
+        confirmed: true,
+        notifications: true,
     });
 
     users.admin = (await User.findByPk(users.admin.id, {

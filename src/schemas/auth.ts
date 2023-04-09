@@ -40,3 +40,45 @@ export const updatePasswordSchema = yup
             .required(),
     })
     .required();
+
+export const confirmSchema = yup
+    .object({
+        body: yup
+            .object({
+                username: yup.string().trim().max(50).required(),
+                key: yup.string().trim().uuid().required(),
+            })
+            .required(),
+    })
+    .required();
+
+export const resetPasswordLinkSchema = yup
+    .object({
+        body: yup
+            .object({
+                email: yup.string().trim().max(320).email().required(),
+            })
+            .required(),
+    })
+    .required();
+
+export const resetPasswordSchema = yup
+    .object({
+        body: yup
+            .object({
+                username: yup.string().trim().max(50).required(),
+                key: yup.string().trim().uuid().required(),
+                newPassword: yup
+                    .string()
+                    .trim()
+                    .min(8)
+                    .max(255)
+                    .matches(
+                        /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
+                        'simplePassword'
+                    )
+                    .required(),
+            })
+            .required(),
+    })
+    .required();

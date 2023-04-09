@@ -75,7 +75,7 @@ describe('Recipe', () => {
             .withPassword('cookery2123')
             .withExposedPorts({
                 container: 5432,
-                host: Number(process.env.DATABASE_PORT ?? 15432),
+                host: Number(process.env.DATABASE_PORT),
             })
             .withWaitStrategy(
                 Wait.forLogMessage(
@@ -907,7 +907,7 @@ describe('Recipe', () => {
         const res = await recipeApi
             .deleteRecipe(recipes.chicken.id)
             .catch(processError);
-        expect(res.status).to.equals(204);
+        expect(res.status).to.equal(204);
     });
 
     it('should try delete recipe and fail on roles', async () => {

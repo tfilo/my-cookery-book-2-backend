@@ -1,0 +1,130 @@
+{
+    "openapi": "3.0.2",
+    "info": {
+        "title": "My Cookery Book 2 - internal backend api",
+        "version": "0.0.2",
+        "license": {
+            "name": "MIT"
+        },
+        "description": "This is internal rest api developed on NodeJS and ExpressJS. Writen in typescript.",
+        "contact": {
+            "email": "tfilosk@gmail.com",
+            "name": "Tomáš Filo",
+            "url": "https://github.com/tfilo/my-cookery-book-2"
+        }
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8081/internal",
+            "description": "Development - internal"
+        }
+    ],
+    "tags": [
+        {
+            "name": "notifications",
+            "description": "Endpoint for triggering notification service."
+        }
+    ],
+    "paths": {
+        "/health": {
+            "get": {
+                "operationId": "health",
+                "security": [],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sendNotifications": {
+            "post": {
+                "operationId": "sendNotifications",
+                "tags": [
+                    "notifications"
+                ],
+                "security": [],
+                "responses": {
+                    "204": {
+                        "description": "Notification service executed"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailableError"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "ErrorTypeEnum": {
+                "type": "string",
+                "enum": [
+                    "GENERAL_ERROR",
+                    "DATABASE_ERROR",
+                    "NOT_FOUND",
+                    "VALIDATION_FAILED",
+                    "INVALID_CREDENTIALS",
+                    "FORBIDEN",
+                    "EXPIRED_TOKEN",
+                    "INVALID_TOKEN",
+                    "UNIQUE_CONSTRAINT_ERROR",
+                    "UNABLE_TO_SENT_EMAIL",
+                    "CONSTRAINT_FAILED"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "required": [
+                    "code"
+                ],
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "code": {
+                        "$ref": "#/components/schemas/ErrorTypeEnum"
+                    },
+                    "fields": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "responses": {
+            "InternalServerError": {
+                "description": "General error. Something went wrong on server side.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            },
+            "ServiceUnavailableError": {
+                "description": "Request can't be processed because mail service failed.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

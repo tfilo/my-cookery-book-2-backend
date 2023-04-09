@@ -11,11 +11,11 @@ export default async (
     tags: { [key: string]: Tag },
     units: { [key: string]: Unit },
     categories: { [key: string]: Category },
-    users: { [key: string]: User },
+    users: { [key: string]: User }
 ) => {
     const recipes: { [key: string]: Recipe } = {};
-    const sections: { [key: string]: RecipeSection} = {};
-    const ingredients: { [key: string]: Ingredient} = {};
+    const sections: { [key: string]: RecipeSection } = {};
+    const ingredients: { [key: string]: Ingredient } = {};
 
     recipes.chicken = await Recipe.create({
         name: 'Chicken',
