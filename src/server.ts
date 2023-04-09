@@ -42,5 +42,7 @@ const portInternal = process.env.PORT_INTERNAL || 8081;
         });
     }
     app.listen(port, () => console.info(`Server running on port ${port}`));
-    appInternal.listen(portInternal, () => console.info(`Internal API running on port ${portInternal}`))
+    appInternal.listen(portInternal, () =>
+        console.info(`Internal API running on port ${portInternal}`)
+    );
 })();

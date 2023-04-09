@@ -1,3 +1,4 @@
 *.d.ts
 openapi.json
+openapi-internal.json
 src/tests/**

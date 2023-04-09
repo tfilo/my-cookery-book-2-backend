@@ -19,7 +19,7 @@ const loginLimiter = rateLimit({
     max: 6,
     standardHeaders: true,
     legacyHeaders: false,
-    handler: (request, response, next, options) => {
+    handler: (request, response, next) => {
         const error = new CustomError();
         error.code = CUSTOM_ERROR_CODES.TOO_MANY_REQUESTS;
         error.statusCode = 429;
@@ -32,7 +32,7 @@ const refreshLimiter = rateLimit({
     max: 20,
     standardHeaders: true,
     legacyHeaders: false,
-    handler: (request, response, next, options) => {
+    handler: (request, response, next) => {
         const error = new CustomError();
         error.code = CUSTOM_ERROR_CODES.TOO_MANY_REQUESTS;
         error.statusCode = 429;
@@ -45,7 +45,7 @@ const confirmAccountLimiter = rateLimit({
     max: 6,
     standardHeaders: true,
     legacyHeaders: false,
-    handler: (request, response, next, options) => {
+    handler: (request, response, next) => {
         const error = new CustomError();
         error.code = CUSTOM_ERROR_CODES.TOO_MANY_REQUESTS;
         error.statusCode = 429;
@@ -58,7 +58,7 @@ const requestResetPasswordLimiter = rateLimit({
     max: 6,
     standardHeaders: true,
     legacyHeaders: false,
-    handler: (request, response, next, options) => {
+    handler: (request, response, next) => {
         const error = new CustomError();
         error.code = CUSTOM_ERROR_CODES.TOO_MANY_REQUESTS;
         error.statusCode = 429;
@@ -71,7 +71,7 @@ const resetPasswordLimiter = rateLimit({
     max: 6,
     standardHeaders: true,
     legacyHeaders: false,
-    handler: (request, response, next, options) => {
+    handler: (request, response, next) => {
         const error = new CustomError();
         error.code = CUSTOM_ERROR_CODES.TOO_MANY_REQUESTS;
         error.statusCode = 429;
