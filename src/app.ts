@@ -51,8 +51,23 @@ router.get('/health', (req, res) => {
 if (process.env.NODE_ENV === 'development') {
     const openapiFilePath = path.join(__dirname, 'openapi.json');
     const openapiFile = JSON.parse(fs.readFileSync(openapiFilePath, 'utf-8'));
-    router.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapiFile));
-    router.get('/api-docs/openapi.json', (req, res) => res.json(openapiFile));
+    router.get('/api-docs/public.json', (req, res) => res.json(openapiFile));
+    const options = {
+        explorer: true,
+        swaggerOptions: {
+            urls: [
+                {
+                    url: basePath + '/api-docs/public.json',
+                    name: 'Public API',
+                },
+            ],
+        },
+    };
+    router.use(
+        '/api-docs',
+        swaggerUi.serve,
+        swaggerUi.setup(undefined, options)
+    );
 }
 
 app.use(basePath, router);

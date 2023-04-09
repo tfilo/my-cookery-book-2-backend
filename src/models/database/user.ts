@@ -21,6 +21,10 @@ export interface UserAttributes {
     password: string;
     firstName: string;
     lastName: string;
+    email: string;
+    uuid: string | null;
+    confirmed: boolean;
+    notifications: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -32,22 +36,42 @@ interface UserCreationAttributes
     > {}
 
 @DefaultScope(() => ({
-    attributes: { exclude: ['password'] },
+    attributes: { exclude: ['password', 'uuid'] },
 }))
 @Scopes(() => ({
+    fullScope: {
+        attributes: [
+            'id',
+            'username',
+            'password',
+            'firstName',
+            'lastName',
+            'email',
+            'uuid',
+            'confirmed',
+            'notifications',
+        ],
+    },
     authScope: {
-        attributes: ['id', 'username', 'password'],
+        attributes: ['id', 'username', 'password', 'confirmed'],
         include: {
             model: UserRole,
             required: false,
             attributes: ['roleName'],
         },
     },
-    internalScope: {
-        attributes: ['id', 'username'],
+    confirmScope: {
+        attributes: ['id', 'username', 'uuid'],
     },
     listScope: {
-        attributes: ['id', 'username', 'firstName', 'lastName'],
+        attributes: [
+            'id',
+            'username',
+            'firstName',
+            'lastName',
+            'confirmed',
+            'notifications',
+        ],
     },
 }))
 @Table({
@@ -84,6 +108,31 @@ class User extends Model<UserAttributes, UserCreationAttributes> {
         type: DataType.STRING(50),
     })
     lastName: string;
+
+    @AllowNull(false)
+    @Unique
+    @Column({
+        type: DataType.STRING(320),
+    })
+    email: string;
+
+    @AllowNull
+    @Column({
+        type: DataType.STRING(36),
+    })
+    uuid: string | null;
+
+    @AllowNull(false)
+    @Column({
+        type: DataType.BOOLEAN,
+    })
+    confirmed: boolean;
+
+    @AllowNull(false)
+    @Column({
+        type: DataType.BOOLEAN,
+    })
+    notifications: boolean;
 
     @HasMany(() => UserRole)
     roles: UserRole[];

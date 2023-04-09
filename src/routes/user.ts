@@ -8,6 +8,8 @@ import {
     createUserSchema,
     deleteUserSchema,
     getUserSchema,
+    resentConfirmationSchema,
+    updateProfileSchema,
     updateUserSchema,
 } from '../schemas/user';
 
@@ -27,6 +29,20 @@ router.post(
     isAuth(ROLE.ADMIN),
     validate(createUserSchema),
     userController.createUser
+);
+
+router.patch(
+    '/resendConfirmation/:userId',
+    isAuth(ROLE.ADMIN),
+    validate(resentConfirmationSchema),
+    userController.resentConfirmation
+);
+
+router.patch(
+    '/updateProfile',
+    isAuth(),
+    validate(updateProfileSchema),
+    userController.updateUserProfile
 );
 
 router.put(

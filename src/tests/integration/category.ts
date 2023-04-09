@@ -59,7 +59,7 @@ describe('Category', () => {
             .withPassword('cookery2123')
             .withExposedPorts({
                 container: 5432,
-                host: Number(process.env.DATABASE_PORT ?? 15432),
+                host: Number(process.env.DATABASE_PORT),
             })
             .withWaitStrategy(
                 Wait.forLogMessage(
@@ -271,9 +271,9 @@ describe('Category', () => {
         setToken(token);
 
         const res = await categoryApi
-        .updateCategory(categories.main.id, {
-            name: 'Main2',
-        })
+            .updateCategory(categories.main.id, {
+                name: 'Main2',
+            })
             .catch(processError);
         expect(res).to.eql({
             statusCode: 403,
@@ -288,7 +288,7 @@ describe('Category', () => {
         setToken(token);
 
         const res = await categoryApi
-        .updateCategory(categories.main.id, {
+            .updateCategory(categories.main.id, {
                 name: 'Side-dish',
             })
             .catch(processError);
@@ -307,7 +307,7 @@ describe('Category', () => {
         setToken(token);
 
         const res = await categoryApi
-        .updateCategory(categories.main.id, {
+            .updateCategory(categories.main.id, {
                 name: 'AbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghij1',
             })
             .catch(processError);
@@ -326,7 +326,7 @@ describe('Category', () => {
         });
 
         const res2 = await categoryApi
-        .updateCategory(categories.main.id, {
+            .updateCategory(categories.main.id, {
                 name: '',
             })
             .catch(processError);
@@ -342,8 +342,10 @@ describe('Category', () => {
         // prepare valid token
         const token = issueToken(users.admin);
         setToken(token);
-        const res = await categoryApi.deleteCategory(categories.main.id).catch(processError);
-        expect(res.status).to.equals(204);
+        const res = await categoryApi
+            .deleteCategory(categories.main.id)
+            .catch(processError);
+        expect(res.status).to.equal(204);
     });
 
     it('should try delete category and fail on roles', async () => {
@@ -351,7 +353,9 @@ describe('Category', () => {
         const token = issueToken(users.creator);
         setToken(token);
 
-        const res = await categoryApi.deleteCategory(categories.main.id).catch(processError);
+        const res = await categoryApi
+            .deleteCategory(categories.main.id)
+            .catch(processError);
         expect(res).to.eql({
             statusCode: 403,
             code: 'FORBIDEN',
@@ -364,7 +368,9 @@ describe('Category', () => {
         const token = issueToken(users.admin);
         setToken(token);
 
-        const res = await categoryApi.deleteCategory(9999999).catch(processError);
+        const res = await categoryApi
+            .deleteCategory(9999999)
+            .catch(processError);
         expect(res).to.eql({
             statusCode: 404,
             code: 'NOT_FOUND',
@@ -383,7 +389,9 @@ describe('Category', () => {
         const token = issueToken(users.admin);
         setToken(token);
 
-        const res = await categoryApi.deleteCategory(categories.main.id).catch(processError);
+        const res = await categoryApi
+            .deleteCategory(categories.main.id)
+            .catch(processError);
         expect(res).to.eql({
             statusCode: 409,
             code: 'CONSTRAINT_FAILED',
@@ -392,7 +400,9 @@ describe('Category', () => {
 
     it('should try delete category and fail on authentication', async () => {
         // login and save token
-        const res = await categoryApi.deleteCategory(categories.main.id).catch(processError);
+        const res = await categoryApi
+            .deleteCategory(categories.main.id)
+            .catch(processError);
         expect(res).to.eql({
             statusCode: 401,
             code: 'INVALID_CREDENTIALS',

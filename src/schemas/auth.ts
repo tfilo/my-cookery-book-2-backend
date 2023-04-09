@@ -21,11 +21,33 @@ export const refreshTokenSchema = yup
     })
     .required();
 
-export const updatePasswordSchema = yup
+export const confirmSchema = yup
     .object({
         body: yup
             .object({
-                password: yup.string().trim().max(255).required(),
+                username: yup.string().trim().max(50).required(),
+                key: yup.string().trim().uuid().required(),
+            })
+            .required(),
+    })
+    .required();
+
+export const resetPasswordLinkSchema = yup
+    .object({
+        body: yup
+            .object({
+                email: yup.string().trim().max(320).email().required(),
+            })
+            .required(),
+    })
+    .required();
+
+export const resetPasswordSchema = yup
+    .object({
+        body: yup
+            .object({
+                username: yup.string().trim().max(50).required(),
+                key: yup.string().trim().uuid().required(),
                 newPassword: yup
                     .string()
                     .trim()

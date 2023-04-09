@@ -64,7 +64,7 @@ describe('Picture', () => {
             .withPassword('cookery2123')
             .withExposedPorts({
                 container: 5432,
-                host: Number(process.env.DATABASE_PORT ?? 15432),
+                host: Number(process.env.DATABASE_PORT),
             })
             .withWaitStrategy(
                 Wait.forLogMessage(

@@ -59,7 +59,7 @@ describe('Tag', () => {
             .withPassword('cookery2123')
             .withExposedPorts({
                 container: 5432,
-                host: Number(process.env.DATABASE_PORT ?? 15432),
+                host: Number(process.env.DATABASE_PORT),
             })
             .withWaitStrategy(
                 Wait.forLogMessage(
@@ -340,7 +340,7 @@ describe('Tag', () => {
         const token = issueToken(users.admin);
         setToken(token);
         const res = await tagApi.deleteTag(tags.meat.id).catch(processError);
-        expect(res.status).to.equals(204);
+        expect(res.status).to.equal(204);
     });
 
     it('should try delete tag and fail on roles', async () => {

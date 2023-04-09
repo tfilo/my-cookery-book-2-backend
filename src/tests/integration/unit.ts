@@ -58,7 +58,7 @@ describe('Unit', () => {
             .withPassword('cookery2123')
             .withExposedPorts({
                 container: 5432,
-                host: Number(process.env.DATABASE_PORT ?? 15432),
+                host: Number(process.env.DATABASE_PORT),
             })
             .withWaitStrategy(
                 Wait.forLogMessage(
@@ -479,7 +479,7 @@ describe('Unit', () => {
         const res = await unitApi
             .deleteUnit(units.centimeter.id)
             .catch(processError);
-        expect(res.status).to.equals(204);
+        expect(res.status).to.equal(204);
     });
 
     it('should try delete unit and fail on roles', async () => {
@@ -502,9 +502,7 @@ describe('Unit', () => {
         const token = issueToken(users.admin);
         setToken(token);
 
-        const res = await unitApi
-            .deleteUnit(9999999)
-            .catch(processError);
+        const res = await unitApi.deleteUnit(9999999).catch(processError);
         expect(res).to.eql({
             statusCode: 404,
             code: 'NOT_FOUND',

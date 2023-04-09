@@ -6,6 +6,7 @@ import {
     StartedPostgreSqlContainer,
     Wait,
 } from 'testcontainers';
+import MailDev from 'maildev';
 
 dotenv.config({ path: path.join('src', 'tests', '.env') });
 
@@ -52,7 +53,7 @@ describe('User', () => {
             .withPassword('cookery2123')
             .withExposedPorts({
                 container: 5432,
-                host: Number(process.env.DATABASE_PORT ?? 15432),
+                host: Number(process.env.DATABASE_PORT),
             })
             .withWaitStrategy(
                 Wait.forLogMessage(
@@ -95,6 +96,8 @@ describe('User', () => {
                     username: users[k].username,
                     firstName: users[k].firstName,
                     lastName: users[k].lastName,
+                    confirmed: users[k].confirmed,
+                    notifications: users[k].notifications,
                     roles: users[k].roles.map((r) => r.roleName),
                 };
             })
@@ -135,6 +138,9 @@ describe('User', () => {
             username: users.creator.username,
             firstName: users.creator.firstName,
             lastName: users.creator.lastName,
+            email: users.creator.email,
+            confirmed: users.creator.confirmed,
+            notifications: users.creator.notifications,
             roles: users.creator.roles.map((r) => r.roleName),
             createdAt: users.creator.createdAt.toISOString(),
             updatedAt: users.creator.updatedAt.toISOString(),
@@ -168,27 +174,67 @@ describe('User', () => {
     });
 
     it('should create user', async () => {
-        // prepare valid token
-        const token = issueToken(users.admin);
-        setToken(token);
+        const maildev = new MailDev({
+            smtp: Number(process.env.EMAIL_PORT),
+            disableWeb: true,
+            silent: true,
+        });
+        let receivedEmail: any;
+        try {
+            maildev.listen();
+            const receivedEmailPromise = new Promise((resolve) => {
+                maildev.on('new', (email) => {
+                    resolve(email);
+                });
+            });
+            // prepare valid token
+            const token = issueToken(users.admin);
+            setToken(token);
 
-        const res = await userApi
-            .createUser({
-                username: 'newuser',
-                password: 'NewUser1',
-                firstName: 'New',
-                lastName: 'User',
-                roles: [Api.CreateUser.RolesEnum.CREATOR],
-            })
-            .catch(processError);
+            const res = await userApi
+                .createUser({
+                    username: 'newuser',
+                    password: 'NewUser1',
+                    firstName: 'New',
+                    lastName: 'User',
+                    email: 'newuser@test.test',
+                    roles: [Api.CreateUser.RolesEnum.CREATOR],
+                })
+                .catch(processError);
 
-        expect(res.id).to.be.a('number');
-        expect(res.username).to.equal('newuser');
-        expect(res.firstName).to.equal('New');
-        expect(res.lastName).to.equal('User');
-        expect(res.roles).to.eql([Api.CreateUser.RolesEnum.CREATOR]);
-        expect(res.createdAt).to.be.a('string');
-        expect(res.updatedAt).to.be.a('string');
+            expect(res.id).to.be.a('number');
+            expect(res.username).to.equal('newuser');
+            expect(res.firstName).to.equal('New');
+            expect(res.lastName).to.equal('User');
+            expect(res.confirmed).to.equal(false);
+            expect(res.notifications).to.equal(false);
+            expect(res.email).to.equal('newuser@test.test');
+            expect(res.roles).to.eql([Api.CreateUser.RolesEnum.CREATOR]);
+            expect(res.createdAt).to.be.a('string');
+            expect(res.updatedAt).to.be.a('string');
+            receivedEmail = await receivedEmailPromise;
+        } finally {
+            maildev.close();
+        }
+
+        expect(receivedEmail.subject).to.equal(
+            'My Cookery Book 2: Email confirmation'
+        );
+        expect(receivedEmail.from).to.eql([
+            {
+                address: process.env.EMAIL_FROM,
+                name: '',
+            },
+        ]);
+        expect(receivedEmail.to).to.eql([
+            {
+                address: 'newuser@test.test',
+                name: '',
+            },
+        ]);
+        expect(receivedEmail.text).to.be.a('string');
+        expect(receivedEmail.html).to.be.a('string');
+        expect(receivedEmail.text).to.equal(receivedEmail.html); // in tests template both are same so result should be same too
     });
 
     it('should try create user and fail on roles', async () => {
@@ -202,6 +248,7 @@ describe('User', () => {
                 password: 'NewUser1',
                 firstName: 'New',
                 lastName: 'User',
+                email: 'newuser@test.test',
                 roles: [Api.CreateUser.RolesEnum.CREATOR],
             })
             .catch(processError);
@@ -217,19 +264,38 @@ describe('User', () => {
         const token = issueToken(users.admin);
         setToken(token);
 
-        const res = await userApi
+        const res1 = await userApi
             .createUser({
                 username: 'creator',
                 password: 'NewUser1',
                 firstName: 'New',
                 lastName: 'User',
+                email: 'creatorX@test.test',
                 roles: [Api.CreateUser.RolesEnum.CREATOR],
             })
             .catch(processError);
-        expect(res).to.eql({
+        expect(res1).to.eql({
             code: 'UNIQUE_CONSTRAINT_ERROR',
             fields: {
                 username: 'not_unique',
+            },
+            statusCode: 409,
+        });
+
+        const res2 = await userApi
+            .createUser({
+                username: 'creatorX',
+                password: 'NewUser1',
+                firstName: 'New',
+                lastName: 'User',
+                email: 'creator@test.test',
+                roles: [Api.CreateUser.RolesEnum.CREATOR],
+            })
+            .catch(processError);
+        expect(res2).to.eql({
+            code: 'UNIQUE_CONSTRAINT_ERROR',
+            fields: {
+                email: 'not_unique',
             },
             statusCode: 409,
         });
@@ -247,6 +313,7 @@ describe('User', () => {
                 firstName:
                     'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
                 lastName: 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
+                email: 'fdgsdfgdfgdf',
                 roles: [],
             })
             .catch(processError);
@@ -274,6 +341,7 @@ describe('User', () => {
                         max: 50,
                     },
                 },
+                email: 'email',
             },
             statusCode: 422,
         });
@@ -284,6 +352,7 @@ describe('User', () => {
                 password: '',
                 firstName: '',
                 lastName: '',
+                email: '',
                 roles: [],
             })
             .catch(processError);
@@ -305,12 +374,77 @@ describe('User', () => {
                         min: 3,
                     },
                 },
+                email: 'required',
             },
             statusCode: 422,
         });
     });
 
     it('should update user', async () => {
+        const maildev = new MailDev({
+            smtp: Number(process.env.EMAIL_PORT),
+            disableWeb: true,
+            silent: true,
+        });
+        let receivedEmail: any;
+        try {
+            maildev.listen();
+            const receivedEmailPromise = new Promise((resolve) => {
+                maildev.on('new', (email) => {
+                    resolve(email);
+                });
+            });
+            // prepare valid token
+            const token = issueToken(users.admin);
+            setToken(token);
+
+            const res = await userApi
+                .updateUser(users.creator.id, {
+                    username: 'creator3',
+                    password: null,
+                    firstName: null,
+                    lastName: null,
+                    email: 'creator3@test.test',
+                    notifications: false,
+                    roles: [],
+                })
+                .catch(processError);
+            expect(res.id).to.equal(users.creator.id);
+            expect(res.username).to.equal('creator3');
+            expect(res.firstName).to.be.null;
+            expect(res.lastName).to.be.null;
+            expect(res.email).to.equal('creator3@test.test');
+            expect(res.confirmed).to.equal(false);
+            expect(res.notifications).to.equal(false);
+            expect(res.roles).to.eql([]);
+            expect(res.createdAt).to.be.a('string');
+            expect(res.updatedAt).to.be.a('string');
+            receivedEmail = await receivedEmailPromise;
+        } finally {
+            maildev.close();
+        }
+
+        expect(receivedEmail.subject).to.equal(
+            'My Cookery Book 2: Email confirmation'
+        );
+        expect(receivedEmail.from).to.eql([
+            {
+                address: process.env.EMAIL_FROM,
+                name: '',
+            },
+        ]);
+        expect(receivedEmail.to).to.eql([
+            {
+                address: 'creator3@test.test',
+                name: '',
+            },
+        ]);
+        expect(receivedEmail.text).to.be.a('string');
+        expect(receivedEmail.html).to.be.a('string');
+        expect(receivedEmail.text).to.equal(receivedEmail.html); // in tests template both are same so result should be same too
+    });
+
+    it('should try update user and fail because after email change notifications must be set to false', async () => {
         // prepare valid token
         const token = issueToken(users.admin);
         setToken(token);
@@ -321,16 +455,19 @@ describe('User', () => {
                 password: null,
                 firstName: null,
                 lastName: null,
+                email: 'creator3@test.test',
+                notifications: true,
                 roles: [],
             })
             .catch(processError);
-        expect(res.id).to.equal(users.creator.id);
-        expect(res.username).to.equal('creator3');
-        expect(res.firstName).to.be.null;
-        expect(res.lastName).to.be.null;
-        expect(res.roles).to.eql([]);
-        expect(res.createdAt).to.be.a('string');
-        expect(res.updatedAt).to.be.a('string');
+        expect(res).to.eql({
+            message: '',
+            code: 'VALIDATION_FAILED',
+            fields: {
+                notifications: 'invalidValue',
+            },
+            statusCode: 422,
+        });
     });
 
     it('should try update user and fail on roles', async () => {
@@ -344,6 +481,8 @@ describe('User', () => {
                 password: null,
                 firstName: null,
                 lastName: null,
+                email: 'creator3@test.test',
+                notifications: false,
                 roles: [],
             })
             .catch(processError);
@@ -359,19 +498,40 @@ describe('User', () => {
         const token = issueToken(users.admin);
         setToken(token);
 
-        const res = await userApi
+        const res1 = await userApi
             .updateUser(users.creator.id, {
                 username: 'simple',
                 password: null,
                 firstName: null,
                 lastName: null,
+                email: 'simpleX@test.test',
+                notifications: false,
                 roles: [],
             })
             .catch(processError);
-        expect(res).to.eql({
+        expect(res1).to.eql({
             code: 'UNIQUE_CONSTRAINT_ERROR',
             fields: {
                 username: 'not_unique',
+            },
+            statusCode: 409,
+        });
+
+        const res2 = await userApi
+            .updateUser(users.creator.id, {
+                username: 'simpleX',
+                password: null,
+                firstName: null,
+                lastName: null,
+                email: 'simple@test.test',
+                notifications: false,
+                roles: [],
+            })
+            .catch(processError);
+        expect(res2).to.eql({
+            code: 'UNIQUE_CONSTRAINT_ERROR',
+            fields: {
+                email: 'not_unique',
             },
             statusCode: 409,
         });
@@ -389,6 +549,8 @@ describe('User', () => {
                 firstName:
                     'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
                 lastName: 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
+                email: 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
+                notifications: false,
                 roles: [],
             })
             .catch(processError);
@@ -416,6 +578,7 @@ describe('User', () => {
                         max: 50,
                     },
                 },
+                email: 'email',
             },
             statusCode: 422,
         });
@@ -426,6 +589,8 @@ describe('User', () => {
                 password: '',
                 firstName: '',
                 lastName: '',
+                email: '',
+                notifications: false,
                 roles: [],
             })
             .catch(processError);
@@ -447,6 +612,7 @@ describe('User', () => {
                         min: 3,
                     },
                 },
+                email: 'required',
             },
             statusCode: 422,
         });
@@ -456,8 +622,10 @@ describe('User', () => {
         // prepare valid token
         const token = issueToken(users.admin);
         setToken(token);
-        const res = await userApi.deleteUser(users.creator.id).catch(processError);
-        expect(res.status).to.equals(204);
+        const res = await userApi
+            .deleteUser(users.creator.id)
+            .catch(processError);
+        expect(res.status).to.equal(204);
     });
 
     it('should try delete user and fail on roles', async () => {
@@ -465,7 +633,9 @@ describe('User', () => {
         const token = issueToken(users.creator);
         setToken(token);
 
-        const res = await userApi.deleteUser(users.creator.id).catch(processError);
+        const res = await userApi
+            .deleteUser(users.creator.id)
+            .catch(processError);
         expect(res).to.eql({
             statusCode: 403,
             code: 'FORBIDEN',
@@ -488,11 +658,220 @@ describe('User', () => {
 
     it('should try delete user and fail on authentication', async () => {
         // login and save token
-        const res = await userApi.deleteUser(users.creator.id).catch(processError);
+        const res = await userApi
+            .deleteUser(users.creator.id)
+            .catch(processError);
         expect(res).to.eql({
             statusCode: 401,
             code: 'INVALID_CREDENTIALS',
             message: '',
+        });
+    });
+
+    it('should try resend confirmation email and fail on roles', async () => {
+        // prepare valid token
+        const token = issueToken(users.simple);
+        setToken(token);
+
+        const res = await userApi
+            .resendConfirmation(users.creator.id)
+            .catch(processError);
+
+        expect(res).to.eql({
+            statusCode: 403,
+            code: 'FORBIDEN',
+            message: '',
+        });
+    });
+
+    it('should try resend confirmation email to user with already confirmed email and fail because it is confirmed', async () => {
+        // prepare valid token
+        const token = issueToken(users.admin);
+        setToken(token);
+        const res = await userApi
+            .resendConfirmation(users.creator.id)
+            .catch(processError);
+
+        expect(res).to.eql({
+            statusCode: 409,
+            code: 'CONSTRAINT_FAILED',
+            message: 'Already confirmed',
+        });
+    });
+
+    it('should resend confirmation email to user', async () => {
+        const maildev = new MailDev({
+            smtp: Number(process.env.EMAIL_PORT),
+            disableWeb: true,
+            silent: true,
+        });
+        let receivedEmail: any;
+        try {
+            maildev.listen();
+            const receivedEmailPromise = new Promise((resolve) => {
+                maildev.on('new', (email) => {
+                    resolve(email);
+                });
+            });
+            // prepare valid token
+            const token = issueToken(users.admin);
+            setToken(token);
+
+            const res = await userApi
+                .resendConfirmation(users.creator2.id)
+                .catch(processError);
+
+            expect(res.status).to.be.equal(204);
+            receivedEmail = await receivedEmailPromise;
+        } finally {
+            maildev.close();
+        }
+
+        expect(receivedEmail.subject).to.equal(
+            'My Cookery Book 2: Email confirmation'
+        );
+        expect(receivedEmail.from).to.eql([
+            {
+                address: process.env.EMAIL_FROM,
+                name: '',
+            },
+        ]);
+        expect(receivedEmail.to).to.eql([
+            {
+                address: users.creator2.email,
+                name: '',
+            },
+        ]);
+        expect(receivedEmail.text).to.be.a('string');
+        expect(receivedEmail.html).to.be.a('string');
+        expect(receivedEmail.text).to.equal(receivedEmail.html); // in tests template both are same so result should be same too
+    });
+
+    it('should change user profile including password', async () => {
+        const maildev = new MailDev({
+            smtp: Number(process.env.EMAIL_PORT),
+            disableWeb: true,
+            silent: true,
+        });
+        let receivedEmail: any;
+        try {
+            maildev.listen();
+            const receivedEmailPromise = new Promise((resolve) => {
+                maildev.on('new', (email) => {
+                    resolve(email);
+                });
+            });
+            // prepare valid token
+            const token = issueToken(users.admin);
+            setToken(token);
+
+            const updated = await userApi
+                .updateProfile({
+                    password: 'Admin123',
+                    newPassword: 'Admin1234',
+                    email: 'testX@test.test',
+                    firstName: 'AAAA',
+                    lastName: 'BBBB',
+                    notifications: false,
+                })
+                .catch(processError);
+            expect(updated.status).to.equal(204);
+            receivedEmail = await receivedEmailPromise;
+        } finally {
+            maildev.close();
+        }
+
+        expect(receivedEmail.subject).to.equal(
+            'My Cookery Book 2: Email confirmation'
+        );
+        expect(receivedEmail.from).to.eql([
+            {
+                address: process.env.EMAIL_FROM,
+                name: '',
+            },
+        ]);
+        expect(receivedEmail.to).to.eql([
+            {
+                address: 'testX@test.test',
+                name: '',
+            },
+        ]);
+        expect(receivedEmail.text).to.be.a('string');
+        expect(receivedEmail.html).to.be.a('string');
+        expect(receivedEmail.text).to.equal(receivedEmail.html); // in tests template both are same so result should be same too
+    });
+
+    it('should try to change password and fail', async () => {
+        // prepare valid token
+        const token = issueToken(users.admin);
+        setToken(token);
+
+        const res1 = await userApi
+            .updateProfile({
+                password: 'Admin123',
+                newPassword: 'admin1234',
+                email: 'test@test.test',
+                firstName: 'AAAA',
+                lastName: 'BBBB',
+                notifications: false,
+            })
+            .catch(processError);
+        expect(res1).to.eql({
+            statusCode: 422,
+            message: '',
+            code: 'VALIDATION_FAILED',
+            fields: { newPassword: 'simplePassword' },
+        });
+
+        const res2 = await userApi
+            .updateProfile({
+                password: 'Admin123',
+                newPassword: 'Adminadmin',
+                email: 'test@test.test',
+                firstName: 'AAAA',
+                lastName: 'BBBB',
+                notifications: false,
+            })
+            .catch(processError);
+        expect(res2).to.eql({
+            statusCode: 422,
+            message: '',
+            code: 'VALIDATION_FAILED',
+            fields: { newPassword: 'simplePassword' },
+        });
+
+        const res3 = await userApi
+            .updateProfile({
+                password: 'Admin123',
+                newPassword: 'Admin1',
+                email: 'test@test.test',
+                firstName: 'AAAA',
+                lastName: 'BBBB',
+                notifications: false,
+            })
+            .catch(processError);
+        expect(res3).to.eql({
+            statusCode: 422,
+            message: '',
+            code: 'VALIDATION_FAILED',
+            fields: { newPassword: 'simplePassword' },
+        });
+
+        const res4 = await userApi
+            .updateProfile({
+                password: 'Admin123',
+                newPassword: 'aaaaaaa',
+                email: 'test@test.test',
+                firstName: 'AAAA',
+                lastName: 'BBBB',
+                notifications: false,
+            })
+            .catch(processError);
+        expect(res4).to.eql({
+            statusCode: 422,
+            message: '',
+            code: 'VALIDATION_FAILED',
+            fields: { newPassword: 'simplePassword' },
         });
     });
 });

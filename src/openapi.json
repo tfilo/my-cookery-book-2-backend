@@ -106,6 +106,9 @@
                     "422": {
                         "$ref": "#/components/responses/UnprocessableEntity"
                     },
+                    "429": {
+                        "$ref": "#/components/responses/TooManyRequestsError"
+                    },
                     "500": {
                         "$ref": "#/components/responses/InternalServerError"
                     }
@@ -152,23 +155,27 @@
                     "401": {
                         "$ref": "#/components/responses/UnauthorizedError"
                     },
+                    "429": {
+                        "$ref": "#/components/responses/TooManyRequestsError"
+                    },
                     "500": {
                         "$ref": "#/components/responses/InternalServerError"
                     }
                 }
             }
         },
-        "/auth/password": {
-            "patch": {
-                "operationId": "updatePassword",
+        "/auth/reset": {
+            "post": {
+                "operationId": "resetPasswordLink",
                 "tags": [
                     "auth"
                 ],
+                "security": [],
                 "requestBody": {
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/UpdatePasswordRequest"
+                                "$ref": "#/components/schemas/ResetPasswordLinkRequest"
                             }
                         }
                     },
@@ -176,13 +183,89 @@
                 },
                 "responses": {
                     "204": {
-                        "description": "Successful password update"
+                        "description": "Password link sended"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntity"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/TooManyRequestsError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "resetPassword",
+                "tags": [
+                    "auth"
+                ],
+                "security": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ResetPasswordRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "Successful password reset"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntity"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/TooManyRequestsError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
+            }
+        },
+        "/auth/confirm": {
+            "patch": {
+                "operationId": "confirmEmail",
+                "tags": [
+                    "auth"
+                ],
+                "security": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ConfirmEmailRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "Successful email confirmation"
                     },
                     "401": {
                         "$ref": "#/components/responses/UnauthorizedError"
                     },
                     "422": {
                         "$ref": "#/components/responses/UnprocessableEntity"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/TooManyRequestsError"
                     },
                     "500": {
                         "$ref": "#/components/responses/InternalServerError"
@@ -1144,7 +1227,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "User",
+                        "description": "Unit",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1347,7 +1430,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "User",
+                        "description": "UnitCategory",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1499,6 +1582,9 @@
                     },
                     "500": {
                         "$ref": "#/components/responses/InternalServerError"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailableError"
                     }
                 }
             },
@@ -1523,6 +1609,78 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
+            }
+        },
+        "/user/updateProfile": {
+            "patch": {
+                "operationId": "updateProfile",
+                "tags": [
+                    "user"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateProfileRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "Successful profile update"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntity"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
+            }
+        },
+        "/user/resendConfirmation/{userId}": {
+            "patch": {
+                "operationId": "resendConfirmation",
+                "tags": [
+                    "user"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "userId",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "minimum": 1
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "User email confirmation sended again"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/ConstraintError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntity"
                     },
                     "500": {
                         "$ref": "#/components/responses/InternalServerError"
@@ -1625,6 +1783,9 @@
                     },
                     "500": {
                         "$ref": "#/components/responses/InternalServerError"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailableError"
                     }
                 }
             },
@@ -1700,7 +1861,9 @@
                     "EXPIRED_TOKEN",
                     "INVALID_TOKEN",
                     "UNIQUE_CONSTRAINT_ERROR",
-                    "CONSTRAINT_FAILED"
+                    "UNABLE_TO_SENT_EMAIL",
+                    "CONSTRAINT_FAILED",
+                    "TOO_MANY_REQUESTS"
                 ]
             },
             "LoginRequest": {
@@ -1738,11 +1901,55 @@
                     }
                 }
             },
-            "UpdatePasswordRequest": {
+            "ResetPasswordLinkRequest": {
+                "type": "object",
+                "required": [
+                    "email"
+                ],
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 320
+                    }
+                }
+            },
+            "ResetPasswordRequest": {
+                "type": "object",
+                "required": [
+                    "username",
+                    "key",
+                    "newPassword"
+                ],
+                "properties": {
+                    "username": {
+                        "type": "string",
+                        "maxLength": 50
+                    },
+                    "key": {
+                        "type": "string",
+                        "format": "uuid",
+                        "maxLength": 36,
+                        "description": "UUIDv4 from confirmation email"
+                    },
+                    "newPassword": {
+                        "type": "string",
+                        "format": "password",
+                        "minLength": 8,
+                        "maxLength": 255,
+                        "description": "New password for user. Should be at least 8 characters long, at least one small letter, one capital letter and one number."
+                    }
+                }
+            },
+            "UpdateProfileRequest": {
                 "type": "object",
                 "required": [
                     "password",
-                    "newPassword"
+                    "newPassword",
+                    "firstName",
+                    "lastName",
+                    "email",
+                    "notifications"
                 ],
                 "properties": {
                     "password": {
@@ -1754,9 +1961,50 @@
                     "newPassword": {
                         "type": "string",
                         "format": "password",
+                        "nullable": true,
                         "minLength": 8,
                         "maxLength": 255,
                         "description": "New password for user. Should be at least 8 characters long, at least one small letter, one capital letter and one number."
+                    },
+                    "firstName": {
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 50,
+                        "nullable": true
+                    },
+                    "lastName": {
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 50,
+                        "nullable": true
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 320
+                    },
+                    "notifications": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "ConfirmEmailRequest": {
+                "type": "object",
+                "required": [
+                    "username",
+                    "key"
+                ],
+                "properties": {
+                    "username": {
+                        "type": "string",
+                        "minLength": 4,
+                        "maxLength": 50
+                    },
+                    "key": {
+                        "type": "string",
+                        "format": "uuid",
+                        "maxLength": 36,
+                        "description": "UUIDv4 from confirmation email"
                     }
                 }
             },
@@ -2913,6 +3161,8 @@
                     "username",
                     "firstName",
                     "lastName",
+                    "confirmed",
+                    "notifications",
                     "roles"
                 ],
                 "properties": {
@@ -2938,6 +3188,12 @@
                         "maxLength": 50,
                         "nullable": true
                     },
+                    "confirmed": {
+                        "type": "boolean"
+                    },
+                    "notifications": {
+                        "type": "boolean"
+                    },
                     "roles": {
                         "type": "array",
                         "items": {
@@ -2957,6 +3213,7 @@
                     "password",
                     "firstName",
                     "lastName",
+                    "email",
                     "roles"
                 ],
                 "properties": {
@@ -2985,6 +3242,11 @@
                         "maxLength": 50,
                         "nullable": true
                     },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 320
+                    },
                     "roles": {
                         "type": "array",
                         "items": {
@@ -3004,6 +3266,8 @@
                     "password",
                     "firstName",
                     "lastName",
+                    "email",
+                    "notifications",
                     "roles"
                 ],
                 "properties": {
@@ -3033,6 +3297,14 @@
                         "maxLength": 50,
                         "nullable": true
                     },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 320
+                    },
+                    "notifications": {
+                        "type": "boolean"
+                    },
                     "roles": {
                         "type": "array",
                         "items": {
@@ -3052,6 +3324,9 @@
                     "username",
                     "firstName",
                     "lastName",
+                    "email",
+                    "confirmed",
+                    "notifications",
                     "roles",
                     "createdAt",
                     "updatedAt"
@@ -3078,6 +3353,17 @@
                         "minLength": 1,
                         "maxLength": 50,
                         "nullable": true
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 320
+                    },
+                    "confirmed": {
+                        "type": "boolean"
+                    },
+                    "notifications": {
+                        "type": "boolean"
                     },
                     "roles": {
                         "type": "array",
@@ -3175,6 +3461,16 @@
             },
             "ConstraintError": {
                 "description": "Constraint or duplicity error.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            },
+            "TooManyRequestsError": {
+                "description": "Client sent too many requests in short time.",
                 "content": {
                     "application/json": {
                         "schema": {

@@ -6,6 +6,7 @@ import {
     StartedPostgreSqlContainer,
     Wait,
 } from 'testcontainers';
+import MailDev from 'maildev';
 
 dotenv.config({ path: path.join('src', 'tests', '.env') });
 
@@ -24,7 +25,7 @@ const expect = Chai.expect;
 
 const port = process.env.PORT || 13000;
 
-let token: string;
+let token: string = '';
 const setToken = (t: string) => {
     token = t;
 };
@@ -52,7 +53,7 @@ describe('Auth', () => {
             .withPassword('cookery2123')
             .withExposedPorts({
                 container: 5432,
-                host: Number(process.env.DATABASE_PORT ?? 15432),
+                host: Number(process.env.DATABASE_PORT),
             })
             .withWaitStrategy(
                 Wait.forLogMessage(
@@ -107,6 +108,39 @@ describe('Auth', () => {
         });
     });
 
+    it('should try to login and fail because user not confirmed', async () => {
+        const res = await authApi
+            .login({
+                username: 'creator2',
+                password: 'Creator2123',
+            })
+            .catch(processError);
+        expect(res).to.eql({
+            statusCode: 401,
+            code: 'INVALID_CREDENTIALS',
+            message: '',
+        });
+    });
+
+    it('should try to login and success after confirmation', async () => {
+        const res1 = await authApi
+            .confirmEmail({
+                username: 'creator2',
+                key: '511f1466-02b4-4605-af0f-eaf33afc8dd0',
+            })
+            .catch(processError);
+        expect(res1.status).to.equal(204);
+
+        const res2 = await authApi
+            .login({
+                username: 'creator2',
+                password: 'Creator2123',
+            })
+            .catch(processError);
+        expect(res2.token).to.be.a('string');
+        expect(res2.refreshToken).to.be.a('string');
+    });
+
     it('should refresh', async () => {
         const refreshToken = issueRefreshToken(users.admin);
 
@@ -118,88 +152,6 @@ describe('Auth', () => {
 
         expect(refreshed.token).to.be.a('string');
         expect(refreshed.refreshToken).to.be.a('string');
-    });
-
-    it('should change password', async () => {
-        // prepare valid token
-        const token = issueToken(users.admin);
-        setToken(token);
-
-        const updated = await authApi
-            .updatePassword({
-                password: 'Admin123',
-                newPassword: 'Admin1234',
-            })
-            .catch(processError);
-        expect(updated.status).to.equals(204);
-
-        // verify new password
-        const res = await authApi
-            .login({
-                username: 'admin',
-                password: 'Admin1234',
-            })
-            .catch(processError);
-        expect(res.token).to.be.a('string');
-        expect(res.refreshToken).to.be.a('string');
-    });
-
-    it('should try to change password and fail', async () => {
-        // prepare valid token
-        const token = issueToken(users.admin);
-        setToken(token);
-
-        const res1 = await authApi
-            .updatePassword({
-                password: 'Admin123',
-                newPassword: 'admin1234',
-            })
-            .catch(processError);
-        expect(res1).to.eql({
-            statusCode: 422,
-            message: '',
-            code: 'VALIDATION_FAILED',
-            fields: { newPassword: 'simplePassword' },
-        });
-
-        const res2 = await authApi
-            .updatePassword({
-                password: 'Admin123',
-                newPassword: 'Adminadmin',
-            })
-            .catch(processError);
-        expect(res2).to.eql({
-            statusCode: 422,
-            message: '',
-            code: 'VALIDATION_FAILED',
-            fields: { newPassword: 'simplePassword' },
-        });
-
-        const res3 = await authApi
-            .updatePassword({
-                password: 'Admin123',
-                newPassword: 'Admin1',
-            })
-            .catch(processError);
-        expect(res3).to.eql({
-            statusCode: 422,
-            message: '',
-            code: 'VALIDATION_FAILED',
-            fields: { newPassword: 'simplePassword' },
-        });
-
-        const res4 = await authApi
-            .updatePassword({
-                password: 'Admin123',
-                newPassword: 'aaaaaaa',
-            })
-            .catch(processError);
-        expect(res4).to.eql({
-            statusCode: 422,
-            message: '',
-            code: 'VALIDATION_FAILED',
-            fields: { newPassword: 'simplePassword' },
-        });
     });
 
     it('should get authenticated user', async () => {
@@ -222,5 +174,74 @@ describe('Auth', () => {
             code: 'INVALID_CREDENTIALS',
             message: '',
         });
+    });
+
+    it('should sent reset link, and try it to reset password, than confirm by successful login', async () => {
+        const maildev = new MailDev({
+            smtp: Number(process.env.EMAIL_PORT),
+            disableWeb: true,
+            silent: true,
+        });
+        let uuid: string;
+        try {
+            maildev.listen();
+
+            const receivedEmailPromise = new Promise((resolve) => {
+                maildev.on('new', resolve);
+            });
+            const res = await authApi
+                .resetPasswordLink({
+                    email: 'admin@test.test',
+                })
+                .catch(processError);
+
+            expect(res.status).to.equal(204);
+
+            const receivedEmail = (await receivedEmailPromise) as any;
+
+            expect(receivedEmail.subject).to.equal(
+                'My Cookery Book 2: Password reset'
+            );
+            expect(receivedEmail.from).to.eql([
+                {
+                    address: process.env.EMAIL_FROM,
+                    name: '',
+                },
+            ]);
+            expect(receivedEmail.to).to.eql([
+                {
+                    address: 'admin@test.test',
+                    name: '',
+                },
+            ]);
+            expect(receivedEmail.text).to.be.a('string');
+            expect(receivedEmail.html).to.be.a('string');
+            expect(receivedEmail.text).to.equal(receivedEmail.html); // in tests template both are same so result should be same too
+
+            const fullName = receivedEmail.text.split(',')[0];
+            expect(fullName).to.equal('Best Admin');
+            uuid = receivedEmail.text.split(',')[1];
+        } finally {
+            maildev.close();
+        }
+
+        const res1 = await authApi
+            .resetPassword({
+                username: 'admin',
+                key: uuid,
+                newPassword: 'N3wPassw0rd',
+            })
+            .catch(processError);
+        expect(res1.status).to.equal(204);
+
+        const res2 = await authApi
+            .login({
+                username: 'admin',
+                password: 'N3wPassw0rd',
+            })
+            .catch(processError);
+
+        expect(res2.token).to.be.a('string');
+        expect(res2.refreshToken).to.be.a('string');
     });
 });

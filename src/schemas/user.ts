@@ -40,6 +40,7 @@ export const createUserSchema = yup
                     .min(3)
                     .max(50)
                     .nullable(),
+                email: yup.string().trim().min(5).max(320).email().required(),
                 lastName: yup
                     .string()
                     .defined()
@@ -49,12 +50,39 @@ export const createUserSchema = yup
                     .nullable(),
                 roles: yup
                     .array()
-                    .of(yup.mixed<ROLE>().oneOf(Object.keys(ROLE) as ROLE[]).required())
+                    .of(
+                        yup
+                            .mixed<ROLE>()
+                            .oneOf(Object.keys(ROLE) as ROLE[])
+                            .required()
+                    )
                     .required(),
             })
             .required(),
     })
     .required();
+
+export const updateProfileSchema = yup.object({
+    body: yup
+        .object({
+            password: yup.string().trim().max(255).required(),
+            newPassword: yup
+                .string()
+                .trim()
+                .min(8)
+                .max(255)
+                .matches(
+                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
+                    'simplePassword'
+                )
+                .required(),
+            firstName: yup.string().defined().trim().min(3).max(50).nullable(),
+            lastName: yup.string().defined().trim().min(3).max(50).nullable(),
+            email: yup.string().trim().min(5).max(320).email().required(),
+            notifications: yup.boolean().default(false).required(),
+        })
+        .required(),
+});
 
 export const updateUserSchema = yup
     .object({
@@ -97,10 +125,27 @@ export const updateUserSchema = yup
                     .min(3)
                     .max(50)
                     .nullable(),
+                email: yup.string().trim().min(5).max(320).email().required(),
+                notifications: yup.boolean().default(false).required(),
                 roles: yup
                     .array()
-                    .of(yup.mixed<ROLE>().oneOf(Object.keys(ROLE) as ROLE[]).required())
+                    .of(
+                        yup
+                            .mixed<ROLE>()
+                            .oneOf(Object.keys(ROLE) as ROLE[])
+                            .required()
+                    )
                     .required(),
+            })
+            .required(),
+    })
+    .required();
+
+export const resentConfirmationSchema = yup
+    .object({
+        params: yup
+            .object({
+                userId: yup.number().integer().min(1).required(),
             })
             .required(),
     })
