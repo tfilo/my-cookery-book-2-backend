@@ -16,9 +16,18 @@ ADD
 ALTER TABLE
     "Users"
 ADD
-    COLUMN "email" character varying(320) NOT NULL;
+    COLUMN "email" character varying(320);
 
 ALTER TABLE
     ONLY "Users"
 ADD
     CONSTRAINT "Users_email_key" UNIQUE (email);
+
+-- FILL ALL USERACCOUNT WITH EMAIL!!!
+-- THAN RUN
+ALTER TABLE
+    "Users"
+ALTER COLUMN
+    "email"
+SET
+    NOT NULL;
