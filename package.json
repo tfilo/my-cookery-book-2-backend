@@ -11,11 +11,11 @@
         "build": "npm run build:clean && npm run build:compile && npm run build:copyOpenapi",
         "build:clean": "del-cli dist",
         "build:compile": "tsc",
-        "build:copyOpenapi": "cpy 'src/openapi.json' dist/ --flat",
+        "build:copyOpenapi": "cpy 'src/openapi.json' dist/ --flat && cpy 'src/openapi-internal.json' dist/ --flat",
         "tests": "npm run tests:clean && npm run tests:generateOpenapi && npm run tests:unit && npm run tests:integration",
         "tests:unit": "ts-mocha 'src/tests/unit/**/*.ts' --timeout 5000",
         "tests:integration": "ts-mocha 'src/tests/integration/**/*.ts' --timeout 300000 --exit",
-        "tests:clean": "del-cli src/tests/openapi",
+        "tests:clean": "del-cli src/tests/openapi && del-cli src/tests/openapi-internal",
         "tests:generateOpenapi": "openapi-generator-plus -c openapi-config.yml && openapi-generator-plus -c openapi-internal-config.yml && replace-in-file --configFile=replace-config.js",
         "lint": "eslint 'src/**'"
     },
