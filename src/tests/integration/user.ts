@@ -444,32 +444,6 @@ describe('User', () => {
         expect(receivedEmail.text).to.equal(receivedEmail.html); // in tests template both are same so result should be same too
     });
 
-    it('should try update user and fail because after email change notifications must be set to false', async () => {
-        // prepare valid token
-        const token = issueToken(users.admin);
-        setToken(token);
-
-        const res = await userApi
-            .updateUser(users.creator.id, {
-                username: 'creator3',
-                password: null,
-                firstName: null,
-                lastName: null,
-                email: 'creator3@test.test',
-                notifications: true,
-                roles: [],
-            })
-            .catch(processError);
-        expect(res).to.eql({
-            message: '',
-            code: 'VALIDATION_FAILED',
-            fields: {
-                notifications: 'invalidValue',
-            },
-            statusCode: 422,
-        });
-    });
-
     it('should try update user and fail on roles', async () => {
         // prepare valid token
         const token = issueToken(users.creator);

@@ -92,7 +92,6 @@ export const createUser = async (
                 {
                     ...request.body,
                     confirmed: false,
-                    notifications: false,
                     uuid,
                 },
                 {
@@ -264,19 +263,7 @@ export const updateProfile = async (
 
             const updatedEmail = user.email !== request.body.email;
             const confirmed = updatedEmail ? false : user.confirmed;
-            const notifications = !confirmed
-                ? false
-                : request.body.notifications;
             const uuid = updatedEmail ? uuidv4() : user.uuid; // preserve old UUID if email not updated
-            if (!confirmed && request.body.notifications) {
-                const error = new CustomError();
-                error.code = CUSTOM_ERROR_CODES.VALIDATION_FAILED;
-                error.statusCode = 422;
-                error.fields = {
-                    notifications: 'invalidValue',
-                };
-                throw error;
-            }
 
             if (newPassword) {
                 await user.update(
@@ -296,7 +283,7 @@ export const updateProfile = async (
                     lastName: request.body.lastName,
                     email: request.body.email,
                     confirmed,
-                    notifications,
+                    notifications: request.body.notifications,
                     uuid,
                 },
                 {
@@ -352,19 +339,8 @@ export const updateUser = async (
 
             const updatedEmail = user.email !== request.body.email;
             const confirmed = updatedEmail ? false : user.confirmed;
-            const notifications = !confirmed
-                ? false
-                : request.body.notifications;
+
             const uuid = updatedEmail ? uuidv4() : user.uuid; // preserve old UUID if email not updated
-            if (!confirmed && request.body.notifications) {
-                const error = new CustomError();
-                error.code = CUSTOM_ERROR_CODES.VALIDATION_FAILED;
-                error.statusCode = 422;
-                error.fields = {
-                    notifications: 'invalidValue',
-                };
-                throw error;
-            }
 
             if (request.body.password) {
                 await user.update(
@@ -385,7 +361,7 @@ export const updateUser = async (
                     lastName: request.body.lastName,
                     email: request.body.email,
                     confirmed,
-                    notifications,
+                    notifications: request.body.notifications,
                     uuid,
                 },
                 {

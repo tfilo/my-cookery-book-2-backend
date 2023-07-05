@@ -40,7 +40,6 @@ export const createUserSchema = yup
                     .min(3)
                     .max(50)
                     .nullable(),
-                email: yup.string().trim().min(5).max(320).email().required(),
                 lastName: yup
                     .string()
                     .defined()
@@ -48,6 +47,8 @@ export const createUserSchema = yup
                     .min(3)
                     .max(50)
                     .nullable(),
+                email: yup.string().trim().min(5).max(320).email().required(),
+                notifications: yup.boolean().default(false).required(),
                 roles: yup
                     .array()
                     .of(
