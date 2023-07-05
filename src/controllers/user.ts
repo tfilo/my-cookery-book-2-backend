@@ -195,7 +195,40 @@ export const resentConfirmation = async (
     }
 };
 
-export const updateUserProfile = async (
+export const getProfile = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const request = <{ userId: number }>req;
+
+        const userId = request.userId;
+        const user = await User.findByPk(userId, {
+            attributes: [
+                'username',
+                'firstName',
+                'lastName',
+                'email',
+                'confirmed',
+                'notifications',
+            ],
+        });
+
+        if (!user) {
+            const error = new CustomError();
+            error.code = CUSTOM_ERROR_CODES.NOT_FOUND;
+            error.statusCode = 404;
+            throw error;
+        }
+
+        res.status(200).json(user);
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const updateProfile = async (
     req: Request,
     res: Response,
     next: NextFunction

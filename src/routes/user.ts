@@ -18,6 +18,12 @@ const router = express.Router();
 router.get('/', isAuth(ROLE.ADMIN), userController.getUsers);
 
 router.get(
+    '/profile',
+    isAuth(),
+    userController.getProfile
+);
+
+router.get(
     '/:userId',
     isAuth(ROLE.ADMIN),
     validate(getUserSchema),
@@ -39,10 +45,10 @@ router.patch(
 );
 
 router.patch(
-    '/updateProfile',
+    '/profile',
     isAuth(),
     validate(updateProfileSchema),
-    userController.updateUserProfile
+    userController.updateProfile
 );
 
 router.put(

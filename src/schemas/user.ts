@@ -68,6 +68,7 @@ export const updateProfileSchema = yup.object({
             password: yup.string().trim().max(255).required(),
             newPassword: yup
                 .string()
+                .defined()
                 .trim()
                 .min(8)
                 .max(255)
@@ -75,7 +76,7 @@ export const updateProfileSchema = yup.object({
                     /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
                     'simplePassword'
                 )
-                .required(),
+                .nullable(),
             firstName: yup.string().defined().trim().min(3).max(50).nullable(),
             lastName: yup.string().defined().trim().min(3).max(50).nullable(),
             email: yup.string().trim().min(5).max(320).email().required(),

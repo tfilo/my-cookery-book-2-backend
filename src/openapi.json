@@ -1616,7 +1616,34 @@
                 }
             }
         },
-        "/user/updateProfile": {
+        "/user/profile": {
+            "get": {
+                "operationId": "getProfile",
+                "tags": [
+                    "user"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Profile",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Profile"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
+            },
             "patch": {
                 "operationId": "updateProfile",
                 "tags": [
@@ -3314,6 +3341,47 @@
                                 "CREATOR"
                             ]
                         }
+                    }
+                }
+            },
+            "Profile": {
+                "type": "object",
+                "required": [
+                    "username",
+                    "firstName",
+                    "lastName",
+                    "email",
+                    "confirmed",
+                    "notifications"
+                ],
+                "properties": {
+                    "username": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 50
+                    },
+                    "firstName": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 50,
+                        "nullable": true
+                    },
+                    "lastName": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 50,
+                        "nullable": true
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 320
+                    },
+                    "confirmed": {
+                        "type": "boolean"
+                    },
+                    "notifications": {
+                        "type": "boolean"
                     }
                 }
             },
