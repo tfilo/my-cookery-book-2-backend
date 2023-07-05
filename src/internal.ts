@@ -122,22 +122,13 @@ router.get('/health', (req, res) => {
 if (process.env.NODE_ENV === 'development') {
     const openapiFilePath = path.join(__dirname, 'openapi-internal.json');
     const openapiFile = JSON.parse(fs.readFileSync(openapiFilePath, 'utf-8'));
-    router.get('/api-docs/internal.json', (req, res) => res.json(openapiFile));
-    const options = {
-        explorer: true,
-        swaggerOptions: {
-            urls: [
-                {
-                    url: internalPath + '/api-docs/internal.json',
-                    name: 'Internal API',
-                },
-            ],
-        },
-    };
+    router.get('/api-docs/internal.json', (req, res) =>
+        res.json(openapiFile)
+    );
     router.use(
         '/api-docs',
-        swaggerUi.serve,
-        swaggerUi.setup(undefined, options)
+        swaggerUi.serveFiles(openapiFile, {}),
+        swaggerUi.setup(openapiFile)
     );
 }
 
