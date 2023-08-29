@@ -90,8 +90,8 @@ and fix any errors or warnings if possible. It will ensure to have consistent co
 | MAIL_NOTIFICATION_TEMPLATE_TXT_HBS  | string        |                  |          | Plain text handlebars template, variables: fullName: string, recipes: {name: string, id: number}[], username: string |
 | MAIL_NOTIFICATION_TEMPLATE_HTML_HBS | string        |                  |          | HTML handlebars template: fullName: string, recipes: {name: string, id: number}[], username: string                  |
 | MAIL_RESET_SUBJECT                  | string        |                  |          | Email subject                                                                                                        |
-| MAIL_RESET_TEMPLATE_TXT_HBS         | string        |                  |          | Plain text handlebars template, variables: fullName: string, key: string                                             |
-| MAIL_RESET_TEMPLATE_HTML_HBS        | string        |                  |          | HTML handlebars template: fullName: string, key: string                                                              |
+| MAIL_RESET_TEMPLATE_TXT_HBS         | string        |                  |          | Plain text handlebars template, variables: fullName: string, key: string, username: string                           |
+| MAIL_RESET_TEMPLATE_HTML_HBS        | string        |                  |          | HTML handlebars template: fullName: string, key: string, username: string                                            |
 
 ## Building docker image
 

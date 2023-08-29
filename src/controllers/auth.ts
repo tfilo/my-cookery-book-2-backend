@@ -174,6 +174,7 @@ export const resetPasswordLink = async (
             await sendResetEmail(
                 user.email,
                 uuid,
+                user.username,
                 user.firstName,
                 user.lastName
             );
@@ -285,6 +286,7 @@ export const user = async (req: Request, res: Response, next: NextFunction) => {
 const sendResetEmail = async (
     email: string,
     key: string,
+    username: string,
     firstName?: string,
     lastName?: string
 ) => {
@@ -293,7 +295,8 @@ const sendResetEmail = async (
     const emailSubject = process.env.MAIL_RESET_SUBJECT;
 
     const emailData = {
-        fullName: firstName && lastName ? firstName + ' ' + lastName : '',
+        fullName: firstName && lastName ? firstName + ' ' + lastName : username,
+        username,
         key,
     };
 
