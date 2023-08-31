@@ -429,7 +429,7 @@ export const deleteRecipe = async (
                 }
             }
 
-            recipe.destroy({
+            await recipe.destroy({
                 transaction: t,
             });
         });

@@ -70,7 +70,6 @@ router.post('/sendNotifications', async (req, res) => {
                         +(process.env.NOTIFICATION_RANGE_DAYS ?? 1),
                         'days'
                     )
-                    .startOf('day')
                     .toDate(),
             },
         },
@@ -122,9 +121,7 @@ router.get('/health', (req, res) => {
 if (process.env.NODE_ENV === 'development') {
     const openapiFilePath = path.join(__dirname, 'openapi-internal.json');
     const openapiFile = JSON.parse(fs.readFileSync(openapiFilePath, 'utf-8'));
-    router.get('/api-docs/internal.json', (req, res) =>
-        res.json(openapiFile)
-    );
+    router.get('/api-docs/internal.json', (req, res) => res.json(openapiFile));
     router.use(
         '/api-docs',
         swaggerUi.serveFiles(openapiFile, {}),
