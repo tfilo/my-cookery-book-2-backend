@@ -198,7 +198,8 @@ describe('User', () => {
                     firstName: 'New',
                     lastName: 'User',
                     email: 'newuser@test.test',
-                    roles: [Api.CreateUser.RolesEnum.CREATOR],
+                    roles: [Api.CreateUser.RoleEnum.CREATOR],
+                    notifications: false,
                 })
                 .catch(processError);
 
@@ -209,7 +210,7 @@ describe('User', () => {
             expect(res.confirmed).to.equal(false);
             expect(res.notifications).to.equal(false);
             expect(res.email).to.equal('newuser@test.test');
-            expect(res.roles).to.eql([Api.CreateUser.RolesEnum.CREATOR]);
+            expect(res.roles).to.eql([Api.CreateUser.RoleEnum.CREATOR]);
             expect(res.createdAt).to.be.a('string');
             expect(res.updatedAt).to.be.a('string');
             receivedEmail = await receivedEmailPromise;
@@ -249,7 +250,8 @@ describe('User', () => {
                 firstName: 'New',
                 lastName: 'User',
                 email: 'newuser@test.test',
-                roles: [Api.CreateUser.RolesEnum.CREATOR],
+                roles: [Api.CreateUser.RoleEnum.CREATOR],
+                notifications: false,
             })
             .catch(processError);
         expect(res).to.eql({
@@ -271,7 +273,8 @@ describe('User', () => {
                 firstName: 'New',
                 lastName: 'User',
                 email: 'creatorX@test.test',
-                roles: [Api.CreateUser.RolesEnum.CREATOR],
+                roles: [Api.CreateUser.RoleEnum.CREATOR],
+                notifications: false,
             })
             .catch(processError);
         expect(res1).to.eql({
@@ -289,7 +292,8 @@ describe('User', () => {
                 firstName: 'New',
                 lastName: 'User',
                 email: 'creator@test.test',
-                roles: [Api.CreateUser.RolesEnum.CREATOR],
+                roles: [Api.CreateUser.RoleEnum.CREATOR],
+                notifications: false,
             })
             .catch(processError);
         expect(res2).to.eql({
@@ -315,6 +319,8 @@ describe('User', () => {
                 lastName: 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
                 email: 'fdgsdfgdfgdf',
                 roles: [],
+                //@ts-ignore
+                notifications: 'dasdads',
             })
             .catch(processError);
 
@@ -342,6 +348,7 @@ describe('User', () => {
                     },
                 },
                 email: 'email',
+                notifications: 'invalidValue',
             },
             statusCode: 422,
         });
@@ -354,6 +361,8 @@ describe('User', () => {
                 lastName: '',
                 email: '',
                 roles: [],
+                //@ts-ignore
+                notifications: null,
             })
             .catch(processError);
         expect(res2).to.eql({
@@ -375,6 +384,7 @@ describe('User', () => {
                     },
                 },
                 email: 'required',
+                notifications: 'invalidValue',
             },
             statusCode: 422,
         });
