@@ -47,9 +47,7 @@
         "/sendNotifications": {
             "post": {
                 "operationId": "sendNotifications",
-                "tags": [
-                    "notifications"
-                ],
+                "tags": ["notifications"],
                 "security": [],
                 "responses": {
                     "204": {
@@ -85,9 +83,7 @@
             },
             "Error": {
                 "type": "object",
-                "required": [
-                    "code"
-                ],
+                "required": ["code"],
                 "properties": {
                     "message": {
                         "type": "string"
