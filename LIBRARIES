@@ -15,7 +15,7 @@ pg                    8.11.3             Brian Carlson <brian.m.carlson@gmail.co
 reflect-metadata      0.1.14             Ron Buckton ron.buckton@microsoft.com http://github.com/rbuckton              Apache-2.0    git+https://github.com/rbuckton/reflect-metadata.git
 sequelize             6.37.1             n/a                                                                           MIT           git+https://github.com/sequelize/sequelize.git
 sequelize-typescript  2.1.6              Robin Buschmann                                                               MIT           git+https://github.com/RobinBuschmann/sequelize-typescript.git
-sharp                 0.31.3             Lovell Fuller <npm@lovell.info>                                               Apache-2.0    git://github.com/lovell/sharp.git
+sharp                 0.33.2             Lovell Fuller <npm@lovell.info>                                               Apache-2.0    git://github.com/lovell/sharp.git
 swagger-ui-express    4.6.3              Stephen Scott scottie1984@gmail.com                                           MIT           git+ssh://git@github.com/scottie1984/swagger-ui-express.git
 uuid                  9.0.1              n/a                                                                           MIT           git+https://github.com/uuidjs/uuid.git
 yup                   0.32.11            @monasticpanic Jason Quense                                                   MIT           git+https://github.com/jquense/yup.git
