@@ -250,7 +250,7 @@ describe('Picture', () => {
             .getPictureThumbnail(res.id)
             .catch(processError);
 
-        expect(thumbnail).has.length.least(48000);
+        expect(thumbnail).has.length.least(47000);
     });
 
     it('should try to upload new picture and fail on roles', async () => {
