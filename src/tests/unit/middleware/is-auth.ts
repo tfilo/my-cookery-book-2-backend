@@ -1,13 +1,10 @@
-import { Secret } from 'jsonwebtoken';
-import Chai from 'chai';
-import jwt from 'jsonwebtoken';
+import jwt, { Secret } from 'jsonwebtoken';
+import { expect } from 'chai';
 
 import isAuth from '../../../middleware/is-auth';
 import CustomError from '../../../models/customError';
 import { CUSTOM_ERROR_CODES } from '../../../models/errorCodes';
 import { ROLE } from '../../../models/roleEnum';
-
-const expect = Chai.expect;
 
 describe('Auth middleware', function () {
     let env: NodeJS.ProcessEnv;
@@ -25,15 +22,12 @@ describe('Auth middleware', function () {
         const req = {
             get: function () {
                 return null;
-            },
+            }
         };
 
         const middleware = isAuth();
 
-        //@ts-ignore
-        const err = expect(middleware.bind(this, req, {}, () => {})).to.throw(
-            CustomError
-        );
+        const err = expect(middleware.bind(this, req, {}, () => {})).to.throw(CustomError);
         err.with.property('statusCode', 401);
         err.with.property('code', CUSTOM_ERROR_CODES.INVALID_CREDENTIALS);
     });
@@ -42,15 +36,12 @@ describe('Auth middleware', function () {
         const req = {
             get: function () {
                 return 'FAKE TOKEN IT IS';
-            },
+            }
         };
 
         const middleware = isAuth();
 
-        //@ts-ignore
-        const err = expect(middleware.bind(this, req, {}, () => {})).to.throw(
-            CustomError
-        );
+        const err = expect(middleware.bind(this, req, {}, () => {})).to.throw(CustomError);
         err.with.property('statusCode', 401);
         err.with.property('code', CUSTOM_ERROR_CODES.INVALID_CREDENTIALS);
     });
@@ -59,16 +50,12 @@ describe('Auth middleware', function () {
         const req = {
             get: function () {
                 return 'FAKE TOKEN';
-            },
+            }
         };
 
         const middleware = isAuth();
 
-        //@ts-ignore
-        const err = expect(middleware.bind(this, req, {}, () => {})).to.throw(
-            CustomError,
-            'jwt malformed'
-        );
+        const err = expect(middleware.bind(this, req, {}, () => {})).to.throw(CustomError, 'jwt malformed');
         err.with.property('statusCode', 401);
         err.with.property('code', CUSTOM_ERROR_CODES.INVALID_TOKEN);
     });
@@ -77,15 +64,12 @@ describe('Auth middleware', function () {
         const req = {
             get: function () {
                 return 'Bearer: ' + issueRefreshToken();
-            },
+            }
         };
 
         const middleware = isAuth();
 
-        //@ts-ignore
-        const err = expect(middleware.bind(this, req, {}, () => {})).to.throw(
-            CustomError
-        );
+        const err = expect(middleware.bind(this, req, {}, () => {})).to.throw(CustomError);
         err.with.property('statusCode', 401);
         err.with.property('code', CUSTOM_ERROR_CODES.INVALID_CREDENTIALS);
     });
@@ -94,15 +78,12 @@ describe('Auth middleware', function () {
         const req = {
             get: function () {
                 return 'Bearer: ' + issueCreatorToken();
-            },
+            }
         };
-        
+
         const middleware = isAuth(ROLE.ADMIN);
 
-        //@ts-ignore
-        const err = expect(middleware.bind(this, req, {}, () => {})).to.throw(
-            CustomError
-        );
+        const err = expect(middleware.bind(this, req, {}, () => {})).to.throw(CustomError);
         err.with.property('statusCode', 403);
         err.with.property('code', CUSTOM_ERROR_CODES.FORBIDEN);
     });
@@ -112,11 +93,10 @@ describe('Auth middleware', function () {
             get: function () {
                 return 'Bearer: ' + issueAdminToken();
             },
-            userRoles: Array<string>(),
+            userRoles: Array<string>()
         };
 
-        //@ts-ignore
-        isAuth('ADMIN').bind(this, req, {}, () => {})();
+        isAuth(ROLE.ADMIN).bind(this, req, {}, () => {})();
 
         expect(req).to.have.property('userId');
         expect(req).to.have.property('userId', 1);
@@ -130,16 +110,10 @@ describe('Auth middleware', function () {
             get: function () {
                 return 'Bearer: ' + issueCreatorToken();
             },
-            userRoles: Array<string>(),
+            userRoles: Array<string>()
         };
 
-        //@ts-ignore
-        isAuth([ROLE.ADMIN, ROLE.CREATOR]).bind(
-            this,
-            req,
-            {},
-            () => {}
-        )();
+        isAuth([ROLE.ADMIN, ROLE.CREATOR]).bind(this, req, {}, () => {})();
 
         expect(req).to.have.property('userId');
         expect(req).to.have.property('userId', 1);
@@ -153,7 +127,7 @@ const issueAdminToken = () => {
     const token = jwt.sign(
         {
             userId: 1,
-            roles: [ROLE.ADMIN],
+            roles: [ROLE.ADMIN]
         },
         process.env.TOKEN_SIGN_KEY as Secret,
         { expiresIn: '1h' }
@@ -165,7 +139,7 @@ const issueCreatorToken = () => {
     const token = jwt.sign(
         {
             userId: 1,
-            roles: [ROLE.CREATOR],
+            roles: [ROLE.CREATOR]
         },
         process.env.TOKEN_SIGN_KEY as Secret,
         { expiresIn: '1h' }
@@ -177,7 +151,7 @@ const issueRefreshToken = () => {
     const refreshToken = jwt.sign(
         {
             userId: 1,
-            refresh: true,
+            refresh: true
         },
         process.env.TOKEN_SIGN_KEY as Secret,
         { expiresIn: '10d' }

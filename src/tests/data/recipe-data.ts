@@ -27,19 +27,19 @@ export default async (
         sources: ['www.some.page.com'],
         categoryId: categories.main.id,
         creatorId: users.creator.id,
-        modifierId: users.creator.id,
+        modifierId: users.creator.id
     });
 
     await RecipeTag.create({
         recipeId: recipes.chicken.id,
-        tagId: tags.meat.id,
+        tagId: tags.meat.id
     });
 
     sections.section1 = await RecipeSection.create({
         name: 'Main section',
         sortNumber: 1,
         method: 'Some method on main section',
-        recipeId: recipes.chicken.id,
+        recipeId: recipes.chicken.id
     });
 
     ingredients.chicken = await Ingredient.create({
@@ -47,7 +47,7 @@ export default async (
         sortNumber: 1,
         value: 1.2,
         unitId: units.kilogram.id,
-        recipeSectionId: sections.section1.id,
+        recipeSectionId: sections.section1.id
     });
 
     ingredients.paprica = await Ingredient.create({
@@ -55,14 +55,14 @@ export default async (
         sortNumber: 2,
         value: 20,
         unitId: units.gram.id,
-        recipeSectionId: sections.section1.id,
+        recipeSectionId: sections.section1.id
     });
 
     sections.section2 = await RecipeSection.create({
         name: 'Rice section',
         sortNumber: 2,
         method: 'Cook rice and serve it with chicken',
-        recipeId: recipes.chicken.id,
+        recipeId: recipes.chicken.id
     });
 
     ingredients.rice = await Ingredient.create({
@@ -70,12 +70,12 @@ export default async (
         sortNumber: 1,
         value: 15,
         unitId: units.dekagram.id,
-        recipeSectionId: sections.section2.id,
+        recipeSectionId: sections.section2.id
     });
 
     return {
         recipes,
         sections,
-        ingredients,
+        ingredients
     };
 };

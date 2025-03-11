@@ -1,18 +1,15 @@
 import { Server } from 'http';
 import dotenv from 'dotenv';
 import path from 'path';
-import {
-    PostgreSqlContainer,
-    StartedPostgreSqlContainer,
-    Wait,
-} from 'testcontainers';
+import { Wait } from 'testcontainers';
+import { PostgreSqlContainer, StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 
 dotenv.config({ path: path.join('src', 'tests', '.env') });
 
 import { app } from '../../app';
 import sequelize from '../../util/database';
 import { Configuration, TagApi } from '../openapi';
-import Chai from 'chai';
+import { use, expect } from 'chai';
 import chaiExclude from 'chai-exclude';
 import createUnitCategories from '../data/unitCategory-data';
 import createUsers from '../data/user-data';
@@ -25,8 +22,7 @@ import Tag from '../../models/database/tag';
 import { issueToken } from '../../util/token';
 import { processError } from '../util/error';
 
-Chai.use(chaiExclude);
-const expect = Chai.expect;
+use(chaiExclude);
 
 const port = process.env.PORT || 13000;
 
@@ -40,7 +36,7 @@ const getToken = () => {
 
 const config = new Configuration({
     authorization: () => getToken(),
-    basePath: 'http://localhost:' + port + process.env.BASE_PATH,
+    basePath: 'http://localhost:' + port + process.env.BASE_PATH
 });
 
 describe('Tag', () => {
@@ -51,21 +47,15 @@ describe('Tag', () => {
     const tagApi = new TagApi(config);
 
     before(async () => {
-        databaseContainer = await new PostgreSqlContainer(
-            'postgres:14.5-alpine'
-        )
+        databaseContainer = await new PostgreSqlContainer('postgres:14.5-alpine')
             .withDatabase('cookery2')
             .withUsername('cookery2')
             .withPassword('cookery2123')
             .withExposedPorts({
                 container: 5432,
-                host: Number(process.env.DATABASE_PORT),
+                host: Number(process.env.DATABASE_PORT)
             })
-            .withWaitStrategy(
-                Wait.forLogMessage(
-                    '[1] LOG:  database system is ready to accept connections'
-                )
-            )
+            .withWaitStrategy(Wait.forLogMessage('[1] LOG:  database system is ready to accept connections'))
             .start();
         serverInstance = app.listen(port);
     });
@@ -78,7 +68,7 @@ describe('Tag', () => {
     afterEach(async () => {
         await sequelize.dropAllSchemas({
             benchmark: false,
-            logging: false,
+            logging: false
         });
         setToken('');
     });
@@ -100,7 +90,7 @@ describe('Tag', () => {
             Object.keys(tags).map((k) => {
                 return {
                     id: tags[k].id,
-                    name: tags[k].name,
+                    name: tags[k].name
                 };
             })
         );
@@ -112,7 +102,7 @@ describe('Tag', () => {
         expect(res).to.eql({
             statusCode: 401,
             code: 'INVALID_CREDENTIALS',
-            message: '',
+            message: ''
         });
     });
 
@@ -126,7 +116,7 @@ describe('Tag', () => {
             id: tags.meat.id,
             name: tags.meat.name,
             createdAt: tags.meat.createdAt.toISOString(),
-            updatedAt: tags.meat.updatedAt.toISOString(),
+            updatedAt: tags.meat.updatedAt.toISOString()
         });
     });
 
@@ -139,7 +129,7 @@ describe('Tag', () => {
         expect(res).to.eql({
             statusCode: 403,
             code: 'FORBIDEN',
-            message: '',
+            message: ''
         });
     });
 
@@ -152,7 +142,7 @@ describe('Tag', () => {
         expect(res).to.eql({
             statusCode: 404,
             code: 'NOT_FOUND',
-            message: '',
+            message: ''
         });
     });
 
@@ -163,7 +153,7 @@ describe('Tag', () => {
 
         const res = await tagApi
             .createTag({
-                name: 'NewTag',
+                name: 'NewTag'
             })
             .catch(processError);
         expect(res.id).to.be.a('number');
@@ -179,13 +169,13 @@ describe('Tag', () => {
 
         const res = await tagApi
             .createTag({
-                name: 'NewTag',
+                name: 'NewTag'
             })
             .catch(processError);
         expect(res).to.eql({
             statusCode: 403,
             code: 'FORBIDEN',
-            message: '',
+            message: ''
         });
     });
 
@@ -196,15 +186,15 @@ describe('Tag', () => {
 
         const res = await tagApi
             .createTag({
-                name: 'Meat',
+                name: 'Meat'
             })
             .catch(processError);
         expect(res).to.eql({
             code: 'UNIQUE_CONSTRAINT_ERROR',
             fields: {
-                name: 'not_unique',
+                name: 'not_unique'
             },
-            statusCode: 409,
+            statusCode: 409
         });
     });
 
@@ -215,7 +205,7 @@ describe('Tag', () => {
 
         const res = await tagApi
             .createTag({
-                name: 'AbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghij1',
+                name: 'AbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghij1'
             })
             .catch(processError);
 
@@ -226,23 +216,23 @@ describe('Tag', () => {
                 name: {
                     key: 'maxLength',
                     values: {
-                        max: 80,
-                    },
-                },
+                        max: 80
+                    }
+                }
             },
-            statusCode: 422,
+            statusCode: 422
         });
 
         const res2 = await tagApi
             .createTag({
-                name: '',
+                name: ''
             })
             .catch(processError);
         expect(res2).to.eql({
             message: '',
             code: 'VALIDATION_FAILED',
             fields: { name: 'required' },
-            statusCode: 422,
+            statusCode: 422
         });
     });
 
@@ -253,7 +243,7 @@ describe('Tag', () => {
 
         const res = await tagApi
             .updateTag(tags.meat.id, {
-                name: 'Meat2',
+                name: 'Meat2'
             })
             .catch(processError);
         expect(res.id).to.equal(tags.meat.id);
@@ -269,13 +259,13 @@ describe('Tag', () => {
 
         const res = await tagApi
             .updateTag(tags.meat.id, {
-                name: 'Meat2',
+                name: 'Meat2'
             })
             .catch(processError);
         expect(res).to.eql({
             statusCode: 403,
             code: 'FORBIDEN',
-            message: '',
+            message: ''
         });
     });
 
@@ -286,15 +276,15 @@ describe('Tag', () => {
 
         const res = await tagApi
             .updateTag(tags.meat.id, {
-                name: 'Vegetarian',
+                name: 'Vegetarian'
             })
             .catch(processError);
         expect(res).to.eql({
             code: 'UNIQUE_CONSTRAINT_ERROR',
             fields: {
-                name: 'not_unique',
+                name: 'not_unique'
             },
-            statusCode: 409,
+            statusCode: 409
         });
     });
 
@@ -305,7 +295,7 @@ describe('Tag', () => {
 
         const res = await tagApi
             .updateTag(tags.meat.id, {
-                name: 'AbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghij1',
+                name: 'AbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghij1'
             })
             .catch(processError);
         expect(res).to.eql({
@@ -315,23 +305,23 @@ describe('Tag', () => {
                 name: {
                     key: 'maxLength',
                     values: {
-                        max: 80,
-                    },
-                },
+                        max: 80
+                    }
+                }
             },
-            statusCode: 422,
+            statusCode: 422
         });
 
         const res2 = await tagApi
             .updateTag(tags.meat.id, {
-                name: '',
+                name: ''
             })
             .catch(processError);
         expect(res2).to.eql({
             message: '',
             code: 'VALIDATION_FAILED',
             fields: { name: 'required' },
-            statusCode: 422,
+            statusCode: 422
         });
     });
 
@@ -352,7 +342,7 @@ describe('Tag', () => {
         expect(res).to.eql({
             statusCode: 403,
             code: 'FORBIDEN',
-            message: '',
+            message: ''
         });
     });
 
@@ -365,7 +355,7 @@ describe('Tag', () => {
         expect(res).to.eql({
             statusCode: 404,
             code: 'NOT_FOUND',
-            message: '',
+            message: ''
         });
     });
 
@@ -383,7 +373,7 @@ describe('Tag', () => {
         const res = await tagApi.deleteTag(tags.meat.id).catch(processError);
         expect(res).to.eql({
             statusCode: 409,
-            code: 'CONSTRAINT_FAILED',
+            code: 'CONSTRAINT_FAILED'
         });
     });
 
@@ -393,7 +383,7 @@ describe('Tag', () => {
         expect(res).to.eql({
             statusCode: 401,
             code: 'INVALID_CREDENTIALS',
-            message: '',
+            message: ''
         });
     });
 });

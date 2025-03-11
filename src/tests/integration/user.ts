@@ -1,11 +1,8 @@
 import { Server } from 'http';
 import dotenv from 'dotenv';
 import path from 'path';
-import {
-    PostgreSqlContainer,
-    StartedPostgreSqlContainer,
-    Wait,
-} from 'testcontainers';
+import { Wait } from 'testcontainers';
+import { PostgreSqlContainer, StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import MailDev from 'maildev';
 
 dotenv.config({ path: path.join('src', 'tests', '.env') });
@@ -13,17 +10,24 @@ dotenv.config({ path: path.join('src', 'tests', '.env') });
 import { app } from '../../app';
 import sequelize from '../../util/database';
 import { Api, Configuration, UserApi } from '../openapi';
-import Chai from 'chai';
+import { use, expect } from 'chai';
 import chaiExclude from 'chai-exclude';
 import createUsers from '../data/user-data';
 import User from '../../models/database/user';
 import { issueToken } from '../../util/token';
 import { processError } from '../util/error';
 
-Chai.use(chaiExclude);
-const expect = Chai.expect;
+use(chaiExclude);
 
 const port = process.env.PORT || 13000;
+
+type Email = {
+    subject: string;
+    from: string;
+    to: string;
+    text: string;
+    html: string;
+};
 
 let token: string;
 const setToken = (t: string) => {
@@ -35,7 +39,7 @@ const getToken = () => {
 
 const config = new Configuration({
     authorization: () => getToken(),
-    basePath: 'http://localhost:' + port + process.env.BASE_PATH,
+    basePath: 'http://localhost:' + port + process.env.BASE_PATH
 });
 
 describe('User', () => {
@@ -45,21 +49,15 @@ describe('User', () => {
     const userApi = new UserApi(config);
 
     before(async () => {
-        databaseContainer = await new PostgreSqlContainer(
-            'postgres:14.5-alpine'
-        )
+        databaseContainer = await new PostgreSqlContainer('postgres:14.5-alpine')
             .withDatabase('cookery2')
             .withUsername('cookery2')
             .withPassword('cookery2123')
             .withExposedPorts({
                 container: 5432,
-                host: Number(process.env.DATABASE_PORT),
+                host: Number(process.env.DATABASE_PORT)
             })
-            .withWaitStrategy(
-                Wait.forLogMessage(
-                    '[1] LOG:  database system is ready to accept connections'
-                )
-            )
+            .withWaitStrategy(Wait.forLogMessage('[1] LOG:  database system is ready to accept connections'))
             .start();
         serverInstance = app.listen(port);
     });
@@ -72,7 +70,7 @@ describe('User', () => {
     afterEach(async () => {
         await sequelize.dropAllSchemas({
             benchmark: false,
-            logging: false,
+            logging: false
         });
         setToken('');
     });
@@ -98,7 +96,7 @@ describe('User', () => {
                     lastName: users[k].lastName,
                     confirmed: users[k].confirmed,
                     notifications: users[k].notifications,
-                    roles: users[k].roles.map((r) => r.roleName),
+                    roles: users[k].roles.map((r) => r.roleName)
                 };
             })
         );
@@ -113,7 +111,7 @@ describe('User', () => {
         expect(res).to.eql({
             statusCode: 403,
             code: 'FORBIDEN',
-            message: '',
+            message: ''
         });
     });
 
@@ -123,7 +121,7 @@ describe('User', () => {
         expect(res).to.eql({
             statusCode: 401,
             code: 'INVALID_CREDENTIALS',
-            message: '',
+            message: ''
         });
     });
 
@@ -143,7 +141,7 @@ describe('User', () => {
             notifications: users.creator.notifications,
             roles: users.creator.roles.map((r) => r.roleName),
             createdAt: users.creator.createdAt.toISOString(),
-            updatedAt: users.creator.updatedAt.toISOString(),
+            updatedAt: users.creator.updatedAt.toISOString()
         });
     });
 
@@ -156,7 +154,7 @@ describe('User', () => {
         expect(res).to.eql({
             statusCode: 403,
             code: 'FORBIDEN',
-            message: '',
+            message: ''
         });
     });
 
@@ -169,7 +167,7 @@ describe('User', () => {
         expect(res).to.eql({
             statusCode: 404,
             code: 'NOT_FOUND',
-            message: '',
+            message: ''
         });
     });
 
@@ -177,9 +175,9 @@ describe('User', () => {
         const maildev = new MailDev({
             smtp: Number(process.env.EMAIL_PORT),
             disableWeb: true,
-            silent: true,
+            silent: true
         });
-        let receivedEmail: any;
+        let receivedEmail: Email;
         try {
             maildev.listen();
             const receivedEmailPromise = new Promise((resolve) => {
@@ -199,7 +197,7 @@ describe('User', () => {
                     lastName: 'User',
                     email: 'newuser@test.test',
                     roles: [Api.CreateUser.RoleEnum.CREATOR],
-                    notifications: false,
+                    notifications: false
                 })
                 .catch(processError);
 
@@ -213,25 +211,23 @@ describe('User', () => {
             expect(res.roles).to.eql([Api.CreateUser.RoleEnum.CREATOR]);
             expect(res.createdAt).to.be.a('string');
             expect(res.updatedAt).to.be.a('string');
-            receivedEmail = await receivedEmailPromise;
+            receivedEmail = (await receivedEmailPromise) as Email;
         } finally {
             maildev.close();
         }
 
-        expect(receivedEmail.subject).to.equal(
-            'My Cookery Book 2: Email confirmation'
-        );
+        expect(receivedEmail.subject).to.equal('My Cookery Book 2: Email confirmation');
         expect(receivedEmail.from).to.eql([
             {
                 address: process.env.EMAIL_FROM,
-                name: '',
-            },
+                name: ''
+            }
         ]);
         expect(receivedEmail.to).to.eql([
             {
                 address: 'newuser@test.test',
-                name: '',
-            },
+                name: ''
+            }
         ]);
         expect(receivedEmail.text).to.be.a('string');
         expect(receivedEmail.html).to.be.a('string');
@@ -251,13 +247,13 @@ describe('User', () => {
                 lastName: 'User',
                 email: 'newuser@test.test',
                 roles: [Api.CreateUser.RoleEnum.CREATOR],
-                notifications: false,
+                notifications: false
             })
             .catch(processError);
         expect(res).to.eql({
             statusCode: 403,
             code: 'FORBIDEN',
-            message: '',
+            message: ''
         });
     });
 
@@ -274,15 +270,15 @@ describe('User', () => {
                 lastName: 'User',
                 email: 'creatorX@test.test',
                 roles: [Api.CreateUser.RoleEnum.CREATOR],
-                notifications: false,
+                notifications: false
             })
             .catch(processError);
         expect(res1).to.eql({
             code: 'UNIQUE_CONSTRAINT_ERROR',
             fields: {
-                username: 'not_unique',
+                username: 'not_unique'
             },
-            statusCode: 409,
+            statusCode: 409
         });
 
         const res2 = await userApi
@@ -293,15 +289,15 @@ describe('User', () => {
                 lastName: 'User',
                 email: 'creator@test.test',
                 roles: [Api.CreateUser.RoleEnum.CREATOR],
-                notifications: false,
+                notifications: false
             })
             .catch(processError);
         expect(res2).to.eql({
             code: 'UNIQUE_CONSTRAINT_ERROR',
             fields: {
-                email: 'not_unique',
+                email: 'not_unique'
             },
-            statusCode: 409,
+            statusCode: 409
         });
     });
 
@@ -314,13 +310,12 @@ describe('User', () => {
             .createUser({
                 username: 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
                 password: 'NewUser',
-                firstName:
-                    'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
+                firstName: 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
                 lastName: 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
                 email: 'fdgsdfgdfgdf',
                 roles: [],
-                //@ts-ignore
-                notifications: 'dasdads',
+                //@ts-expect-error intentional wrong type
+                notifications: 'dasdads'
             })
             .catch(processError);
 
@@ -331,26 +326,26 @@ describe('User', () => {
                 username: {
                     key: 'maxLength',
                     values: {
-                        max: 50,
-                    },
+                        max: 50
+                    }
                 },
                 password: 'simplePassword',
                 firstName: {
                     key: 'maxLength',
                     values: {
-                        max: 50,
-                    },
+                        max: 50
+                    }
                 },
                 lastName: {
                     key: 'maxLength',
                     values: {
-                        max: 50,
-                    },
+                        max: 50
+                    }
                 },
                 email: 'email',
-                notifications: 'invalidValue',
+                notifications: 'invalidValue'
             },
-            statusCode: 422,
+            statusCode: 422
         });
 
         const res2 = await userApi
@@ -361,8 +356,8 @@ describe('User', () => {
                 lastName: '',
                 email: '',
                 roles: [],
-                //@ts-ignore
-                notifications: null,
+                //@ts-expect-error intentional wrong type
+                notifications: null
             })
             .catch(processError);
         expect(res2).to.eql({
@@ -374,19 +369,19 @@ describe('User', () => {
                 firstName: {
                     key: 'minLength',
                     values: {
-                        min: 3,
-                    },
+                        min: 3
+                    }
                 },
                 lastName: {
                     key: 'minLength',
                     values: {
-                        min: 3,
-                    },
+                        min: 3
+                    }
                 },
                 email: 'required',
-                notifications: 'invalidValue',
+                notifications: 'required'
             },
-            statusCode: 422,
+            statusCode: 422
         });
     });
 
@@ -394,9 +389,9 @@ describe('User', () => {
         const maildev = new MailDev({
             smtp: Number(process.env.EMAIL_PORT),
             disableWeb: true,
-            silent: true,
+            silent: true
         });
-        let receivedEmail: any;
+        let receivedEmail: Email;
         try {
             maildev.listen();
             const receivedEmailPromise = new Promise((resolve) => {
@@ -416,38 +411,36 @@ describe('User', () => {
                     lastName: null,
                     email: 'creator3@test.test',
                     notifications: false,
-                    roles: [],
+                    roles: []
                 })
                 .catch(processError);
             expect(res.id).to.equal(users.creator.id);
             expect(res.username).to.equal('creator3');
-            expect(res.firstName).to.be.null;
-            expect(res.lastName).to.be.null;
+            expect(res.firstName).to.equal(null);
+            expect(res.lastName).to.be.equal(null);
             expect(res.email).to.equal('creator3@test.test');
             expect(res.confirmed).to.equal(false);
             expect(res.notifications).to.equal(false);
             expect(res.roles).to.eql([]);
             expect(res.createdAt).to.be.a('string');
             expect(res.updatedAt).to.be.a('string');
-            receivedEmail = await receivedEmailPromise;
+            receivedEmail = (await receivedEmailPromise) as Email;
         } finally {
             maildev.close();
         }
 
-        expect(receivedEmail.subject).to.equal(
-            'My Cookery Book 2: Email confirmation'
-        );
+        expect(receivedEmail.subject).to.equal('My Cookery Book 2: Email confirmation');
         expect(receivedEmail.from).to.eql([
             {
                 address: process.env.EMAIL_FROM,
-                name: '',
-            },
+                name: ''
+            }
         ]);
         expect(receivedEmail.to).to.eql([
             {
                 address: 'creator3@test.test',
-                name: '',
-            },
+                name: ''
+            }
         ]);
         expect(receivedEmail.text).to.be.a('string');
         expect(receivedEmail.html).to.be.a('string');
@@ -467,13 +460,13 @@ describe('User', () => {
                 lastName: null,
                 email: 'creator3@test.test',
                 notifications: false,
-                roles: [],
+                roles: []
             })
             .catch(processError);
         expect(res).to.eql({
             statusCode: 403,
             code: 'FORBIDEN',
-            message: '',
+            message: ''
         });
     });
 
@@ -490,15 +483,15 @@ describe('User', () => {
                 lastName: null,
                 email: 'simpleX@test.test',
                 notifications: false,
-                roles: [],
+                roles: []
             })
             .catch(processError);
         expect(res1).to.eql({
             code: 'UNIQUE_CONSTRAINT_ERROR',
             fields: {
-                username: 'not_unique',
+                username: 'not_unique'
             },
-            statusCode: 409,
+            statusCode: 409
         });
 
         const res2 = await userApi
@@ -509,15 +502,15 @@ describe('User', () => {
                 lastName: null,
                 email: 'simple@test.test',
                 notifications: false,
-                roles: [],
+                roles: []
             })
             .catch(processError);
         expect(res2).to.eql({
             code: 'UNIQUE_CONSTRAINT_ERROR',
             fields: {
-                email: 'not_unique',
+                email: 'not_unique'
             },
-            statusCode: 409,
+            statusCode: 409
         });
     });
 
@@ -530,12 +523,11 @@ describe('User', () => {
             .updateUser(users.creator.id, {
                 username: 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
                 password: 'NewUser',
-                firstName:
-                    'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
+                firstName: 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
                 lastName: 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
                 email: 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
                 notifications: false,
-                roles: [],
+                roles: []
             })
             .catch(processError);
 
@@ -546,25 +538,25 @@ describe('User', () => {
                 username: {
                     key: 'maxLength',
                     values: {
-                        max: 50,
-                    },
+                        max: 50
+                    }
                 },
                 password: 'simplePassword',
                 firstName: {
                     key: 'maxLength',
                     values: {
-                        max: 50,
-                    },
+                        max: 50
+                    }
                 },
                 lastName: {
                     key: 'maxLength',
                     values: {
-                        max: 50,
-                    },
+                        max: 50
+                    }
                 },
-                email: 'email',
+                email: 'email'
             },
-            statusCode: 422,
+            statusCode: 422
         });
 
         const res2 = await userApi
@@ -575,7 +567,7 @@ describe('User', () => {
                 lastName: '',
                 email: '',
                 notifications: false,
-                roles: [],
+                roles: []
             })
             .catch(processError);
         expect(res2).to.eql({
@@ -587,18 +579,18 @@ describe('User', () => {
                 firstName: {
                     key: 'minLength',
                     values: {
-                        min: 3,
-                    },
+                        min: 3
+                    }
                 },
                 lastName: {
                     key: 'minLength',
                     values: {
-                        min: 3,
-                    },
+                        min: 3
+                    }
                 },
-                email: 'required',
+                email: 'required'
             },
-            statusCode: 422,
+            statusCode: 422
         });
     });
 
@@ -606,9 +598,7 @@ describe('User', () => {
         // prepare valid token
         const token = issueToken(users.admin);
         setToken(token);
-        const res = await userApi
-            .deleteUser(users.creator.id)
-            .catch(processError);
+        const res = await userApi.deleteUser(users.creator.id).catch(processError);
         expect(res.status).to.equal(204);
     });
 
@@ -617,13 +607,11 @@ describe('User', () => {
         const token = issueToken(users.creator);
         setToken(token);
 
-        const res = await userApi
-            .deleteUser(users.creator.id)
-            .catch(processError);
+        const res = await userApi.deleteUser(users.creator.id).catch(processError);
         expect(res).to.eql({
             statusCode: 403,
             code: 'FORBIDEN',
-            message: '',
+            message: ''
         });
     });
 
@@ -636,19 +624,17 @@ describe('User', () => {
         expect(res).to.eql({
             statusCode: 404,
             code: 'NOT_FOUND',
-            message: '',
+            message: ''
         });
     });
 
     it('should try delete user and fail on authentication', async () => {
         // login and save token
-        const res = await userApi
-            .deleteUser(users.creator.id)
-            .catch(processError);
+        const res = await userApi.deleteUser(users.creator.id).catch(processError);
         expect(res).to.eql({
             statusCode: 401,
             code: 'INVALID_CREDENTIALS',
-            message: '',
+            message: ''
         });
     });
 
@@ -657,14 +643,12 @@ describe('User', () => {
         const token = issueToken(users.simple);
         setToken(token);
 
-        const res = await userApi
-            .resendConfirmation(users.creator.id)
-            .catch(processError);
+        const res = await userApi.resendConfirmation(users.creator.id).catch(processError);
 
         expect(res).to.eql({
             statusCode: 403,
             code: 'FORBIDEN',
-            message: '',
+            message: ''
         });
     });
 
@@ -672,14 +656,12 @@ describe('User', () => {
         // prepare valid token
         const token = issueToken(users.admin);
         setToken(token);
-        const res = await userApi
-            .resendConfirmation(users.creator.id)
-            .catch(processError);
+        const res = await userApi.resendConfirmation(users.creator.id).catch(processError);
 
         expect(res).to.eql({
             statusCode: 409,
             code: 'CONSTRAINT_FAILED',
-            message: 'Already confirmed',
+            message: 'Already confirmed'
         });
     });
 
@@ -687,9 +669,9 @@ describe('User', () => {
         const maildev = new MailDev({
             smtp: Number(process.env.EMAIL_PORT),
             disableWeb: true,
-            silent: true,
+            silent: true
         });
-        let receivedEmail: any;
+        let receivedEmail: Email;
         try {
             maildev.listen();
             const receivedEmailPromise = new Promise((resolve) => {
@@ -701,30 +683,26 @@ describe('User', () => {
             const token = issueToken(users.admin);
             setToken(token);
 
-            const res = await userApi
-                .resendConfirmation(users.creator2.id)
-                .catch(processError);
+            const res = await userApi.resendConfirmation(users.creator2.id).catch(processError);
 
             expect(res.status).to.be.equal(204);
-            receivedEmail = await receivedEmailPromise;
+            receivedEmail = (await receivedEmailPromise) as Email;
         } finally {
             maildev.close();
         }
 
-        expect(receivedEmail.subject).to.equal(
-            'My Cookery Book 2: Email confirmation'
-        );
+        expect(receivedEmail.subject).to.equal('My Cookery Book 2: Email confirmation');
         expect(receivedEmail.from).to.eql([
             {
                 address: process.env.EMAIL_FROM,
-                name: '',
-            },
+                name: ''
+            }
         ]);
         expect(receivedEmail.to).to.eql([
             {
                 address: users.creator2.email,
-                name: '',
-            },
+                name: ''
+            }
         ]);
         expect(receivedEmail.text).to.be.a('string');
         expect(receivedEmail.html).to.be.a('string');
@@ -735,9 +713,9 @@ describe('User', () => {
         const maildev = new MailDev({
             smtp: Number(process.env.EMAIL_PORT),
             disableWeb: true,
-            silent: true,
+            silent: true
         });
-        let receivedEmail: any;
+        let receivedEmail: Email;
         try {
             maildev.listen();
             const receivedEmailPromise = new Promise((resolve) => {
@@ -756,29 +734,27 @@ describe('User', () => {
                     email: 'testX@test.test',
                     firstName: 'AAAA',
                     lastName: 'BBBB',
-                    notifications: false,
+                    notifications: false
                 })
                 .catch(processError);
             expect(updated.status).to.equal(204);
-            receivedEmail = await receivedEmailPromise;
+            receivedEmail = (await receivedEmailPromise) as Email;
         } finally {
             maildev.close();
         }
 
-        expect(receivedEmail.subject).to.equal(
-            'My Cookery Book 2: Email confirmation'
-        );
+        expect(receivedEmail.subject).to.equal('My Cookery Book 2: Email confirmation');
         expect(receivedEmail.from).to.eql([
             {
                 address: process.env.EMAIL_FROM,
-                name: '',
-            },
+                name: ''
+            }
         ]);
         expect(receivedEmail.to).to.eql([
             {
                 address: 'testX@test.test',
-                name: '',
-            },
+                name: ''
+            }
         ]);
         expect(receivedEmail.text).to.be.a('string');
         expect(receivedEmail.html).to.be.a('string');
@@ -797,14 +773,14 @@ describe('User', () => {
                 email: 'test@test.test',
                 firstName: 'AAAA',
                 lastName: 'BBBB',
-                notifications: false,
+                notifications: false
             })
             .catch(processError);
         expect(res1).to.eql({
             statusCode: 422,
             message: '',
             code: 'VALIDATION_FAILED',
-            fields: { newPassword: 'simplePassword' },
+            fields: { newPassword: 'simplePassword' }
         });
 
         const res2 = await userApi
@@ -814,14 +790,14 @@ describe('User', () => {
                 email: 'test@test.test',
                 firstName: 'AAAA',
                 lastName: 'BBBB',
-                notifications: false,
+                notifications: false
             })
             .catch(processError);
         expect(res2).to.eql({
             statusCode: 422,
             message: '',
             code: 'VALIDATION_FAILED',
-            fields: { newPassword: 'simplePassword' },
+            fields: { newPassword: 'simplePassword' }
         });
 
         const res3 = await userApi
@@ -831,14 +807,14 @@ describe('User', () => {
                 email: 'test@test.test',
                 firstName: 'AAAA',
                 lastName: 'BBBB',
-                notifications: false,
+                notifications: false
             })
             .catch(processError);
         expect(res3).to.eql({
             statusCode: 422,
             message: '',
             code: 'VALIDATION_FAILED',
-            fields: { newPassword: 'simplePassword' },
+            fields: { newPassword: 'simplePassword' }
         });
 
         const res4 = await userApi
@@ -848,14 +824,14 @@ describe('User', () => {
                 email: 'test@test.test',
                 firstName: 'AAAA',
                 lastName: 'BBBB',
-                notifications: false,
+                notifications: false
             })
             .catch(processError);
         expect(res4).to.eql({
             statusCode: 422,
             message: '',
             code: 'VALIDATION_FAILED',
-            fields: { newPassword: 'simplePassword' },
+            fields: { newPassword: 'simplePassword' }
         });
     });
 });

@@ -1,12 +1,4 @@
-import {
-    AllowNull,
-    Column,
-    DataType,
-    ForeignKey,
-    Index,
-    Model,
-    Table,
-} from 'sequelize-typescript';
+import { AllowNull, Column, DataType, ForeignKey, Index, Model, Table } from 'sequelize-typescript';
 import { Optional } from 'sequelize/types';
 
 import { ROLE } from '../roleEnum';
@@ -20,27 +12,24 @@ interface UserRoleAttributes {
     updatedAt: Date;
 }
 
-interface UserRoleCreationAttributes
-    extends Optional<UserRoleAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
-
 @Table({
     timestamps: true,
-    paranoid: true,
+    paranoid: true
 })
-class UserRole extends Model<UserRoleAttributes, UserRoleCreationAttributes> {
+class UserRole extends Model<UserRoleAttributes, Optional<UserRoleAttributes, 'id' | 'createdAt' | 'updatedAt'>> {
     @Index({
         name: 'unique-role',
-        unique: true,
+        unique: true
     })
     @AllowNull(false)
     @Column({
-        type: DataType.ENUM(...Object.keys(ROLE)),
+        type: DataType.ENUM(...Object.keys(ROLE))
     })
     roleName: ROLE;
 
     @Index({
         name: 'unique-role',
-        unique: true,
+        unique: true
     })
     @AllowNull(false)
     @ForeignKey(() => User)
@@ -49,10 +38,10 @@ class UserRole extends Model<UserRoleAttributes, UserRoleCreationAttributes> {
 
     @Index({
         name: 'unique-role',
-        unique: true,
+        unique: true
     })
     @Column({
-        type: DataType.DATE,
+        type: DataType.DATE
     })
     deletedAt: Date;
 }

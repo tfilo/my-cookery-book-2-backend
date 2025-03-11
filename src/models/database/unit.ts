@@ -1,14 +1,4 @@
-import {
-    Table,
-    Column,
-    Model,
-    DataType,
-    AllowNull,
-    Unique,
-    ForeignKey,
-    BelongsTo,
-    HasMany,
-} from 'sequelize-typescript';
+import { Table, Column, Model, DataType, AllowNull, Unique, ForeignKey, BelongsTo, HasMany } from 'sequelize-typescript';
 import { Optional } from 'sequelize/types';
 
 import Ingredient from './ingredient';
@@ -24,30 +14,27 @@ interface UnitAttributes {
     updatedAt: Date;
 }
 
-interface UnitCreationAttributes
-    extends Optional<UnitAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
-
 @Table({
-    timestamps: true,
+    timestamps: true
 })
-class Unit extends Model<UnitAttributes, UnitCreationAttributes> {
+class Unit extends Model<UnitAttributes, Optional<UnitAttributes, 'id' | 'createdAt' | 'updatedAt'>> {
     @AllowNull(false)
     @Unique
     @Column({
-        type: DataType.STRING(80),
+        type: DataType.STRING(80)
     })
     name: string;
 
     @AllowNull(false)
     @Unique
     @Column({
-        type: DataType.STRING(20),
+        type: DataType.STRING(20)
     })
     abbreviation: string;
 
     @AllowNull(false)
     @Column({
-        type: DataType.BOOLEAN,
+        type: DataType.BOOLEAN
     })
     required: boolean;
 
@@ -60,7 +47,7 @@ class Unit extends Model<UnitAttributes, UnitCreationAttributes> {
     unitCategory: UnitCategory;
 
     @HasMany(() => Ingredient, {
-        onDelete: 'RESTRICT',
+        onDelete: 'RESTRICT'
     })
     ingredients: Ingredient[];
 }

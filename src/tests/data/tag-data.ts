@@ -4,11 +4,11 @@ export default async () => {
     const tags: { [key: string]: Tag } = {};
 
     tags.meat = await Tag.create({
-        name: 'Meat',
+        name: 'Meat'
     });
 
     tags.vegetarian = await Tag.create({
-        name: 'Vegetarian',
+        name: 'Vegetarian'
     });
 
     return tags;

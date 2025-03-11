@@ -38,18 +38,13 @@ const sendNotificationEmail = async (
     const emailData = {
         fullName: firstName && lastName ? firstName + ' ' + lastName : username,
         username,
-        recipes: recipes,
+        recipes: recipes
     };
 
     const compiledPlain = Handlebars.compile(emailPlain)(emailData);
     const compiledHtml = Handlebars.compile(emailHtml)(emailData);
 
-    const emailInfo = await sendMail(
-        email,
-        emailSubject,
-        compiledPlain,
-        compiledHtml
-    );
+    const emailInfo = await sendMail(email, emailSubject, compiledPlain, compiledHtml);
 
     if (emailInfo && emailInfo.rejected.length > 0) {
         const error = new CustomError();
@@ -66,14 +61,11 @@ router.post('/sendNotifications', async (req, res) => {
         where: {
             createdAt: {
                 [Op.gte]: moment()
-                    .subtract(
-                        +(process.env.NOTIFICATION_RANGE_DAYS ?? 1),
-                        'days'
-                    )
-                    .toDate(),
-            },
+                    .subtract(+(process.env.NOTIFICATION_RANGE_DAYS ?? 1), 'days')
+                    .toDate()
+            }
         },
-        attributes: ['id', 'name', 'creatorId'],
+        attributes: ['id', 'name', 'creatorId']
     });
 
     if (recipes.length > 0) {
@@ -81,32 +73,24 @@ router.post('/sendNotifications', async (req, res) => {
             return {
                 id: r.id,
                 name: r.name,
-                creatorId: r.creatorId,
+                creatorId: r.creatorId
             };
         });
         const usersToNotify = await User.findAll({
             where: {
                 notifications: true,
-                confirmed: true,
+                confirmed: true
             },
-            attributes: ['id', 'username', 'firstName', 'lastName', 'email'],
+            attributes: ['id', 'username', 'firstName', 'lastName', 'email']
         });
 
         for (const user of usersToNotify) {
             // don't send notification about recipes created by notified user
-            const filtered = mappedRecipes.filter(
-                (r) => r.creatorId !== user.id
-            );
+            const filtered = mappedRecipes.filter((r) => r.creatorId !== user.id);
 
             if (filtered.length > 0) {
                 // don't wait for success
-                await sendNotificationEmail(
-                    user.username,
-                    user.email,
-                    filtered,
-                    user.firstName,
-                    user.lastName
-                );
+                await sendNotificationEmail(user.username, user.email, filtered, user.firstName, user.lastName);
             }
         }
     }
@@ -121,12 +105,10 @@ router.get('/health', (req, res) => {
 if (process.env.NODE_ENV === 'development') {
     const openapiFilePath = path.join(__dirname, 'openapi-internal.json');
     const openapiFile = JSON.parse(fs.readFileSync(openapiFilePath, 'utf-8'));
-    router.get('/api-docs/internal.json', (req, res) => res.json(openapiFile));
-    router.use(
-        '/api-docs',
-        swaggerUi.serveFiles(openapiFile, {}),
-        swaggerUi.setup(openapiFile)
-    );
+    router.get('/api-docs/internal.json', (req, res) => {
+        res.json(openapiFile);
+    });
+    router.use('/api-docs', swaggerUi.serveFiles(openapiFile, {}), swaggerUi.setup(openapiFile));
 }
 
 appInternal.use(internalPath, router);

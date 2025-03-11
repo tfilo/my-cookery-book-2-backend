@@ -1,11 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import jwt, {
-    JsonWebTokenError,
-    JwtPayload,
-    NotBeforeError,
-    Secret,
-    TokenExpiredError,
-} from 'jsonwebtoken';
+import jwt, { JsonWebTokenError, JwtPayload, NotBeforeError, Secret, TokenExpiredError } from 'jsonwebtoken';
 
 import CustomError from '../models/customError';
 import { CUSTOM_ERROR_CODES } from '../models/errorCodes';
@@ -43,10 +37,7 @@ const isAuth = (allowedRoles?: ROLE | ROLE[]) => {
 
         const token = splitedToken[1];
         try {
-            const decodedToken = jwt.verify(
-                token,
-                process.env.TOKEN_SIGN_KEY as Secret
-            ) as JwtPayload;
+            const decodedToken = jwt.verify(token, process.env.TOKEN_SIGN_KEY as Secret) as JwtPayload;
 
             if (!decodedToken || decodedToken.refresh) {
                 throw invalidCredentialsError();
@@ -59,8 +50,15 @@ const isAuth = (allowedRoles?: ROLE | ROLE[]) => {
                 throw error;
             }
 
-            req.userId = decodedToken.userId;
-            req.userRoles = decodedToken.roles as string[];
+            const request = <
+                {
+                    userId: number;
+                    userRoles: ROLE[];
+                }
+            >(<unknown>req);
+
+            request.userId = decodedToken.userId;
+            request.userRoles = decodedToken.roles as ROLE[];
             next();
         } catch (err) {
             if (err instanceof TokenExpiredError) {
@@ -69,10 +67,7 @@ const isAuth = (allowedRoles?: ROLE | ROLE[]) => {
                 error.statusCode = 401;
                 throw error;
             }
-            if (
-                err instanceof JsonWebTokenError ||
-                err instanceof NotBeforeError
-            ) {
+            if (err instanceof JsonWebTokenError || err instanceof NotBeforeError) {
                 const error = new CustomError(err.message);
                 error.code = CUSTOM_ERROR_CODES.INVALID_TOKEN;
                 error.statusCode = 401;

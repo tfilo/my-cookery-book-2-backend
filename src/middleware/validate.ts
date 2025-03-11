@@ -1,23 +1,22 @@
 import { NextFunction, Request, Response } from 'express';
 import * as yup from 'yup';
 import { ValidationError } from 'yup';
-import { TypedSchema } from 'yup/lib/util/types';
 
 import CustomError from '../models/customError';
 import { CUSTOM_ERROR_CODES } from '../models/errorCodes';
 
-const validate = (yupSchema: yup.InferType<TypedSchema>) => {
+const validate = (yupSchema: yup.InferType<yup.AnySchema>) => {
     return async (req: Request, res: Response, next: NextFunction) => {
         try {
             const afterValidation = await yupSchema.validate(
                 {
                     body: req.body,
                     query: req.query,
-                    params: req.params,
+                    params: req.params
                 },
                 {
                     abortEarly: false,
-                    stripUnknown: true,
+                    stripUnknown: true
                 }
             );
             req.body = afterValidation.body;

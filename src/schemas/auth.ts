@@ -5,9 +5,9 @@ export const loginSchema = yup
         body: yup
             .object({
                 username: yup.string().trim().max(50).required(),
-                password: yup.string().trim().max(255).required(),
+                password: yup.string().trim().max(255).required()
             })
-            .required(),
+            .required()
     })
     .required();
 
@@ -15,9 +15,9 @@ export const refreshTokenSchema = yup
     .object({
         body: yup
             .object({
-                refreshToken: yup.string().trim().required(),
+                refreshToken: yup.string().trim().required()
             })
-            .required(),
+            .required()
     })
     .required();
 
@@ -26,9 +26,9 @@ export const confirmSchema = yup
         body: yup
             .object({
                 username: yup.string().trim().max(50).required(),
-                key: yup.string().trim().uuid().required(),
+                key: yup.string().trim().uuid().required()
             })
-            .required(),
+            .required()
     })
     .required();
 
@@ -36,9 +36,9 @@ export const resetPasswordLinkSchema = yup
     .object({
         body: yup
             .object({
-                email: yup.string().trim().max(320).email().required(),
+                email: yup.string().trim().max(320).email().required()
             })
-            .required(),
+            .required()
     })
     .required();
 
@@ -53,12 +53,9 @@ export const resetPasswordSchema = yup
                     .trim()
                     .min(8)
                     .max(255)
-                    .matches(
-                        /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
-                        'simplePassword'
-                    )
-                    .required(),
+                    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/, 'simplePassword')
+                    .required()
             })
-            .required(),
+            .required()
     })
     .required();

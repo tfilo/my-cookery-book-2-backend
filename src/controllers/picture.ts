@@ -6,29 +6,19 @@ import Picture from '../models/database/picture';
 import CustomError from '../models/customError';
 import { CUSTOM_ERROR_CODES } from '../models/errorCodes';
 import { SORT_ORDER } from '../models/sortOrderEnum';
-import {
-    getPictureDataSchema,
-    getPicturesByRecipeSchema,
-    getPictureThumbnailSchema,
-} from '../schemas/picture';
+import { getPictureDataSchema, getPicturesByRecipeSchema, getPictureThumbnailSchema } from '../schemas/picture';
 
-export const getPicturesByRecipe = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const getPicturesByRecipe = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const request = <yup.InferType<typeof getPicturesByRecipeSchema>>(
-            (<unknown>req)
-        );
+        const request = <yup.InferType<typeof getPicturesByRecipeSchema>>(<unknown>req);
 
         const recipeId = request.params.recipeId;
         const recipes = await Picture.findAll({
             where: {
-                recipeId: recipeId,
+                recipeId: recipeId
             },
             attributes: ['id', 'name', 'sortNumber'],
-            order: [['name', SORT_ORDER.ASC]],
+            order: [['name', SORT_ORDER.ASC]]
         });
 
         res.status(200).json(recipes);
@@ -37,19 +27,13 @@ export const getPicturesByRecipe = async (
     }
 };
 
-export const getPictureThumbnail = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const getPictureThumbnail = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const request = <yup.InferType<typeof getPictureThumbnailSchema>>(
-            (<unknown>req)
-        );
+        const request = <yup.InferType<typeof getPictureThumbnailSchema>>(<unknown>req);
 
         const pictureId = request.params.pictureId;
         const picture = await Picture.findByPk(pictureId, {
-            attributes: ['thumbnail'],
+            attributes: ['thumbnail']
         });
 
         if (!picture) {
@@ -68,19 +52,13 @@ export const getPictureThumbnail = async (
     }
 };
 
-export const getPictureData = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const getPictureData = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const request = <yup.InferType<typeof getPictureDataSchema>>(
-            (<unknown>req)
-        );
+        const request = <yup.InferType<typeof getPictureDataSchema>>(<unknown>req);
 
         const pictureId = request.params.pictureId;
         const picture = await Picture.findByPk(pictureId, {
-            attributes: ['data'],
+            attributes: ['data']
         });
 
         if (!picture) {
@@ -99,39 +77,31 @@ export const getPictureData = async (
     }
 };
 
-export const uploadPicture = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const uploadPicture = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const file = <Express.Multer.File>req.file;
-        const thumbnailDimension = process.env.THUMBNAIL_DIMENSION
-            ? +process.env.THUMBNAIL_DIMENSION
-            : 320;
-        const imageDimension = process.env.IMAGE_DIMENSION
-            ? +process.env.IMAGE_DIMENSION
-            : 1280;
+        const thumbnailDimension = process.env.THUMBNAIL_DIMENSION ? +process.env.THUMBNAIL_DIMENSION : 320;
+        const imageDimension = process.env.IMAGE_DIMENSION ? +process.env.IMAGE_DIMENSION : 1280;
 
         const image = await sharp(file.buffer, { failOnError: false })
             .resize(imageDimension, imageDimension, {
-                fit: 'inside',
+                fit: 'inside'
             })
             .jpeg({
                 quality: 90,
                 progressive: true,
-                force: true,
+                force: true
             })
             .toBuffer();
 
         const thumbnail = await sharp(file.buffer, { failOnError: false })
             .resize(thumbnailDimension, thumbnailDimension, {
-                fit: 'cover',
+                fit: 'cover'
             })
             .jpeg({
                 quality: 85,
                 progressive: true,
-                force: true,
+                force: true
             })
             .toBuffer();
 
@@ -142,15 +112,15 @@ export const uploadPicture = async (
                 sortNumber: 1,
                 name: fileName,
                 data: image,
-                thumbnail: thumbnail,
+                thumbnail: thumbnail
             },
             {
-                fields: ['sortNumber', 'name', 'data', 'thumbnail'],
+                fields: ['sortNumber', 'name', 'data', 'thumbnail']
             }
         );
 
         const result = await Picture.findByPk(picture.id, {
-            attributes: ['id'],
+            attributes: ['id']
         });
 
         res.status(201).json(result);

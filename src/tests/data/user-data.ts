@@ -12,12 +12,12 @@ export default async () => {
         password: 'Admin123',
         email: 'admin@test.test',
         confirmed: true,
-        notifications: false,
+        notifications: false
     });
 
     await UserRole.create({
         userId: users.admin.id,
-        roleName: ROLE.ADMIN,
+        roleName: ROLE.ADMIN
     });
 
     users.creator = await User.create({
@@ -25,12 +25,12 @@ export default async () => {
         password: 'Creator123',
         email: 'creator@test.test',
         confirmed: true,
-        notifications: true,
+        notifications: true
     });
 
     await UserRole.create({
         userId: users.creator.id,
-        roleName: ROLE.CREATOR,
+        roleName: ROLE.CREATOR
     });
 
     users.creator2 = await User.create({
@@ -39,12 +39,12 @@ export default async () => {
         email: 'creator2@test.test',
         confirmed: false,
         notifications: false,
-        uuid: '511f1466-02b4-4605-af0f-eaf33afc8dd0',
+        uuid: '511f1466-02b4-4605-af0f-eaf33afc8dd0'
     });
 
     await UserRole.create({
         userId: users.creator2.id,
-        roleName: ROLE.CREATOR,
+        roleName: ROLE.CREATOR
     });
 
     users.simple = await User.create({
@@ -52,39 +52,39 @@ export default async () => {
         password: 'Simple123',
         email: 'simple@test.test',
         confirmed: true,
-        notifications: true,
+        notifications: true
     });
 
     users.admin = (await User.findByPk(users.admin.id, {
         include: {
             model: UserRole,
             required: false,
-            attributes: ['roleName'],
-        },
+            attributes: ['roleName']
+        }
     }))!;
 
     users.creator = (await User.findByPk(users.creator.id, {
         include: {
             model: UserRole,
             required: false,
-            attributes: ['roleName'],
-        },
+            attributes: ['roleName']
+        }
     }))!;
 
     users.creator2 = (await User.findByPk(users.creator2.id, {
         include: {
             model: UserRole,
             required: false,
-            attributes: ['roleName'],
-        },
+            attributes: ['roleName']
+        }
     }))!;
 
     users.simple = (await User.findByPk(users.simple.id, {
         include: {
             model: UserRole,
             required: false,
-            attributes: ['roleName'],
-        },
+            attributes: ['roleName']
+        }
     }))!;
 
     return users;

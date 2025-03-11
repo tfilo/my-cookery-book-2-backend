@@ -2,18 +2,15 @@ import { Server } from 'http';
 import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
-import {
-    PostgreSqlContainer,
-    StartedPostgreSqlContainer,
-    Wait,
-} from 'testcontainers';
+import { Wait } from 'testcontainers';
+import { PostgreSqlContainer, StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 
 dotenv.config({ path: path.join('src', 'tests', '.env') });
 
 import { app } from '../../app';
 import sequelize from '../../util/database';
 import { Configuration, PictureApi } from '../openapi';
-import Chai from 'chai';
+import { use, expect } from 'chai';
 import chaiExclude from 'chai-exclude';
 import createUsers from '../data/user-data';
 import createCategories from '../data/category-data';
@@ -27,10 +24,8 @@ import { issueToken } from '../../util/token';
 import Picture from '../../models/database/picture';
 import Recipe from '../../models/database/recipe';
 import { processError } from '../util/error';
-import { buffer } from 'stream/consumers';
 
-Chai.use(chaiExclude);
-const expect = Chai.expect;
+use(chaiExclude);
 
 const port = process.env.PORT || 13000;
 
@@ -44,7 +39,7 @@ const getToken = () => {
 
 const config = new Configuration({
     authorization: () => getToken(),
-    basePath: 'http://localhost:' + port + process.env.BASE_PATH,
+    basePath: 'http://localhost:' + port + process.env.BASE_PATH
 });
 
 describe('Picture', () => {
@@ -56,21 +51,15 @@ describe('Picture', () => {
     const pictureApi = new PictureApi(config);
 
     before(async () => {
-        databaseContainer = await new PostgreSqlContainer(
-            'postgres:14.5-alpine'
-        )
+        databaseContainer = await new PostgreSqlContainer('postgres:14.5-alpine')
             .withDatabase('cookery2')
             .withUsername('cookery2')
             .withPassword('cookery2123')
             .withExposedPorts({
                 container: 5432,
-                host: Number(process.env.DATABASE_PORT),
+                host: Number(process.env.DATABASE_PORT)
             })
-            .withWaitStrategy(
-                Wait.forLogMessage(
-                    '[1] LOG:  database system is ready to accept connections'
-                )
-            )
+            .withWaitStrategy(Wait.forLogMessage('[1] LOG:  database system is ready to accept connections'))
             .start();
         serverInstance = app.listen(port);
     });
@@ -83,7 +72,7 @@ describe('Picture', () => {
     afterEach(async () => {
         await sequelize.dropAllSchemas({
             benchmark: false,
-            logging: false,
+            logging: false
         });
         setToken('');
     });
@@ -105,27 +94,23 @@ describe('Picture', () => {
         const token = issueToken(users.admin);
         setToken(token);
 
-        const res = await pictureApi
-            .getPicturesByRecipe(recipes.chicken.id)
-            .catch(processError);
+        const res = await pictureApi.getPicturesByRecipe(recipes.chicken.id).catch(processError);
         expect(res).has.lengthOf(1);
         expect(res).to.eql([
             {
                 id: pictures.sample.id,
                 name: pictures.sample.name,
-                sortNumber: pictures.sample.sortNumber,
-            },
+                sortNumber: pictures.sample.sortNumber
+            }
         ]);
     });
 
     it('should try get all pictures of recipe and fail on authentication', async () => {
-        const res = await pictureApi
-            .getPicturesByRecipe(recipes.chicken.id)
-            .catch(processError);
+        const res = await pictureApi.getPicturesByRecipe(recipes.chicken.id).catch(processError);
         expect(res).to.eql({
             statusCode: 401,
             code: 'INVALID_CREDENTIALS',
-            message: '',
+            message: ''
         });
     });
 
@@ -134,9 +119,7 @@ describe('Picture', () => {
         const token = issueToken(users.admin);
         setToken(token);
 
-        const res = await pictureApi
-            .getPicturesByRecipe(9999999)
-            .catch(processError);
+        const res = await pictureApi.getPicturesByRecipe(9999999).catch(processError);
         expect(res).has.lengthOf(0);
     });
 
@@ -145,23 +128,17 @@ describe('Picture', () => {
         const token = issueToken(users.admin);
         setToken(token);
 
-        const res = await pictureApi
-            .getPictureThumbnail(pictures.sample.id)
-            .catch(processError);
-        const thumbnail = fs.readFileSync(
-            path.join(__dirname, '..', 'data', 'thumbnail.jpg')
-        );
+        const res = await pictureApi.getPictureThumbnail(pictures.sample.id).catch(processError);
+        const thumbnail = fs.readFileSync(path.join(__dirname, '..', 'data', 'thumbnail.jpg'));
         expect(res).to.be.eql(thumbnail);
     });
 
     it('should try get picture thumbnail by id and fail on authentication', async () => {
-        const res = await pictureApi
-            .getPictureThumbnail(pictures.sample.id)
-            .catch(processError);
+        const res = await pictureApi.getPictureThumbnail(pictures.sample.id).catch(processError);
         expect(res).to.eql({
             statusCode: 401,
             code: 'INVALID_CREDENTIALS',
-            message: '',
+            message: ''
         });
     });
 
@@ -170,13 +147,11 @@ describe('Picture', () => {
         const token = issueToken(users.admin);
         setToken(token);
 
-        const res = await pictureApi
-            .getPictureThumbnail(9999999)
-            .catch(processError);
+        const res = await pictureApi.getPictureThumbnail(9999999).catch(processError);
         expect(res).to.eql({
             statusCode: 404,
             code: 'NOT_FOUND',
-            message: '',
+            message: ''
         });
     });
 
@@ -185,23 +160,17 @@ describe('Picture', () => {
         const token = issueToken(users.admin);
         setToken(token);
 
-        const res = await pictureApi
-            .getPictureData(pictures.sample.id)
-            .catch(processError);
-        const picture = fs.readFileSync(
-            path.join(__dirname, '..', 'data', 'picture.jpg')
-        );
+        const res = await pictureApi.getPictureData(pictures.sample.id).catch(processError);
+        const picture = fs.readFileSync(path.join(__dirname, '..', 'data', 'picture.jpg'));
         expect(res).to.be.eql(picture);
     });
 
     it('should try get picture by id and fail on authentication', async () => {
-        const res = await pictureApi
-            .getPictureData(pictures.sample.id)
-            .catch(processError);
+        const res = await pictureApi.getPictureData(pictures.sample.id).catch(processError);
         expect(res).to.eql({
             statusCode: 401,
             code: 'INVALID_CREDENTIALS',
-            message: '',
+            message: ''
         });
     });
 
@@ -210,13 +179,11 @@ describe('Picture', () => {
         const token = issueToken(users.admin);
         setToken(token);
 
-        const res = await pictureApi
-            .getPictureData(9999999)
-            .catch(processError);
+        const res = await pictureApi.getPictureData(9999999).catch(processError);
         expect(res).to.eql({
             statusCode: 404,
             code: 'NOT_FOUND',
-            message: '',
+            message: ''
         });
     });
 
@@ -225,30 +192,23 @@ describe('Picture', () => {
         const token = issueToken(users.admin);
         setToken(token);
 
-        const picture = fs.readFileSync(
-            path.join(__dirname, '..', 'data', 'picture.jpg')
-        );
+        const picture = fs.readFileSync(path.join(__dirname, '..', 'data', 'picture.jpg'));
 
         const res = await pictureApi
             .uploadPicture({
                 file: {
-                    value: picture,
-                    filename: 'test.jpg',
-                },
+                    value: picture
+                }
             })
             .catch(processError);
 
         expect(res.id).to.be.a('number');
 
-        const data = await pictureApi
-            .getPictureData(res.id)
-            .catch(processError);
+        const data = await pictureApi.getPictureData(res.id).catch(processError);
 
         expect(data).has.length.least(269000);
 
-        const thumbnail = await pictureApi
-            .getPictureThumbnail(res.id)
-            .catch(processError);
+        const thumbnail = await pictureApi.getPictureThumbnail(res.id).catch(processError);
 
         expect(thumbnail).has.length.least(47000);
     });
@@ -258,22 +218,19 @@ describe('Picture', () => {
         const token = issueToken(users.simple);
         setToken(token);
 
-        const picture = fs.readFileSync(
-            path.join(__dirname, '..', 'data', 'picture.jpg')
-        );
+        const picture = fs.readFileSync(path.join(__dirname, '..', 'data', 'picture.jpg'));
 
         const res = await pictureApi
             .uploadPicture({
                 file: {
-                    value: picture,
-                    filename: 'test.jpg',
-                },
+                    value: picture
+                }
             })
             .catch(processError);
         expect(res).to.eql({
             statusCode: 403,
             code: 'FORBIDEN',
-            message: '',
+            message: ''
         });
     });
 
@@ -282,16 +239,13 @@ describe('Picture', () => {
         const token = issueToken(users.admin);
         setToken(token);
 
-        const text = fs.readFileSync(
-            path.join(__dirname, '..', 'data', 'test.txt')
-        );
+        const text = fs.readFileSync(path.join(__dirname, '..', 'data', 'test.txt'));
 
         const res = await pictureApi
             .uploadPicture({
                 file: {
-                    value: text,
-                    filename: 'Test file',
-                },
+                    value: text
+                }
             })
             .catch(processError);
 
@@ -299,9 +253,9 @@ describe('Picture', () => {
             statusCode: 422,
             code: 'VALIDATION_FAILED',
             fields: {
-                file: 'invalidValue',
+                file: 'invalidValue'
             },
-            message: '',
+            message: ''
         });
     });
 });

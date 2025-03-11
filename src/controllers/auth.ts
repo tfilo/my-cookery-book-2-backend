@@ -9,22 +9,12 @@ import CustomError from '../models/customError';
 import { CUSTOM_ERROR_CODES } from '../models/errorCodes';
 import sequelize from '../util/database';
 import decodeAndValidateRefreshToken from '../util/decodeAndValidatRefreshToken';
-import {
-    confirmSchema,
-    loginSchema,
-    refreshTokenSchema,
-    resetPasswordLinkSchema,
-    resetPasswordSchema,
-} from '../schemas/auth';
+import { confirmSchema, loginSchema, refreshTokenSchema, resetPasswordLinkSchema, resetPasswordSchema } from '../schemas/auth';
 import { issueRefreshToken, issueToken } from '../util/token';
 import { sendMail } from '../util/email';
 import moment from 'moment';
 
-export const login = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const login = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const request = <yup.InferType<typeof loginSchema>>req;
 
@@ -33,8 +23,8 @@ export const login = async (
         const user = await User.scope('authScope').findOne({
             where: {
                 username: username,
-                confirmed: true,
-            },
+                confirmed: true
+            }
         });
 
         if (!user) {
@@ -57,18 +47,14 @@ export const login = async (
 
         res.status(200).json({
             token: token,
-            refreshToken: refreshToken,
+            refreshToken: refreshToken
         });
     } catch (err) {
         next(err);
     }
 };
 
-export const refreshToken = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const refreshToken = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const request = <yup.InferType<typeof refreshTokenSchema>>req;
 
@@ -77,8 +63,8 @@ export const refreshToken = async (
         const user = await User.scope('authScope').findOne({
             where: {
                 id: userId,
-                confirmed: true,
-            },
+                confirmed: true
+            }
         });
 
         if (!user) {
@@ -93,27 +79,23 @@ export const refreshToken = async (
 
         res.status(200).json({
             token: newToken,
-            refreshToken: newRefreshToken,
+            refreshToken: newRefreshToken
         });
     } catch (err) {
         next(err);
     }
 };
 
-export const confirmEmail = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const confirmEmail = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const request = <yup.InferType<typeof confirmSchema>>req;
         await sequelize.transaction(async (t) => {
             const user = await User.scope('confirmScope').findOne({
                 where: {
                     username: request.body.username,
-                    uuid: request.body.key,
+                    uuid: request.body.key
                 },
-                transaction: t,
+                transaction: t
             });
 
             if (!user) {
@@ -126,7 +108,7 @@ export const confirmEmail = async (
             user.confirmed = true;
             user.uuid = null;
             await user.save({
-                transaction: t,
+                transaction: t
             });
         });
         res.status(204).send();
@@ -135,23 +117,17 @@ export const confirmEmail = async (
     }
 };
 
-export const resetPasswordLink = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const resetPasswordLink = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const request = <yup.InferType<typeof resetPasswordLinkSchema>>(
-            (<unknown>req)
-        );
+        const request = <yup.InferType<typeof resetPasswordLinkSchema>>(<unknown>req);
         const email = request.body.email;
         await sequelize.transaction(async (t) => {
             const user = await User.findOne({
                 where: {
                     email,
-                    confirmed: true,
+                    confirmed: true
                 },
-                transaction: t,
+                transaction: t
             });
 
             if (!user) {
@@ -167,17 +143,11 @@ export const resetPasswordLink = async (
                 { uuid },
                 {
                     fields: ['uuid'],
-                    transaction: t,
+                    transaction: t
                 }
             );
 
-            await sendResetEmail(
-                user.email,
-                uuid,
-                user.username,
-                user.firstName,
-                user.lastName
-            );
+            await sendResetEmail(user.email, uuid, user.username, user.firstName, user.lastName);
         });
         res.status(204).send();
     } catch (err) {
@@ -185,15 +155,9 @@ export const resetPasswordLink = async (
     }
 };
 
-export const resetPassword = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const request = <yup.InferType<typeof resetPasswordSchema>>(
-            (<unknown>req)
-        );
+        const request = <yup.InferType<typeof resetPasswordSchema>>(<unknown>req);
         const uuid = request.body.key;
         const newPassword = request.body.newPassword;
         const username = request.body.username;
@@ -203,9 +167,9 @@ export const resetPassword = async (
                 where: {
                     uuid,
                     confirmed: true,
-                    username,
+                    username
                 },
-                transaction: t,
+                transaction: t
             });
 
             if (!user) {
@@ -225,7 +189,7 @@ export const resetPassword = async (
                 await user.update(
                     { uuid: null },
                     {
-                        transaction: t,
+                        transaction: t
                     }
                 );
                 return false;
@@ -234,7 +198,7 @@ export const resetPassword = async (
                     { password: newPassword, uuid: null },
                     {
                         fields: ['password', 'uuid'],
-                        transaction: t,
+                        transaction: t
                     }
                 );
             }
@@ -255,13 +219,13 @@ export const resetPassword = async (
 
 export const user = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const request = <{ userId: number }>req;
+        const request = <{ userId: number }>(<unknown>req);
 
         const userId = request.userId;
         const user = await User.findOne({
             where: {
-                id: userId,
-            },
+                id: userId
+            }
         });
 
         if (!user) {
@@ -274,7 +238,7 @@ export const user = async (req: Request, res: Response, next: NextFunction) => {
         const response = {
             username: user.username,
             firstName: user.firstName,
-            lastName: user.lastName,
+            lastName: user.lastName
         };
 
         res.status(200).send(response);
@@ -283,13 +247,7 @@ export const user = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
-const sendResetEmail = async (
-    email: string,
-    key: string,
-    username: string,
-    firstName?: string,
-    lastName?: string
-) => {
+const sendResetEmail = async (email: string, key: string, username: string, firstName?: string, lastName?: string) => {
     const emailPlain = process.env.MAIL_RESET_TEMPLATE_TXT_HBS;
     const emailHtml = process.env.MAIL_RESET_TEMPLATE_HTML_HBS;
     const emailSubject = process.env.MAIL_RESET_SUBJECT;
@@ -297,18 +255,13 @@ const sendResetEmail = async (
     const emailData = {
         fullName: firstName && lastName ? firstName + ' ' + lastName : username,
         username,
-        key,
+        key
     };
 
     const compiledPlain = Handlebars.compile(emailPlain)(emailData);
     const compiledHtml = Handlebars.compile(emailHtml)(emailData);
 
-    const emailInfo = await sendMail(
-        email,
-        emailSubject,
-        compiledPlain,
-        compiledHtml
-    );
+    const emailInfo = await sendMail(email, emailSubject, compiledPlain, compiledHtml);
 
     if (emailInfo && emailInfo.rejected.length > 0) {
         const error = new CustomError();

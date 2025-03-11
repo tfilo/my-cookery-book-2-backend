@@ -1,15 +1,4 @@
-import {
-    Table,
-    Column,
-    Model,
-    HasMany,
-    DataType,
-    AllowNull,
-    Unique,
-    ForeignKey,
-    BelongsTo,
-    BelongsToMany,
-} from 'sequelize-typescript';
+import { Table, Column, Model, HasMany, DataType, AllowNull, Unique, ForeignKey, BelongsTo, BelongsToMany } from 'sequelize-typescript';
 import { Optional } from 'sequelize/types';
 
 import Category from './category';
@@ -36,63 +25,53 @@ export interface RecipeAttributes {
     updatedAt: Date;
 }
 
-interface RecipeCreationAttributes
-    extends Optional<
-        RecipeAttributes,
-        | 'id'
-        | 'nameSearch'
-        | 'description'
-        | 'descriptionSearch'
-        | 'serves'
-        | 'method'
-        | 'createdAt'
-        | 'updatedAt'
-    > {}
-
 @Table({
-    timestamps: true,
+    timestamps: true
 })
-class Recipe extends Model<RecipeAttributes, RecipeCreationAttributes> {
+class Recipe extends Model<
+    RecipeAttributes,
+    Optional<RecipeAttributes, 'id' | 'nameSearch' | 'description' | 'descriptionSearch' | 'serves' | 'method' | 'createdAt' | 'updatedAt'>
+> {
     @AllowNull(false)
     @Unique
     @Column({
-        type: DataType.STRING(80),
+        type: DataType.STRING(80)
     })
     name: string;
 
     @AllowNull
     @Column({
-        type: DataType.STRING(80),
+        type: DataType.STRING(80)
     })
     nameSearch: string;
 
     @AllowNull
     @Column({
-        type: DataType.STRING(160),
+        type: DataType.STRING(160)
     })
     description: string | null;
 
     @AllowNull
     @Column({
-        type: DataType.STRING(160),
+        type: DataType.STRING(160)
     })
     descriptionSearch: string;
 
     @AllowNull
     @Column({
-        type: DataType.INTEGER,
+        type: DataType.INTEGER
     })
     serves: number;
 
     @AllowNull
     @Column({
-        type: DataType.TEXT,
+        type: DataType.TEXT
     })
     method: string;
 
     @AllowNull(false)
     @Column({
-        type: DataType.ARRAY(DataType.STRING(1000)),
+        type: DataType.ARRAY(DataType.STRING(1000))
     })
     sources: string[];
 
@@ -121,18 +100,18 @@ class Recipe extends Model<RecipeAttributes, RecipeCreationAttributes> {
     modifier: User;
 
     @HasMany(() => RecipeSection, {
-        onDelete: 'CASCADE',
+        onDelete: 'CASCADE'
     })
     recipeSections: RecipeSection[];
 
     @BelongsToMany(() => Recipe, () => RecipeRecipe, 'recipeId', 'associatedRecipeId')
-    associatedRecipes: Array<Recipe & {RecipeRecipe: RecipeRecipe}>;
+    associatedRecipes: Array<Recipe & { RecipeRecipe: RecipeRecipe }>;
 
     @BelongsToMany(() => Tag, () => RecipeTag)
-    tags: Array<Tag & {RecipeTag: RecipeTag}>;
+    tags: Array<Tag & { RecipeTag: RecipeTag }>;
 
     @HasMany(() => Picture, {
-        onDelete: 'CASCADE',
+        onDelete: 'CASCADE'
     })
     pictures: Picture[];
 }

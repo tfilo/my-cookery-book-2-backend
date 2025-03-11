@@ -22,14 +22,8 @@ const basePath = String(process.env.BASE_PATH ?? '/api');
 app.use(helmet());
 app.use(express.json());
 app.use((req, res, next) => {
-    res.setHeader(
-        'Access-Control-Allow-Methods',
-        'OPTIONS, GET, POST, PUT, PATCH, DELETE'
-    );
-    res.setHeader(
-        'Access-Control-Allow-Headers',
-        'Content-Type, Authorization'
-    );
+    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     next();
 });
 
@@ -51,12 +45,10 @@ router.get('/health', (req, res) => {
 if (process.env.NODE_ENV === 'development') {
     const openapiFilePath = path.join(__dirname, 'openapi.json');
     const openapiFile = JSON.parse(fs.readFileSync(openapiFilePath, 'utf-8'));
-    router.get('/api-docs/public.json', (req, res) => res.json(openapiFile));
-    router.use(
-        '/api-docs',
-        swaggerUi.serveFiles(openapiFile, {}),
-        swaggerUi.setup(openapiFile)
-    );
+    router.use('/api-docs/public.json', (req, res) => {
+        res.json(openapiFile);
+    });
+    router.use('/api-docs', swaggerUi.serveFiles(openapiFile, {}), swaggerUi.setup(openapiFile));
 }
 
 app.use(basePath, router);

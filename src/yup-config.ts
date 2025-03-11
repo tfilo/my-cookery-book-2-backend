@@ -6,30 +6,30 @@ yup.setLocale({
         notType: 'invalidValue',
         oneOf: ({ values }) => ({
             key: 'allowed',
-            values: { values },
+            values: { values }
         }),
-        defined: 'defined',
+        defined: 'defined'
     },
     string: {
         max: ({ max }) => ({
             key: 'maxLength',
-            values: { max },
+            values: { max }
         }),
         min: ({ min }) => ({
             key: 'minLength',
-            values: { min },
+            values: { min }
         }),
         email: 'email',
-        uuid: 'uuid',
+        uuid: 'uuid'
     },
     number: {
         max: ({ max }) => ({
             key: 'max',
-            values: { max },
+            values: { max }
         }),
         min: ({ min }) => ({
             key: 'min',
-            values: { min },
-        }),
-    },
+            values: { min }
+        })
+    }
 });

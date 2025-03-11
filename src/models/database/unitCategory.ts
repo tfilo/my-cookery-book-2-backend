@@ -1,12 +1,4 @@
-import {
-    Table,
-    Column,
-    Model,
-    HasMany,
-    DataType,
-    AllowNull,
-    Unique,
-} from 'sequelize-typescript';
+import { Table, Column, Model, HasMany, DataType, AllowNull, Unique } from 'sequelize-typescript';
 import { Optional } from 'sequelize/types';
 
 import Unit from './unit';
@@ -18,28 +10,19 @@ interface UnitCategoryAttributes {
     updatedAt: Date;
 }
 
-interface UnitCategoryCreationAttributes
-    extends Optional<
-        UnitCategoryAttributes,
-        'id' | 'createdAt' | 'updatedAt'
-    > {}
-
 @Table({
-    timestamps: true,
+    timestamps: true
 })
-class UnitCategory extends Model<
-    UnitCategoryAttributes,
-    UnitCategoryCreationAttributes
-> {
+class UnitCategory extends Model<UnitCategoryAttributes, Optional<UnitCategoryAttributes, 'id' | 'createdAt' | 'updatedAt'>> {
     @AllowNull(false)
     @Unique
     @Column({
-        type: DataType.STRING(80),
+        type: DataType.STRING(80)
     })
     name: string;
 
     @HasMany(() => Unit, {
-        onDelete: 'RESTRICT',
+        onDelete: 'RESTRICT'
     })
     units: Unit[];
 }

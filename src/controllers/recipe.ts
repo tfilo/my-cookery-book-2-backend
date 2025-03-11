@@ -12,13 +12,7 @@ import RecipeTag from '../models/database/recipeTag';
 import Tag from '../models/database/tag';
 import { CUSTOM_ERROR_CODES } from '../models/errorCodes';
 import { SORT_ORDER } from '../models/sortOrderEnum';
-import {
-    createRecipeSchema,
-    deleteRecipeSchema,
-    findRecipesSchema,
-    getRecipeShema,
-    updateRecipeSchema,
-} from '../schemas/recipe';
+import { createRecipeSchema, deleteRecipeSchema, findRecipesSchema, getRecipeShema, updateRecipeSchema } from '../schemas/recipe';
 import sequelize from '../util/database';
 import toSCDF from '../util/string';
 import User from '../models/database/user';
@@ -26,20 +20,13 @@ import Unit from '../models/database/unit';
 import { ROLE } from '../models/roleEnum';
 import { checkRoles } from '../middleware/is-auth';
 
-export const findRecipes = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const findRecipes = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const request = <yup.InferType<typeof findRecipesSchema>>req;
 
         const limit = request.body.pageSize;
         const offset = request.body.pageSize * request.body.page;
-        const orderBy =
-            request.body.orderBy === 'name'
-                ? 'nameSearch'
-                : request.body.orderBy;
+        const orderBy = request.body.orderBy === 'name' ? 'nameSearch' : request.body.orderBy;
         const order = request.body.order;
         const categoryId = request.body.categoryId;
         const tagIds = request.body.tags;
@@ -50,8 +37,8 @@ export const findRecipes = async (
         if (categoryId) {
             recipeCriteria.push({
                 categoryId: {
-                    [Op.eq]: categoryId,
-                },
+                    [Op.eq]: categoryId
+                }
             });
         }
 
@@ -60,30 +47,27 @@ export const findRecipes = async (
                 [Op.or]: [
                     {
                         nameSearch: {
-                            [Op.like]: '%' + toSCDF(search).toLowerCase() + '%',
-                        },
+                            [Op.like]: '%' + toSCDF(search).toLowerCase() + '%'
+                        }
                     },
                     {
                         descriptionSearch: {
-                            [Op.like]: '%' + toSCDF(search).toLowerCase() + '%',
-                        },
-                    },
-                ],
+                            [Op.like]: '%' + toSCDF(search).toLowerCase() + '%'
+                        }
+                    }
+                ]
             });
         }
 
         if (tagIds && tagIds.length > 0) {
             const tags = await RecipeTag.findAll({
-                attributes: [
-                    'recipeId',
-                    [sequelize.fn('COUNT', sequelize.col('recipeId')), 'count'],
-                ],
+                attributes: ['recipeId', [sequelize.fn('COUNT', sequelize.col('recipeId')), 'count']],
                 where: {
                     tagId: {
-                        [Op.in]: tagIds,
-                    },
+                        [Op.in]: tagIds
+                    }
                 },
-                group: ['recipeId'],
+                group: ['recipeId']
             });
             const recipeIdsByTag = tags
                 .filter(
@@ -106,8 +90,8 @@ export const findRecipes = async (
                 );
             recipeCriteria.push({
                 id: {
-                    [Op.in]: recipeIdsByTag,
-                },
+                    [Op.in]: recipeIdsByTag
+                }
             });
         }
 
@@ -119,32 +103,28 @@ export const findRecipes = async (
                 attributes: ['id'],
                 required: false,
                 limit: 1,
-                order: [['sortNumber', SORT_ORDER.ASC]],
+                order: [['sortNumber', SORT_ORDER.ASC]]
             },
             attributes: ['id', 'name', 'description', 'creatorId'],
             distinct: true,
             subQuery: false,
             limit,
             offset,
-            order: [[orderBy!.toString(), order!.toString()]],
+            order: [[orderBy!.toString(), order!.toString()]]
         });
 
         res.status(200).json({
             page: request.body.page,
             pageSize: request.body.pageSize,
             rows: recipes.rows,
-            count: recipes.count,
+            count: recipes.count
         });
     } catch (err) {
         next(err);
     }
 };
 
-export const getRecipe = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const getRecipe = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const request = <yup.InferType<typeof getRecipeShema>>(<unknown>req);
 
@@ -152,8 +132,8 @@ export const getRecipe = async (
         const recipe = await Recipe.findOne({
             where: {
                 id: {
-                    [Op.eq]: recipeId,
-                },
+                    [Op.eq]: recipeId
+                }
             },
             attributes: [
                 'id',
@@ -166,7 +146,7 @@ export const getRecipe = async (
                 'modifierId',
                 'creatorId',
                 'createdAt',
-                'updatedAt',
+                'updatedAt'
             ],
             include: [
                 {
@@ -178,68 +158,62 @@ export const getRecipe = async (
                         {
                             model: Ingredient,
                             as: 'ingredients',
-                            attributes: [
-                                'id',
-                                'name',
-                                'sortNumber',
-                                'value',
-                                'unitId',
-                            ],
+                            attributes: ['id', 'name', 'sortNumber', 'value', 'unitId'],
                             include: [
                                 {
                                     model: Unit,
                                     as: 'unit',
-                                    attributes: ['name', 'abbreviation'],
-                                },
+                                    attributes: ['name', 'abbreviation']
+                                }
                             ],
-                            required: false,
-                        },
-                    ],
+                            required: false
+                        }
+                    ]
                 },
                 {
                     model: Recipe,
                     as: 'associatedRecipes',
                     through: {
-                        attributes: [],
+                        attributes: []
                     },
                     attributes: ['id', 'name', 'description'],
-                    required: false,
+                    required: false
                 },
                 {
                     model: Tag,
                     as: 'tags',
                     through: {
-                        attributes: [],
+                        attributes: []
                     },
                     attributes: ['id', 'name'],
-                    required: false,
+                    required: false
                 },
                 {
                     model: Picture,
                     as: 'pictures',
                     attributes: ['id', 'name', 'sortNumber'],
-                    required: false,
+                    required: false
                 },
                 {
                     model: User,
                     as: 'creator',
                     attributes: ['username', 'firstName', 'lastName'],
-                    required: false,
+                    required: false
                 },
                 {
                     model: User,
                     as: 'modifier',
                     attributes: ['username', 'firstName', 'lastName'],
-                    required: false,
-                },
+                    required: false
+                }
             ],
             order: [
                 ['recipeSections', 'sortNumber', SORT_ORDER.ASC],
                 ['recipeSections', 'ingredients', 'sortNumber', SORT_ORDER.ASC],
                 ['associatedRecipes', 'name', SORT_ORDER.ASC],
                 ['tags', 'name', SORT_ORDER.ASC],
-                ['pictures', 'sortNumber', SORT_ORDER.ASC],
-            ],
+                ['pictures', 'sortNumber', SORT_ORDER.ASC]
+            ]
         });
 
         if (!recipe) {
@@ -255,15 +229,9 @@ export const getRecipe = async (
     }
 };
 
-export const createRecipe = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const createRecipe = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const request = <
-            yup.InferType<typeof createRecipeSchema> & { userId: number }
-        >req;
+        const request = <yup.InferType<typeof createRecipeSchema> & { userId: number }>(<unknown>req);
 
         const tagIds = request.body.tags;
         const associatedRecipeIds = request.body.associatedRecipes;
@@ -275,11 +243,9 @@ export const createRecipe = async (
                 {
                     ...request.body,
                     nameSearch: toSCDF(request.body.name).toLowerCase().trim(),
-                    descriptionSearch: toSCDF(request.body.description)
-                        .toLowerCase()
-                        .trim(),
+                    descriptionSearch: toSCDF(request.body.description).toLowerCase().trim(),
                     creatorId: request.userId,
-                    modifierId: request.userId,
+                    modifierId: request.userId
                 },
                 {
                     fields: [
@@ -292,9 +258,9 @@ export const createRecipe = async (
                         'sources',
                         'categoryId',
                         'creatorId',
-                        'modifierId',
+                        'modifierId'
                     ],
-                    transaction: t,
+                    transaction: t
                 }
             );
 
@@ -306,18 +272,14 @@ export const createRecipe = async (
             return recipe.id;
         });
         res.status(201).json({
-            id: result,
+            id: result
         });
     } catch (err) {
         next(err);
     }
 };
 
-export const updateRecipe = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const updateRecipe = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const request = <
             yup.InferType<typeof updateRecipeSchema> & {
@@ -336,10 +298,10 @@ export const updateRecipe = async (
             const recipe = await Recipe.findOne({
                 where: {
                     id: {
-                        [Op.eq]: recipeId,
-                    },
+                        [Op.eq]: recipeId
+                    }
                 },
-                transaction: t,
+                transaction: t
             });
 
             if (!recipe) {
@@ -362,10 +324,8 @@ export const updateRecipe = async (
                 {
                     ...request.body,
                     nameSearch: toSCDF(request.body.name).toLowerCase().trim(),
-                    descriptionSearch: toSCDF(request.body.description)
-                        .toLowerCase()
-                        .trim(),
-                    modifierId: request.userId,
+                    descriptionSearch: toSCDF(request.body.description).toLowerCase().trim(),
+                    modifierId: request.userId
                 },
                 {
                     fields: [
@@ -377,9 +337,9 @@ export const updateRecipe = async (
                         'method',
                         'sources',
                         'categoryId',
-                        'modifierId',
+                        'modifierId'
                     ],
-                    transaction: t,
+                    transaction: t
                 }
             );
 
@@ -394,11 +354,7 @@ export const updateRecipe = async (
     }
 };
 
-export const deleteRecipe = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const deleteRecipe = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const request = <
             yup.InferType<typeof deleteRecipeSchema> & {
@@ -410,7 +366,7 @@ export const deleteRecipe = async (
         const recipeId = request.params.recipeId;
         await sequelize.transaction(async (t) => {
             const recipe = await Recipe.findByPk(recipeId, {
-                transaction: t,
+                transaction: t
             });
 
             if (!recipe) {
@@ -430,7 +386,7 @@ export const deleteRecipe = async (
             }
 
             await recipe.destroy({
-                transaction: t,
+                transaction: t
             });
         });
         res.status(204).json();
@@ -439,38 +395,29 @@ export const deleteRecipe = async (
     }
 };
 
-const updateTags = async (
-    recipeId: number,
-    tagIds: number[],
-    t: Transaction
-) => {
+const updateTags = async (recipeId: number, tagIds: number[], t: Transaction) => {
     const storedRecipeTags = await RecipeTag.findAll({
         where: {
             recipeId: {
-                [Op.eq]: recipeId,
-            },
+                [Op.eq]: recipeId
+            }
         },
-        transaction: t,
+        transaction: t
     });
 
     let tagsToAdd;
     if (storedRecipeTags.length > 0) {
-        const storedTagsToRemove = storedRecipeTags.filter(
-            (srt) => tagIds.findIndex((tId) => tId === srt.tagId) === -1
-        );
+        const storedTagsToRemove = storedRecipeTags.filter((srt) => tagIds.findIndex((tId) => tId === srt.tagId) === -1);
 
         const removedTags = storedTagsToRemove.map((sttr) =>
             sttr.destroy({
-                transaction: t,
+                transaction: t
             })
         );
 
         await Promise.all(removedTags);
 
-        tagsToAdd = tagIds.filter(
-            (tid) =>
-                storedRecipeTags.findIndex((srt) => srt.tagId === tid) === -1
-        );
+        tagsToAdd = tagIds.filter((tid) => storedRecipeTags.findIndex((srt) => srt.tagId === tid) === -1);
     } else {
         tagsToAdd = [...tagIds];
     }
@@ -479,10 +426,10 @@ const updateTags = async (
         return RecipeTag.create(
             {
                 recipeId: recipeId,
-                tagId: tagId,
+                tagId: tagId
             },
             {
-                transaction: t,
+                transaction: t
             }
         );
     });
@@ -490,31 +437,26 @@ const updateTags = async (
     await Promise.all(createdTags);
 };
 
-const updateAssociatedRecipes = async (
-    recipeId: number,
-    associatedRecipeIds: number[],
-    t: Transaction
-) => {
+const updateAssociatedRecipes = async (recipeId: number, associatedRecipeIds: number[], t: Transaction) => {
     await RecipeRecipe.destroy({
         where: {
             recipeId: {
-                [Op.eq]: recipeId,
-            },
+                [Op.eq]: recipeId
+            }
         },
-        transaction: t,
+        transaction: t
     });
 
-    const createdAssociatedRecipes = associatedRecipeIds.map(
-        (associatedRecipeId) =>
-            RecipeRecipe.create(
-                {
-                    recipeId: recipeId,
-                    associatedRecipeId: associatedRecipeId,
-                },
-                {
-                    transaction: t,
-                }
-            )
+    const createdAssociatedRecipes = associatedRecipeIds.map((associatedRecipeId) =>
+        RecipeRecipe.create(
+            {
+                recipeId: recipeId,
+                associatedRecipeId: associatedRecipeId
+            },
+            {
+                transaction: t
+            }
+        )
     );
 
     await Promise.all(createdAssociatedRecipes);
@@ -532,19 +474,17 @@ const updatePictures = async (
     const storedPictures = await Picture.findAll({
         where: {
             recipeId: {
-                [Op.eq]: recipeId,
-            },
+                [Op.eq]: recipeId
+            }
         },
-        transaction: t,
+        transaction: t
     });
 
-    const picturesToRemove = storedPictures.filter(
-        (sp) => pictures.findIndex((p) => p.id === sp.id) === -1
-    );
+    const picturesToRemove = storedPictures.filter((sp) => pictures.findIndex((p) => p.id === sp.id) === -1);
 
     const removedPictures = picturesToRemove.map((ptr) =>
         ptr.destroy({
-            transaction: t,
+            transaction: t
         })
     );
 
@@ -554,10 +494,10 @@ const updatePictures = async (
         const storedPicture = await Picture.findOne({
             where: {
                 id: {
-                    [Op.eq]: picture.id,
-                },
+                    [Op.eq]: picture.id
+                }
             },
-            transaction: t,
+            transaction: t
         });
 
         if (!storedPicture) {
@@ -571,11 +511,11 @@ const updatePictures = async (
             {
                 name: picture.name,
                 sortNumber: picture.sortNumber,
-                recipeId: recipeId,
+                recipeId: recipeId
             },
             {
                 fields: ['name', 'sortNumber', 'recipeId'],
-                transaction: t,
+                transaction: t
             }
         );
     });
@@ -591,22 +531,22 @@ const updatePictures = async (
             [Op.and]: [
                 {
                     recipeId: {
-                        [Op.eq]: null,
-                    },
+                        [Op.eq]: null
+                    }
                 },
                 {
                     createdAt: {
-                        [Op.lte]: date,
-                    },
-                },
-            ],
+                        [Op.lte]: date
+                    }
+                }
+            ]
         },
-        transaction: t,
+        transaction: t
     });
 
     const removedOrphans = orphans.map((ptr) =>
         ptr.destroy({
-            transaction: t,
+            transaction: t
         })
     );
 
@@ -624,7 +564,7 @@ const updateRecipeSections = async (
             id?: number;
             name: string;
             sortNumber: number;
-            value: number;
+            value: number | null;
             unitId: number;
         }[];
     }[],
@@ -633,39 +573,32 @@ const updateRecipeSections = async (
     const dbRecipeSections = await RecipeSection.findAll({
         where: {
             recipeId: {
-                [Op.eq]: recipeId,
-            },
+                [Op.eq]: recipeId
+            }
         },
         include: [
             {
                 model: Ingredient,
-                as: 'ingredients',
-            },
+                as: 'ingredients'
+            }
         ],
-        transaction: t,
+        transaction: t
     });
 
     let sectionsToAdd;
     if (dbRecipeSections.length > 0) {
-        const existingSection = recipeSections.filter(
-            (rs) => rs.id !== undefined
-        );
-        const sectionsToRemove = dbRecipeSections.filter(
-            (dbrs) =>
-                existingSection.findIndex((es) => es.id === dbrs.id) === -1
-        );
+        const existingSection = recipeSections.filter((rs) => rs.id !== undefined);
+        const sectionsToRemove = dbRecipeSections.filter((dbrs) => existingSection.findIndex((es) => es.id === dbrs.id) === -1);
         const removedSections = sectionsToRemove.map((str) =>
             str.destroy({
-                transaction: t,
+                transaction: t
             })
         );
 
         await Promise.all(removedSections);
         sectionsToAdd = recipeSections.filter((rs) => rs.id === undefined); // where no id provided, it is new section
 
-        const sectionsToUpdate = dbRecipeSections.filter(
-            (dbrs) => existingSection.findIndex((es) => es.id === dbrs.id) > -1
-        );
+        const sectionsToUpdate = dbRecipeSections.filter((dbrs) => existingSection.findIndex((es) => es.id === dbrs.id) > -1);
 
         const updatedSections = sectionsToUpdate.map(async (stu) => {
             const savedSection = existingSection.find((es) => es.id === stu.id);
@@ -677,29 +610,22 @@ const updateRecipeSections = async (
             }
             let ingredientsToAdd;
             if (stu.ingredients.length > 0) {
-                const ingredientsToUpdate = savedSection.ingredients.filter(
-                    (i) => i.id !== undefined
-                );
+                const ingredientsToUpdate = savedSection.ingredients.filter((i) => i.id !== undefined);
 
                 const ingredientsToRemove = stu.ingredients.filter(
-                    (i) =>
-                        savedSection.ingredients.findIndex(
-                            (itu) => itu.id === i.id
-                        ) === -1
+                    (i) => savedSection.ingredients.findIndex((itu) => itu.id === i.id) === -1
                 );
 
                 const removedIngredients = ingredientsToRemove.map((itr) =>
                     itr.destroy({
-                        transaction: t,
+                        transaction: t
                     })
                 );
 
                 await Promise.all(removedIngredients);
 
                 const updatedIngredients = ingredientsToUpdate.map((i) => {
-                    const savedIngredient = stu.ingredients.find(
-                        (itu) => itu.id === i.id
-                    );
+                    const savedIngredient = stu.ingredients.find((itu) => itu.id === i.id);
                     if (!savedIngredient) {
                         const error = new CustomError();
                         error.code = CUSTOM_ERROR_CODES.NOT_FOUND;
@@ -708,15 +634,13 @@ const updateRecipeSections = async (
                     }
                     return savedIngredient.update(i, {
                         fields: ['name', 'sortNumber', 'value', 'unitId'],
-                        transaction: t,
+                        transaction: t
                     });
                 });
 
                 await Promise.all(updatedIngredients);
 
-                ingredientsToAdd = savedSection.ingredients.filter(
-                    (i) => i.id === undefined
-                );
+                ingredientsToAdd = savedSection.ingredients.filter((i) => i.id === undefined);
             } else {
                 ingredientsToAdd = [...savedSection.ingredients];
             }
@@ -725,17 +649,11 @@ const updateRecipeSections = async (
                 return Ingredient.create(
                     {
                         ...ita,
-                        recipeSectionId: stu.id,
+                        recipeSectionId: stu.id
                     },
                     {
-                        fields: [
-                            'name',
-                            'sortNumber',
-                            'value',
-                            'unitId',
-                            'recipeSectionId',
-                        ],
-                        transaction: t,
+                        fields: ['name', 'sortNumber', 'value', 'unitId', 'recipeSectionId'],
+                        transaction: t
                     }
                 );
             });
@@ -746,11 +664,11 @@ const updateRecipeSections = async (
                 {
                     name: savedSection.name,
                     sortNumber: savedSection.sortNumber,
-                    method: savedSection.method,
+                    method: savedSection.method
                 },
                 {
                     fields: ['name', 'sortNumber', 'method'],
-                    transaction: t,
+                    transaction: t
                 }
             );
         });
@@ -766,34 +684,26 @@ const updateRecipeSections = async (
                 name: recipeSection.name,
                 sortNumber: recipeSection.sortNumber,
                 method: recipeSection.method,
-                recipeId: recipeId,
+                recipeId: recipeId
             },
             {
                 fields: ['name', 'sortNumber', 'method', 'recipeId'],
-                transaction: t,
+                transaction: t
             }
         );
 
-        const createdIngredients = recipeSection.ingredients.map(
-            (ingredient) => {
-                return Ingredient.create(
-                    {
-                        ...ingredient,
-                        recipeSectionId: createdRecipeSection.id,
-                    },
-                    {
-                        fields: [
-                            'name',
-                            'sortNumber',
-                            'value',
-                            'unitId',
-                            'recipeSectionId',
-                        ],
-                        transaction: t,
-                    }
-                );
-            }
-        );
+        const createdIngredients = recipeSection.ingredients.map((ingredient) => {
+            return Ingredient.create(
+                {
+                    ...ingredient,
+                    recipeSectionId: createdRecipeSection.id
+                },
+                {
+                    fields: ['name', 'sortNumber', 'value', 'unitId', 'recipeSectionId'],
+                    transaction: t
+                }
+            );
+        });
 
         await Promise.all(createdIngredients);
 

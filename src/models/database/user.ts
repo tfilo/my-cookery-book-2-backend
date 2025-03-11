@@ -1,15 +1,5 @@
 import bcrypt from 'bcryptjs';
-import {
-    Table,
-    Column,
-    AllowNull,
-    Unique,
-    Model,
-    HasMany,
-    DataType,
-    DefaultScope,
-    Scopes,
-} from 'sequelize-typescript';
+import { Table, Column, AllowNull, Unique, Model, HasMany, DataType, DefaultScope, Scopes } from 'sequelize-typescript';
 import { Optional } from 'sequelize/types';
 import Recipe from './recipe';
 
@@ -29,65 +19,45 @@ export interface UserAttributes {
     updatedAt: Date;
 }
 
-interface UserCreationAttributes
-    extends Optional<
-        UserAttributes,
-        'id' | 'firstName' | 'lastName' | 'password' | 'createdAt' | 'updatedAt'
-    > {}
-
 @DefaultScope(() => ({
-    attributes: { exclude: ['password', 'uuid'] },
+    attributes: { exclude: ['password', 'uuid'] }
 }))
 @Scopes(() => ({
     fullScope: {
-        attributes: [
-            'id',
-            'username',
-            'password',
-            'firstName',
-            'lastName',
-            'email',
-            'uuid',
-            'confirmed',
-            'notifications',
-        ],
+        attributes: ['id', 'username', 'password', 'firstName', 'lastName', 'email', 'uuid', 'confirmed', 'notifications']
     },
     authScope: {
         attributes: ['id', 'username', 'password', 'confirmed'],
         include: {
             model: UserRole,
             required: false,
-            attributes: ['roleName'],
-        },
+            attributes: ['roleName']
+        }
     },
     confirmScope: {
-        attributes: ['id', 'username', 'uuid'],
+        attributes: ['id', 'username', 'uuid']
     },
     listScope: {
-        attributes: [
-            'id',
-            'username',
-            'firstName',
-            'lastName',
-            'confirmed',
-            'notifications',
-        ],
-    },
+        attributes: ['id', 'username', 'firstName', 'lastName', 'confirmed', 'notifications']
+    }
 }))
 @Table({
-    timestamps: true,
+    timestamps: true
 })
-class User extends Model<UserAttributes, UserCreationAttributes> {
+class User extends Model<
+    UserAttributes,
+    Optional<UserAttributes, 'id' | 'firstName' | 'lastName' | 'password' | 'createdAt' | 'updatedAt'>
+> {
     @AllowNull(false)
     @Unique
     @Column({
-        type: DataType.STRING(50),
+        type: DataType.STRING(50)
     })
     username: string;
 
     @AllowNull(false)
     @Column({
-        type: DataType.STRING(60), // bcryptjs has has 60 characters
+        type: DataType.STRING(60) // bcryptjs has has 60 characters
     })
     get password(): string {
         return this.getDataValue('password');
@@ -99,38 +69,38 @@ class User extends Model<UserAttributes, UserCreationAttributes> {
 
     @AllowNull(true)
     @Column({
-        type: DataType.STRING(50),
+        type: DataType.STRING(50)
     })
     firstName: string;
 
     @AllowNull(true)
     @Column({
-        type: DataType.STRING(50),
+        type: DataType.STRING(50)
     })
     lastName: string;
 
     @AllowNull(false)
     @Unique
     @Column({
-        type: DataType.STRING(320),
+        type: DataType.STRING(320)
     })
     email: string;
 
     @AllowNull
     @Column({
-        type: DataType.STRING(36),
+        type: DataType.STRING(36)
     })
     uuid: string | null;
 
     @AllowNull(false)
     @Column({
-        type: DataType.BOOLEAN,
+        type: DataType.BOOLEAN
     })
     confirmed: boolean;
 
     @AllowNull(false)
     @Column({
-        type: DataType.BOOLEAN,
+        type: DataType.BOOLEAN
     })
     notifications: boolean;
 
@@ -139,13 +109,13 @@ class User extends Model<UserAttributes, UserCreationAttributes> {
 
     @HasMany(() => Recipe, {
         foreignKey: 'creatorId',
-        onDelete: 'RESTRICT',
+        onDelete: 'RESTRICT'
     })
     createdRecipes: Recipe[];
 
     @HasMany(() => Recipe, {
         foreignKey: 'modifierId',
-        onDelete: 'RESTRICT',
+        onDelete: 'RESTRICT'
     })
     updatedRecipes: Recipe[];
 }

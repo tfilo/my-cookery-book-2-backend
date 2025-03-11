@@ -1,11 +1,8 @@
 import { Server } from 'http';
 import dotenv from 'dotenv';
 import path from 'path';
-import {
-    PostgreSqlContainer,
-    StartedPostgreSqlContainer,
-    Wait,
-} from 'testcontainers';
+import { Wait } from 'testcontainers';
+import { PostgreSqlContainer, StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import MailDev from 'maildev';
 
 dotenv.config({ path: path.join('src', 'tests', '.env') });
@@ -13,7 +10,7 @@ dotenv.config({ path: path.join('src', 'tests', '.env') });
 import { appInternal } from '../../internal';
 import sequelize from '../../util/database';
 import { Configuration, NotificationsApi } from '../openapi-internal';
-import Chai from 'chai';
+import { use, expect } from 'chai';
 import chaiExclude from 'chai-exclude';
 import createUsers from '../data/user-data';
 import createCategories from '../data/category-data';
@@ -29,13 +26,20 @@ import Category from '../../models/database/category';
 import Recipe from '../../models/database/recipe';
 import { processError } from '../util/error';
 
-Chai.use(chaiExclude);
-const expect = Chai.expect;
+use(chaiExclude);
+
+type Email = {
+    subject: string;
+    from: string;
+    to: string;
+    text: string;
+    html: string;
+};
 
 const port = process.env.PORT_INTERNAL || 13001;
 
 const config = new Configuration({
-    basePath: 'http://localhost:' + port + process.env.INTERNAL_PATH,
+    basePath: 'http://localhost:' + port + process.env.INTERNAL_PATH
 });
 
 describe('Notification', () => {
@@ -51,21 +55,15 @@ describe('Notification', () => {
     const notificationApi = new NotificationsApi(config);
 
     before(async () => {
-        databaseContainer = await new PostgreSqlContainer(
-            'postgres:14.5-alpine'
-        )
+        databaseContainer = await new PostgreSqlContainer('postgres:14.5-alpine')
             .withDatabase('cookery2')
             .withUsername('cookery2')
             .withPassword('cookery2123')
             .withExposedPorts({
                 container: 5432,
-                host: Number(process.env.DATABASE_PORT),
+                host: Number(process.env.DATABASE_PORT)
             })
-            .withWaitStrategy(
-                Wait.forLogMessage(
-                    '[1] LOG:  database system is ready to accept connections'
-                )
-            )
+            .withWaitStrategy(Wait.forLogMessage('[1] LOG:  database system is ready to accept connections'))
             .start();
         serverInstance = appInternal.listen(port);
     });
@@ -78,7 +76,7 @@ describe('Notification', () => {
     afterEach(async () => {
         await sequelize.dropAllSchemas({
             benchmark: false,
-            logging: false,
+            logging: false
         });
     });
 
@@ -97,9 +95,9 @@ describe('Notification', () => {
         const maildev = new MailDev({
             smtp: Number(process.env.EMAIL_PORT),
             disableWeb: true,
-            silent: true,
+            silent: true
         });
-        let receivedEmail: any;
+        let receivedEmail: Email;
         try {
             maildev.listen();
             const receivedEmailPromise = new Promise((resolve) => {
@@ -108,36 +106,30 @@ describe('Notification', () => {
                 });
             });
 
-            const res = await notificationApi
-                .sendNotifications()
-                .catch(processError);
+            const res = await notificationApi.sendNotifications().catch(processError);
 
             expect(res.status).to.be.equal(204);
-            receivedEmail = await receivedEmailPromise;
+            receivedEmail = (await receivedEmailPromise) as Email;
         } finally {
             maildev.close();
         }
 
-        expect(receivedEmail.subject).to.equal(
-            'My Cookery Book 2: new recipes'
-        );
+        expect(receivedEmail.subject).to.equal('My Cookery Book 2: new recipes');
         expect(receivedEmail.from).to.eql([
             {
                 address: process.env.EMAIL_FROM,
-                name: '',
-            },
+                name: ''
+            }
         ]);
         expect(receivedEmail.to).to.eql([
             {
                 address: users.simple.email,
-                name: '',
-            },
+                name: ''
+            }
         ]);
         expect(receivedEmail.text).to.be.a('string');
         expect(receivedEmail.html).to.be.a('string');
-        expect(receivedEmail.text).to.equal(
-            `${users.simple.username},${recipes.chicken.name},${recipes.chicken.id}`
-        );
+        expect(receivedEmail.text).to.equal(`${users.simple.username},${recipes.chicken.name},${recipes.chicken.id}`);
         expect(receivedEmail.html).to.equal(receivedEmail.html);
     });
 });

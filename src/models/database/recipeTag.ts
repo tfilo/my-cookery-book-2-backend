@@ -9,12 +9,9 @@ interface RecipeTagAttributes {
 }
 
 @Table({
-    timestamps: false,
+    timestamps: false
 })
-class RecipeTag extends Model<
-    RecipeTagAttributes,
-    RecipeTagAttributes
-> {
+class RecipeTag extends Model<RecipeTagAttributes, RecipeTagAttributes> {
     @ForeignKey(() => Recipe)
     @Column
     recipeId: number;
