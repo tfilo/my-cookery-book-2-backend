@@ -47,7 +47,7 @@ describe('Unit Category', () => {
     const unitCategoryApi = new UnitCategoryApi(config);
 
     before(async () => {
-        databaseContainer = await new PostgreSqlContainer('postgres:14.5-alpine')
+        databaseContainer = await new PostgreSqlContainer('postgres:17-alpine')
             .withDatabase('cookery2')
             .withUsername('cookery2')
             .withPassword('cookery2123')

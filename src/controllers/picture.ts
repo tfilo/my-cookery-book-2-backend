@@ -124,7 +124,9 @@ export const uploadPicture = async (req: Request, res: Response, next: NextFunct
 
         res.status(201).json(result);
     } catch (err) {
-        console.error(err);
+        if (err instanceof Error) {
+            console.error(err.message);
+        }
         const error = new CustomError();
         error.code = CUSTOM_ERROR_CODES.VALIDATION_FAILED;
         error.statusCode = 422;
