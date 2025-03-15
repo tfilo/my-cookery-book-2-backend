@@ -2,7 +2,7 @@
     "openapi": "3.0.2",
     "info": {
         "title": "My Cookery Book 2 - backend",
-        "version": "0.0.2",
+        "version": "1.2.0",
         "license": {
             "name": "MIT"
         },
