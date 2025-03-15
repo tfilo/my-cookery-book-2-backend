@@ -1,12 +1,10 @@
-import Chai from 'chai';
+import { expect } from 'chai';
 import sinon from 'sinon';
 import jwt, { Secret } from 'jsonwebtoken';
 import { CUSTOM_ERROR_CODES } from '../../../models/errorCodes';
 import decodeAndValidatRefreshToken from '../../../util/decodeAndValidatRefreshToken';
 import User from '../../../models/database/user';
 import { ROLE } from '../../../models/roleEnum';
-
-const expect = Chai.expect;
 
 describe('Decode and validate refresh token', function () {
     let env: NodeJS.ProcessEnv;
@@ -31,21 +29,17 @@ describe('Decode and validate refresh token', function () {
     it('should throw an error if token missing refresh key', function (done) {
         decodeAndValidatRefreshToken(issueToken()).catch((err) => {
             expect(err).to.property('statusCode', 401);
-            expect(err).to.property(
-                'code',
-                CUSTOM_ERROR_CODES.INVALID_CREDENTIALS
-            );
+            expect(err).to.property('code', CUSTOM_ERROR_CODES.INVALID_CREDENTIALS);
             done();
         });
     });
 
     it('should allow access if it is refresh token', function (done) {
-
         const user = {
             id: 1
         };
 
-        //@ts-ignore
+        // @ts-expect-error just for test
         const stub = sinon.stub(User, 'findOne').resolves(user);
 
         decodeAndValidatRefreshToken(issueRefreshToken()).then((userId) => {
@@ -60,7 +54,7 @@ const issueToken = () => {
     const token = jwt.sign(
         {
             userId: 1,
-            roles: [ROLE.ADMIN, ROLE.CREATOR],
+            roles: [ROLE.ADMIN, ROLE.CREATOR]
         },
         process.env.TOKEN_SIGN_KEY as Secret,
         { expiresIn: '1h' }
@@ -72,7 +66,7 @@ const issueRefreshToken = () => {
     const refreshToken = jwt.sign(
         {
             userId: 1,
-            refresh: true,
+            refresh: true
         },
         process.env.TOKEN_SIGN_KEY as Secret,
         { expiresIn: '10d' }

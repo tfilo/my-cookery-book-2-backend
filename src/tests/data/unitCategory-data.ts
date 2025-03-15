@@ -2,18 +2,18 @@ import UnitCategory from '../../models/database/unitCategory';
 
 export default async () => {
     const unitCategories: { [key: string]: UnitCategory } = {};
-    
+
     unitCategories.length = await UnitCategory.create({
-        name: 'Length',
+        name: 'Length'
     });
 
     unitCategories.other = await UnitCategory.create({
-        name: 'Other',
+        name: 'Other'
     });
 
     unitCategories.weight = await UnitCategory.create({
-        name: 'Weight',
+        name: 'Weight'
     });
-    
+
     return unitCategories;
-}
+};

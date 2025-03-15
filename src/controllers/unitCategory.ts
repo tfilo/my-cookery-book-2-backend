@@ -10,18 +10,14 @@ import {
     createUnitCategorySchema,
     deleteUnitCategorySchema,
     getUnitCategorySchema,
-    updateUnitCategorySchema,
+    updateUnitCategorySchema
 } from '../schemas/unitCategory';
 
-export const getUnitCategories = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const getUnitCategories = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const unitCategories = await UnitCategory.findAll({
             attributes: ['id', 'name'],
-            order: [['name', SORT_ORDER.ASC]],
+            order: [['name', SORT_ORDER.ASC]]
         });
 
         res.status(200).json(unitCategories);
@@ -30,15 +26,9 @@ export const getUnitCategories = async (
     }
 };
 
-export const getUnitCategory = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const getUnitCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const request = <yup.InferType<typeof getUnitCategorySchema>>(
-            (<unknown>req)
-        );
+        const request = <yup.InferType<typeof getUnitCategorySchema>>(<unknown>req);
 
         const unitCategoryId = request.params.unitCategoryId;
         const unitCategory = await UnitCategory.findByPk(unitCategoryId);
@@ -56,16 +46,12 @@ export const getUnitCategory = async (
     }
 };
 
-export const createUnitCategory = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const createUnitCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const request = <yup.InferType<typeof createUnitCategorySchema>>req;
 
         const unitCategory = await UnitCategory.create(request.body, {
-            fields: ['name'],
+            fields: ['name']
         });
 
         res.status(201).json(unitCategory);
@@ -74,20 +60,14 @@ export const createUnitCategory = async (
     }
 };
 
-export const updateUnitCategory = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const updateUnitCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const request = <yup.InferType<typeof updateUnitCategorySchema>>(
-            (<unknown>req)
-        );
+        const request = <yup.InferType<typeof updateUnitCategorySchema>>(<unknown>req);
 
         const unitCategoryId = request.params.unitCategoryId;
         const result = await sequelize.transaction(async (t) => {
             const unitCategory = await UnitCategory.findByPk(unitCategoryId, {
-                transaction: t,
+                transaction: t
             });
 
             if (!unitCategory) {
@@ -97,13 +77,10 @@ export const updateUnitCategory = async (
                 throw error;
             }
 
-            const updatedUnitCategory = await unitCategory.update(
-                request.body,
-                {
-                    fields: ['name'],
-                    transaction: t,
-                }
-            );
+            const updatedUnitCategory = await unitCategory.update(request.body, {
+                fields: ['name'],
+                transaction: t
+            });
 
             return updatedUnitCategory;
         });
@@ -114,23 +91,17 @@ export const updateUnitCategory = async (
     }
 };
 
-export const deleteUnitCategory = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const deleteUnitCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const request = <yup.InferType<typeof deleteUnitCategorySchema>>(
-            (<unknown>req)
-        );
+        const request = <yup.InferType<typeof deleteUnitCategorySchema>>(<unknown>req);
 
         const unitCategoryId = request.params.unitCategoryId;
         await sequelize.transaction(async (t) => {
             const destroyed = await UnitCategory.destroy({
                 where: {
-                    id: unitCategoryId,
+                    id: unitCategoryId
                 },
-                transaction: t,
+                transaction: t
             });
 
             if (destroyed !== 1) {

@@ -1,12 +1,4 @@
-import {
-    Table,
-    Column,
-    Model,
-    HasMany,
-    DataType,
-    AllowNull,
-    Unique,
-} from 'sequelize-typescript';
+import { Table, Column, Model, HasMany, DataType, AllowNull, Unique } from 'sequelize-typescript';
 import { Optional } from 'sequelize/types';
 
 import Recipe from './recipe';
@@ -18,22 +10,19 @@ interface CategoryAttributes {
     updatedAt: Date;
 }
 
-interface CategoryCreationAttributes
-    extends Optional<CategoryAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
-
 @Table({
-    timestamps: true,
+    timestamps: true
 })
-class Category extends Model<CategoryAttributes, CategoryCreationAttributes> {
+class Category extends Model<CategoryAttributes, Optional<CategoryAttributes, 'id' | 'createdAt' | 'updatedAt'>> {
     @AllowNull(false)
     @Unique
     @Column({
-        type: DataType.STRING(50),
+        type: DataType.STRING(50)
     })
     name: string;
 
     @HasMany(() => Recipe, {
-        onDelete: 'RESTRICT',
+        onDelete: 'RESTRICT'
     })
     recipes: Recipe[];
 }

@@ -6,22 +6,13 @@ import CustomError from '../models/customError';
 import { CUSTOM_ERROR_CODES } from '../models/errorCodes';
 import sequelize from '../util/database';
 import { SORT_ORDER } from '../models/sortOrderEnum';
-import {
-    createTagSchema,
-    deleteTagSchema,
-    getTagSchema,
-    updateTagSchema,
-} from '../schemas/tag';
+import { createTagSchema, deleteTagSchema, getTagSchema, updateTagSchema } from '../schemas/tag';
 
-export const getTags = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const getTags = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const tags = await Tag.findAll({
             attributes: ['id', 'name'],
-            order: [['name', SORT_ORDER.ASC]],
+            order: [['name', SORT_ORDER.ASC]]
         });
 
         res.status(200).json(tags);
@@ -30,11 +21,7 @@ export const getTags = async (
     }
 };
 
-export const getTag = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const getTag = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const request = <yup.InferType<typeof getTagSchema>>(<unknown>req);
 
@@ -54,16 +41,12 @@ export const getTag = async (
     }
 };
 
-export const createTag = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const createTag = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const request = <yup.InferType<typeof createTagSchema>>req;
 
         const tag = await Tag.create(request.body, {
-            fields: ['name'],
+            fields: ['name']
         });
 
         res.status(201).json(tag);
@@ -72,18 +55,14 @@ export const createTag = async (
     }
 };
 
-export const updateTag = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const updateTag = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const request = <yup.InferType<typeof updateTagSchema>>(<unknown>req);
 
         const tagId = request.params.tagId;
         const result = await sequelize.transaction(async (t) => {
             const tag = await Tag.findByPk(tagId, {
-                transaction: t,
+                transaction: t
             });
 
             if (!tag) {
@@ -95,7 +74,7 @@ export const updateTag = async (
 
             const updatedTag = await tag.update(request.body, {
                 fields: ['name'],
-                transaction: t,
+                transaction: t
             });
 
             return updatedTag;
@@ -107,11 +86,7 @@ export const updateTag = async (
     }
 };
 
-export const deleteTag = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const deleteTag = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const request = <yup.InferType<typeof deleteTagSchema>>(<unknown>req);
 
@@ -119,9 +94,9 @@ export const deleteTag = async (
         await sequelize.transaction(async (t) => {
             const destroyed = await Tag.destroy({
                 where: {
-                    id: tagId,
+                    id: tagId
                 },
-                transaction: t,
+                transaction: t
             });
 
             if (destroyed !== 1) {

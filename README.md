@@ -4,9 +4,9 @@ Backend application providing RestApi build on Express and Node.js. Whole backen
 
 ## Technologies required for development
 
--   Node.js (>=18)
--   Docker (>=20.10.14)
--   Docker compose (>=2.10.2)
+-   Node.js (>=22)
+-   Docker (>=24.0.2)
+-   Docker compose (>=2.20.1)
 
 ## Development
 
@@ -29,7 +29,7 @@ When you are done with development, don't forget to stop database server by runn
 
 ## Tests
 
-There (will be) integration and unit tests available. You can run it by
+There are integration and unit tests available. You can run it by
 
 -   `npm run tests` - to run all tests
 -   `npm run tests:unit` - to run unit tests only

@@ -17,40 +17,30 @@ import {
     getUserSchema,
     resentConfirmationSchema,
     updateProfileSchema,
-    updateUserSchema,
+    updateUserSchema
 } from '../schemas/user';
 import sequelize from '../util/database';
 import { sendMail } from '../util/email';
 
-export const getUsers = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const getUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const users = await User.scope('listScope').findAll({
             include: {
                 model: UserRole,
                 as: 'roles',
                 required: false,
-                attributes: ['roleName'],
+                attributes: ['roleName']
             },
-            order: [['username', SORT_ORDER.ASC]],
+            order: [['username', SORT_ORDER.ASC]]
         });
 
-        res.status(200).json(
-            users.map((user) => transformUserRolesToList(user))
-        );
+        res.status(200).json(users.map((user) => transformUserRolesToList(user)));
     } catch (err) {
         next(err);
     }
 };
 
-export const getUser = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const getUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const request = <yup.InferType<typeof getUserSchema>>(<unknown>req);
 
@@ -60,8 +50,8 @@ export const getUser = async (
                 model: UserRole,
                 as: 'roles',
                 required: false,
-                attributes: ['roleName'],
-            },
+                attributes: ['roleName']
+            }
         });
 
         if (!user) {
@@ -77,11 +67,7 @@ export const getUser = async (
     }
 };
 
-export const createUser = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const createUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const request = <yup.InferType<typeof createUserSchema>>req;
         const roles = request.body.roles;
@@ -91,21 +77,14 @@ export const createUser = async (
             const user = await User.create(
                 {
                     ...request.body,
+                    firstName: request.body.firstName ?? undefined,
+                    lastName: request.body.lastName ?? undefined,
                     confirmed: false,
-                    uuid,
+                    uuid
                 },
                 {
-                    fields: [
-                        'username',
-                        'firstName',
-                        'lastName',
-                        'password',
-                        'email',
-                        'confirmed',
-                        'notifications',
-                        'uuid',
-                    ],
-                    transaction: t,
+                    fields: ['username', 'firstName', 'lastName', 'password', 'email', 'confirmed', 'notifications', 'uuid'],
+                    transaction: t
                 }
             );
 
@@ -115,17 +94,17 @@ export const createUser = async (
                 include: {
                     model: UserRole,
                     required: false,
-                    attributes: ['roleName'],
+                    attributes: ['roleName']
                 },
-                transaction: t,
+                transaction: t
             });
 
             await sendConfirmationEmail(
                 request.body.username,
                 request.body.email,
                 uuid,
-                request.body.firstName,
-                request.body.lastName
+                request.body.firstName ?? undefined,
+                request.body.lastName ?? undefined
             );
 
             return userWithRoles;
@@ -137,20 +116,14 @@ export const createUser = async (
     }
 };
 
-export const resentConfirmation = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const resentConfirmation = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const request = <yup.InferType<typeof resentConfirmationSchema>>(
-            (<unknown>req)
-        );
+        const request = <yup.InferType<typeof resentConfirmationSchema>>(<unknown>req);
         const userId = request.params.userId;
 
         await sequelize.transaction(async (t) => {
             const user = await User.findByPk(userId, {
-                transaction: t,
+                transaction: t
             });
 
             if (!user) {
@@ -172,21 +145,15 @@ export const resentConfirmation = async (
 
             await user.update(
                 {
-                    uuid,
+                    uuid
                 },
                 {
                     fields: ['uuid'],
-                    transaction: t,
+                    transaction: t
                 }
             );
 
-            await sendConfirmationEmail(
-                user.username,
-                user.email,
-                uuid,
-                user.firstName,
-                user.lastName
-            );
+            await sendConfirmationEmail(user.username, user.email, uuid, user.firstName, user.lastName);
         });
         res.status(204).send();
     } catch (err) {
@@ -194,24 +161,13 @@ export const resentConfirmation = async (
     }
 };
 
-export const getProfile = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const getProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const request = <{ userId: number }>req;
+        const request = <{ userId: number }>(<unknown>req);
 
         const userId = request.userId;
         const user = await User.findByPk(userId, {
-            attributes: [
-                'username',
-                'firstName',
-                'lastName',
-                'email',
-                'confirmed',
-                'notifications',
-            ],
+            attributes: ['username', 'firstName', 'lastName', 'email', 'confirmed', 'notifications']
         });
 
         if (!user) {
@@ -227,22 +183,16 @@ export const getProfile = async (
     }
 };
 
-export const updateProfile = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const updateProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const request = <
-            yup.InferType<typeof updateProfileSchema> & { userId: number }
-        >(<unknown>req);
+        const request = <yup.InferType<typeof updateProfileSchema> & { userId: number }>(<unknown>req);
 
         const userId = +request.userId;
         const password = request.body.password;
         const newPassword = request.body.newPassword;
         await sequelize.transaction(async (t) => {
             const user = await User.scope('fullScope').findByPk(userId, {
-                transaction: t,
+                transaction: t
             });
 
             if (!user) {
@@ -268,34 +218,27 @@ export const updateProfile = async (
             if (newPassword) {
                 await user.update(
                     {
-                        password: newPassword,
+                        password: newPassword
                     },
                     {
                         fields: ['password'],
-                        transaction: t,
+                        transaction: t
                     }
                 );
             }
 
             await user.update(
                 {
-                    firstName: request.body.firstName,
-                    lastName: request.body.lastName,
+                    firstName: request.body.firstName ?? undefined,
+                    lastName: request.body.lastName ?? undefined,
                     email: request.body.email,
                     confirmed,
                     notifications: request.body.notifications,
-                    uuid,
+                    uuid
                 },
                 {
-                    fields: [
-                        'firstName',
-                        'lastName',
-                        'email',
-                        'confirmed',
-                        'notifications',
-                        'uuid',
-                    ],
-                    transaction: t,
+                    fields: ['firstName', 'lastName', 'email', 'confirmed', 'notifications', 'uuid'],
+                    transaction: t
                 }
             );
 
@@ -304,8 +247,8 @@ export const updateProfile = async (
                     user.username,
                     request.body.email,
                     uuid,
-                    request.body.firstName,
-                    request.body.lastName
+                    request.body.firstName ?? undefined,
+                    request.body.lastName ?? undefined
                 );
             }
         });
@@ -316,18 +259,14 @@ export const updateProfile = async (
     }
 };
 
-export const updateUser = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const updateUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const request = <yup.InferType<typeof updateUserSchema>>(<unknown>req);
         const userId = request.params.userId;
         const roles = request.body.roles;
         const result = await sequelize.transaction(async (t) => {
             const user = await User.scope('fullScope').findByPk(userId, {
-                transaction: t,
+                transaction: t
             });
 
             if (!user) {
@@ -345,11 +284,11 @@ export const updateUser = async (
             if (request.body.password) {
                 await user.update(
                     {
-                        password: request.body.password,
+                        password: request.body.password
                     },
                     {
                         fields: ['password'],
-                        transaction: t,
+                        transaction: t
                     }
                 );
             }
@@ -357,24 +296,16 @@ export const updateUser = async (
             await user.update(
                 {
                     username: request.body.username,
-                    firstName: request.body.firstName,
-                    lastName: request.body.lastName,
+                    firstName: request.body.firstName ?? undefined,
+                    lastName: request.body.lastName ?? undefined,
                     email: request.body.email,
                     confirmed,
                     notifications: request.body.notifications,
-                    uuid,
+                    uuid
                 },
                 {
-                    fields: [
-                        'username',
-                        'firstName',
-                        'lastName',
-                        'email',
-                        'confirmed',
-                        'notifications',
-                        'uuid',
-                    ],
-                    transaction: t,
+                    fields: ['username', 'firstName', 'lastName', 'email', 'confirmed', 'notifications', 'uuid'],
+                    transaction: t
                 }
             );
 
@@ -384,9 +315,9 @@ export const updateUser = async (
                 include: {
                     model: UserRole,
                     required: false,
-                    attributes: ['roleName'],
+                    attributes: ['roleName']
                 },
-                transaction: t,
+                transaction: t
             });
 
             if (updatedEmail && uuid) {
@@ -394,8 +325,8 @@ export const updateUser = async (
                     request.body.username,
                     request.body.email,
                     uuid,
-                    request.body.firstName,
-                    request.body.lastName
+                    request.body.firstName ?? undefined,
+                    request.body.lastName ?? undefined
                 );
             }
 
@@ -408,11 +339,7 @@ export const updateUser = async (
     }
 };
 
-export const deleteUser = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const request = <yup.InferType<typeof deleteUserSchema>>(<unknown>req);
 
@@ -420,9 +347,9 @@ export const deleteUser = async (
         await sequelize.transaction(async (t) => {
             const destroyed = await User.destroy({
                 where: {
-                    id: userId,
+                    id: userId
                 },
-                transaction: t,
+                transaction: t
             });
 
             if (destroyed !== 1) {
@@ -439,13 +366,7 @@ export const deleteUser = async (
     }
 };
 
-const sendConfirmationEmail = async (
-    username: string,
-    email: string,
-    key: string,
-    firstName?: string,
-    lastName?: string
-) => {
+const sendConfirmationEmail = async (username: string, email: string, key: string, firstName?: string, lastName?: string) => {
     const emailPlain = process.env.MAIL_CONFIRM_TEMPLATE_TXT_HBS;
     const emailHtml = process.env.MAIL_CONFIRM_TEMPLATE_HTML_HBS;
     const emailSubject = process.env.MAIL_CONFIRM_SUBJECT;
@@ -453,18 +374,13 @@ const sendConfirmationEmail = async (
     const emailData = {
         fullName: firstName && lastName ? firstName + ' ' + lastName : username,
         username,
-        key,
+        key
     };
 
     const compiledPlain = Handlebars.compile(emailPlain)(emailData);
     const compiledHtml = Handlebars.compile(emailHtml)(emailData);
 
-    const emailInfo = await sendMail(
-        email,
-        emailSubject,
-        compiledPlain,
-        compiledHtml
-    );
+    const emailInfo = await sendMail(email, emailSubject, compiledPlain, compiledHtml);
 
     if (emailInfo && emailInfo.rejected.length > 0) {
         const error = new CustomError();
@@ -478,12 +394,11 @@ const transformUserRolesToList = (user: User | null) => {
     if (!user) {
         return null;
     }
-    const userJson: UserAttributes & { roles: [{ roleName: string }] } =
-        user.toJSON();
+    const userJson: UserAttributes & { roles: [{ roleName: string }] } = user.toJSON();
 
     const result = {
         ...userJson,
-        roles: userJson.roles.map((r) => r.roleName),
+        roles: userJson.roles.map((r) => r.roleName)
     };
 
     return result;
@@ -492,9 +407,9 @@ const transformUserRolesToList = (user: User | null) => {
 const updateRoles = async (roles: ROLE[], userId: number, t: Transaction) => {
     const userRoles = await UserRole.findAll({
         where: {
-            userId: userId,
+            userId: userId
         },
-        transaction: t,
+        transaction: t
     });
     const promisses: (Promise<void> | Promise<UserRole>)[] = [];
     if (userRoles.length === 0) {
@@ -503,24 +418,22 @@ const updateRoles = async (roles: ROLE[], userId: number, t: Transaction) => {
                 UserRole.create(
                     {
                         userId: userId,
-                        roleName: role,
+                        roleName: role
                     },
                     {
-                        transaction: t,
+                        transaction: t
                     }
                 )
             );
         });
     } else {
         const toRemove = userRoles.filter((ur) => !roles.includes(ur.roleName));
-        const toAdd = roles.filter(
-            (r) => !userRoles.find((ur) => ur.roleName === r)
-        );
+        const toAdd = roles.filter((r) => !userRoles.find((ur) => ur.roleName === r));
 
         toRemove.forEach((er) => {
             promisses.push(
                 er.destroy({
-                    transaction: t,
+                    transaction: t
                 })
             );
         });
@@ -530,10 +443,10 @@ const updateRoles = async (roles: ROLE[], userId: number, t: Transaction) => {
                 UserRole.create(
                     {
                         userId: userId,
-                        roleName: role,
+                        roleName: role
                     },
                     {
-                        transaction: t,
+                        transaction: t
                     }
                 )
             );

@@ -6,22 +6,13 @@ import CustomError from '../models/customError';
 import { CUSTOM_ERROR_CODES } from '../models/errorCodes';
 import sequelize from '../util/database';
 import { SORT_ORDER } from '../models/sortOrderEnum';
-import {
-    createCategorySchema,
-    deleteCategorySchema,
-    getCategorySchema,
-    updateCategorySchema,
-} from '../schemas/category';
+import { createCategorySchema, deleteCategorySchema, getCategorySchema, updateCategorySchema } from '../schemas/category';
 
-export const getCategories = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const getCategories = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const categories = await Category.findAll({
             attributes: ['id', 'name'],
-            order: [['name', SORT_ORDER.ASC]],
+            order: [['name', SORT_ORDER.ASC]]
         });
 
         res.status(200).json(categories);
@@ -30,11 +21,7 @@ export const getCategories = async (
     }
 };
 
-export const getCategory = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const getCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const request = <yup.InferType<typeof getCategorySchema>>(<unknown>req);
 
@@ -54,16 +41,12 @@ export const getCategory = async (
     }
 };
 
-export const createCategory = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const createCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const request = <yup.InferType<typeof createCategorySchema>>req;
 
         const category = await Category.create(request.body, {
-            fields: ['name'],
+            fields: ['name']
         });
 
         res.status(201).json(category);
@@ -72,20 +55,14 @@ export const createCategory = async (
     }
 };
 
-export const updateCategory = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const updateCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const request = <yup.InferType<typeof updateCategorySchema>>(
-            (<unknown>req)
-        );
+        const request = <yup.InferType<typeof updateCategorySchema>>(<unknown>req);
 
         const categoryId = request.params.categoryId;
         const result = await sequelize.transaction(async (t) => {
             const category = await Category.findByPk(categoryId, {
-                transaction: t,
+                transaction: t
             });
 
             if (!category) {
@@ -97,7 +74,7 @@ export const updateCategory = async (
 
             const updatedCategory = await category.update(request.body, {
                 fields: ['name'],
-                transaction: t,
+                transaction: t
             });
 
             return updatedCategory;
@@ -109,23 +86,17 @@ export const updateCategory = async (
     }
 };
 
-export const deleteCategory = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const deleteCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const request = <yup.InferType<typeof deleteCategorySchema>>(
-            (<unknown>req)
-        );
+        const request = <yup.InferType<typeof deleteCategorySchema>>(<unknown>req);
 
         const categoryId = request.params.categoryId;
         await sequelize.transaction(async (t) => {
             const destroyed = await Category.destroy({
                 where: {
-                    id: categoryId,
+                    id: categoryId
                 },
-                transaction: t,
+                transaction: t
             });
 
             if (destroyed !== 1) {

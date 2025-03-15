@@ -1,12 +1,4 @@
-import {
-    Table,
-    Column,
-    Model,
-    DataType,
-    AllowNull,
-    BelongsTo,
-    ForeignKey,
-} from 'sequelize-typescript';
+import { Table, Column, Model, DataType, AllowNull, BelongsTo, ForeignKey } from 'sequelize-typescript';
 import { Optional } from 'sequelize/types';
 
 import Recipe from './recipe';
@@ -22,37 +14,31 @@ export interface PictureAttributes {
     updatedAt: Date;
 }
 
-interface PictureCreationAttributes
-    extends Optional<
-        PictureAttributes,
-        'id' | 'recipeId' | 'createdAt' | 'updatedAt'
-    > {}
-
 @Table({
-    timestamps: true,
+    timestamps: true
 })
-class Picture extends Model<PictureAttributes, PictureCreationAttributes> {
+class Picture extends Model<PictureAttributes, Optional<PictureAttributes, 'id' | 'recipeId' | 'createdAt' | 'updatedAt'>> {
     @AllowNull(false)
     @Column({
-        type: DataType.INTEGER,
+        type: DataType.INTEGER
     })
     sortNumber: number;
 
     @AllowNull(false)
     @Column({
-        type: DataType.STRING(80),
+        type: DataType.STRING(80)
     })
     name: string;
 
     @AllowNull(false)
     @Column({
-        type: DataType.BLOB,
+        type: DataType.BLOB
     })
     data: Buffer;
 
     @AllowNull(false)
     @Column({
-        type: DataType.BLOB,
+        type: DataType.BLOB
     })
     thumbnail: Buffer;
 

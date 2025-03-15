@@ -1,29 +1,27 @@
-import Chai from 'chai';
+import { expect } from 'chai';
 import * as yup from 'yup';
 
 import validate from '../../../middleware/validate';
 import CustomError from '../../../models/customError';
 import { CUSTOM_ERROR_CODES } from '../../../models/errorCodes';
 
-const expect = Chai.expect;
-
 describe('Validate middleware', function () {
     it('should throw error when req contains validation errors', async function () {
         const req = {
             params: {
-                id: 'Test',
-            },
+                id: 'Test'
+            }
         };
 
         const schema = yup.object({
             params: yup.object({
-                id: yup.number().min(1).required(),
-            }),
+                id: yup.number().min(1).required()
+            })
         });
 
         let err = null;
         const validator = validate(schema);
-        // @ts-ignore
+        // @ts-expect-error just for test
         await validator(req, {}, (error) => {
             err = error;
         });
@@ -36,7 +34,7 @@ describe('Validate middleware', function () {
     it('should continue if request has no errors', function () {
         let nextCalled = false;
 
-        // @ts-ignore
+        // @ts-expect-error just for test
         validate().bind(this, {}, {}, () => {
             nextCalled = true;
         })();

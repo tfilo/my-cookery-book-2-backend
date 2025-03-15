@@ -8,39 +8,19 @@ import {
     createUnitCategorySchema,
     deleteUnitCategorySchema,
     getUnitCategorySchema,
-    updateUnitCategorySchema,
+    updateUnitCategorySchema
 } from '../schemas/unitCategory';
 
 const router = express.Router();
 
 router.get('/', isAuth(), unitCategoryController.getUnitCategories);
 
-router.get(
-    '/:unitCategoryId',
-    isAuth(ROLE.ADMIN),
-    validate(getUnitCategorySchema),
-    unitCategoryController.getUnitCategory
-);
+router.get('/:unitCategoryId', isAuth(ROLE.ADMIN), validate(getUnitCategorySchema), unitCategoryController.getUnitCategory);
 
-router.post(
-    '/',
-    isAuth(ROLE.ADMIN),
-    validate(createUnitCategorySchema),
-    unitCategoryController.createUnitCategory
-);
+router.post('/', isAuth(ROLE.ADMIN), validate(createUnitCategorySchema), unitCategoryController.createUnitCategory);
 
-router.put(
-    '/:unitCategoryId',
-    isAuth(ROLE.ADMIN),
-    validate(updateUnitCategorySchema),
-    unitCategoryController.updateUnitCategory
-);
+router.put('/:unitCategoryId', isAuth(ROLE.ADMIN), validate(updateUnitCategorySchema), unitCategoryController.updateUnitCategory);
 
-router.delete(
-    '/:unitCategoryId',
-    isAuth(ROLE.ADMIN),
-    validate(deleteUnitCategorySchema),
-    unitCategoryController.deleteUnitCategory
-);
+router.delete('/:unitCategoryId', isAuth(ROLE.ADMIN), validate(deleteUnitCategorySchema), unitCategoryController.deleteUnitCategory);
 
 export default router;

@@ -1,11 +1,8 @@
 import { Server } from 'http';
 import dotenv from 'dotenv';
 import path from 'path';
-import {
-    PostgreSqlContainer,
-    StartedPostgreSqlContainer,
-    Wait,
-} from 'testcontainers';
+import { Wait } from 'testcontainers';
+import { PostgreSqlContainer, StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import MailDev from 'maildev';
 
 dotenv.config({ path: path.join('src', 'tests', '.env') });
@@ -13,15 +10,22 @@ dotenv.config({ path: path.join('src', 'tests', '.env') });
 import { app } from '../../app';
 import sequelize from '../../util/database';
 import { AuthApi, Configuration } from '../openapi';
-import Chai from 'chai';
+import { use, expect } from 'chai';
 import chaiExclude from 'chai-exclude';
 import createUsers from '../data/user-data';
 import User from '../../models/database/user';
 import { issueRefreshToken, issueToken } from '../../util/token';
 import { processError } from '../util/error';
 
-Chai.use(chaiExclude);
-const expect = Chai.expect;
+use(chaiExclude);
+
+type Email = {
+    subject: string;
+    from: string;
+    to: string;
+    text: string;
+    html: string;
+};
 
 const port = process.env.PORT || 13000;
 
@@ -35,7 +39,7 @@ const getToken = () => {
 
 const config = new Configuration({
     authorization: () => getToken(),
-    basePath: 'http://localhost:' + port + process.env.BASE_PATH,
+    basePath: 'http://localhost:' + port + process.env.BASE_PATH
 });
 
 describe('Auth', () => {
@@ -45,21 +49,15 @@ describe('Auth', () => {
     const authApi = new AuthApi(config);
 
     before(async () => {
-        databaseContainer = await new PostgreSqlContainer(
-            'postgres:14.5-alpine'
-        )
+        databaseContainer = await new PostgreSqlContainer('postgres:17-alpine')
             .withDatabase('cookery2')
             .withUsername('cookery2')
             .withPassword('cookery2123')
             .withExposedPorts({
                 container: 5432,
-                host: Number(process.env.DATABASE_PORT),
+                host: Number(process.env.DATABASE_PORT)
             })
-            .withWaitStrategy(
-                Wait.forLogMessage(
-                    '[1] LOG:  database system is ready to accept connections'
-                )
-            )
+            .withWaitStrategy(Wait.forLogMessage('[1] LOG:  database system is ready to accept connections'))
             .start();
         serverInstance = app.listen(port);
     });
@@ -72,7 +70,7 @@ describe('Auth', () => {
     afterEach(async () => {
         await sequelize.dropAllSchemas({
             benchmark: false,
-            logging: false,
+            logging: false
         });
         setToken('');
     });
@@ -86,7 +84,7 @@ describe('Auth', () => {
         const res = await authApi
             .login({
                 username: 'admin',
-                password: 'Admin123',
+                password: 'Admin123'
             })
             .catch(processError);
 
@@ -98,13 +96,13 @@ describe('Auth', () => {
         const res = await authApi
             .login({
                 username: 'admin',
-                password: 'admin123',
+                password: 'admin123'
             })
             .catch(processError);
         expect(res).to.eql({
             statusCode: 401,
             code: 'INVALID_CREDENTIALS',
-            message: '',
+            message: ''
         });
     });
 
@@ -112,13 +110,13 @@ describe('Auth', () => {
         const res = await authApi
             .login({
                 username: 'creator2',
-                password: 'Creator2123',
+                password: 'Creator2123'
             })
             .catch(processError);
         expect(res).to.eql({
             statusCode: 401,
             code: 'INVALID_CREDENTIALS',
-            message: '',
+            message: ''
         });
     });
 
@@ -126,7 +124,7 @@ describe('Auth', () => {
         const res1 = await authApi
             .confirmEmail({
                 username: 'creator2',
-                key: '511f1466-02b4-4605-af0f-eaf33afc8dd0',
+                key: '511f1466-02b4-4605-af0f-eaf33afc8dd0'
             })
             .catch(processError);
         expect(res1.status).to.equal(204);
@@ -134,7 +132,7 @@ describe('Auth', () => {
         const res2 = await authApi
             .login({
                 username: 'creator2',
-                password: 'Creator2123',
+                password: 'Creator2123'
             })
             .catch(processError);
         expect(res2.token).to.be.a('string');
@@ -146,7 +144,7 @@ describe('Auth', () => {
 
         const refreshed = await authApi
             .refreshToken({
-                refreshToken: refreshToken,
+                refreshToken: refreshToken
             })
             .catch(processError);
 
@@ -163,7 +161,7 @@ describe('Auth', () => {
         expect(res).to.eql({
             username: 'admin',
             firstName: 'Best',
-            lastName: 'Admin',
+            lastName: 'Admin'
         });
     });
 
@@ -172,7 +170,7 @@ describe('Auth', () => {
         expect(res).to.eql({
             statusCode: 401,
             code: 'INVALID_CREDENTIALS',
-            message: '',
+            message: ''
         });
     });
 
@@ -180,7 +178,7 @@ describe('Auth', () => {
         const maildev = new MailDev({
             smtp: Number(process.env.EMAIL_PORT),
             disableWeb: true,
-            silent: true,
+            silent: true
         });
         let uuid: string;
         try {
@@ -191,28 +189,26 @@ describe('Auth', () => {
             });
             const res = await authApi
                 .resetPasswordLink({
-                    email: 'admin@test.test',
+                    email: 'admin@test.test'
                 })
                 .catch(processError);
 
             expect(res.status).to.equal(204);
 
-            const receivedEmail = (await receivedEmailPromise) as any;
+            const receivedEmail = (await receivedEmailPromise) as Email;
 
-            expect(receivedEmail.subject).to.equal(
-                'My Cookery Book 2: Password reset'
-            );
+            expect(receivedEmail.subject).to.equal('My Cookery Book 2: Password reset');
             expect(receivedEmail.from).to.eql([
                 {
                     address: process.env.EMAIL_FROM,
-                    name: '',
-                },
+                    name: ''
+                }
             ]);
             expect(receivedEmail.to).to.eql([
                 {
                     address: 'admin@test.test',
-                    name: '',
-                },
+                    name: ''
+                }
             ]);
             expect(receivedEmail.text).to.be.a('string');
             expect(receivedEmail.html).to.be.a('string');
@@ -229,7 +225,7 @@ describe('Auth', () => {
             .resetPassword({
                 username: 'admin',
                 key: uuid,
-                newPassword: 'N3wPassw0rd',
+                newPassword: 'N3wPassw0rd'
             })
             .catch(processError);
         expect(res1.status).to.equal(204);
@@ -237,7 +233,7 @@ describe('Auth', () => {
         const res2 = await authApi
             .login({
                 username: 'admin',
-                password: 'N3wPassw0rd',
+                password: 'N3wPassw0rd'
             })
             .catch(processError);
 

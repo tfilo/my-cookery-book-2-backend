@@ -1,18 +1,15 @@
 import { Server } from 'http';
 import dotenv from 'dotenv';
 import path from 'path';
-import {
-    PostgreSqlContainer,
-    StartedPostgreSqlContainer,
-    Wait,
-} from 'testcontainers';
+import { Wait } from 'testcontainers';
+import { PostgreSqlContainer, StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 
 dotenv.config({ path: path.join('src', 'tests', '.env') });
 
 import { app } from '../../app';
 import sequelize from '../../util/database';
 import { Api, Configuration, RecipeApi } from '../openapi';
-import Chai from 'chai';
+import { use, expect } from 'chai';
 import chaiExclude from 'chai-exclude';
 import createUsers from '../data/user-data';
 import createCategories from '../data/category-data';
@@ -33,8 +30,7 @@ import Picture from '../../models/database/picture';
 import RecipeSection from '../../models/database/recipeSection';
 import Ingredient from '../../models/database/ingredient';
 
-Chai.use(chaiExclude);
-const expect = Chai.expect;
+use(chaiExclude);
 
 const port = process.env.PORT || 13000;
 
@@ -48,7 +44,7 @@ const getToken = () => {
 
 const config = new Configuration({
     authorization: () => getToken(),
-    basePath: 'http://localhost:' + port + process.env.BASE_PATH,
+    basePath: 'http://localhost:' + port + process.env.BASE_PATH
 });
 
 describe('Recipe', () => {
@@ -67,21 +63,15 @@ describe('Recipe', () => {
     const recipeApi = new RecipeApi(config);
 
     before(async () => {
-        databaseContainer = await new PostgreSqlContainer(
-            'postgres:14.5-alpine'
-        )
+        databaseContainer = await new PostgreSqlContainer('postgres:17-alpine')
             .withDatabase('cookery2')
             .withUsername('cookery2')
             .withPassword('cookery2123')
             .withExposedPorts({
                 container: 5432,
-                host: Number(process.env.DATABASE_PORT),
+                host: Number(process.env.DATABASE_PORT)
             })
-            .withWaitStrategy(
-                Wait.forLogMessage(
-                    '[1] LOG:  database system is ready to accept connections'
-                )
-            )
+            .withWaitStrategy(Wait.forLogMessage('[1] LOG:  database system is ready to accept connections'))
             .start();
         serverInstance = app.listen(port);
     });
@@ -94,7 +84,7 @@ describe('Recipe', () => {
     afterEach(async () => {
         await sequelize.dropAllSchemas({
             benchmark: false,
-            logging: false,
+            logging: false
         });
         setToken('');
     });
@@ -126,7 +116,7 @@ describe('Recipe', () => {
                 orderBy: Api.RecipeSearchCriteria.OrderByEnum.Name,
                 tags: [],
                 page: 0,
-                pageSize: 10,
+                pageSize: 10
             })
             .catch(processError);
         expect(res.page).to.be.equal(0);
@@ -141,10 +131,10 @@ describe('Recipe', () => {
                     description: recipes[k].description,
                     pictures: [
                         {
-                            id: pictures.sample.id,
-                        },
+                            id: pictures.sample.id
+                        }
                     ],
-                    creatorId: recipes[k].creatorId,
+                    creatorId: recipes[k].creatorId
                 };
             })
         );
@@ -159,13 +149,13 @@ describe('Recipe', () => {
                 orderBy: Api.RecipeSearchCriteria.OrderByEnum.Name,
                 tags: [],
                 page: 0,
-                pageSize: 10,
+                pageSize: 10
             })
             .catch(processError);
         expect(res).to.eql({
             statusCode: 401,
             code: 'INVALID_CREDENTIALS',
-            message: '',
+            message: ''
         });
     });
 
@@ -176,16 +166,15 @@ describe('Recipe', () => {
 
         const res = await recipeApi
             .findRecipe({
-                //@ts-ignore
+                //@ts-expect-error intentional wrong type
                 categoryId: 'aaa',
-                //@ts-ignore
                 search: 'bbb',
                 order: Api.RecipeSearchCriteria.OrderEnum.ASC,
                 orderBy: Api.RecipeSearchCriteria.OrderByEnum.Name,
-                //@ts-ignore
+                //@ts-expect-error intentional wrong type
                 tags: 'xyz',
                 page: 0,
-                pageSize: 10,
+                pageSize: 10
             })
             .catch(processError);
 
@@ -194,9 +183,9 @@ describe('Recipe', () => {
             code: 'VALIDATION_FAILED',
             fields: {
                 categoryId: 'invalidValue',
-                tags: 'invalidValue',
+                tags: 'invalidValue'
             },
-            statusCode: 422,
+            statusCode: 422
         });
     });
 
@@ -205,9 +194,7 @@ describe('Recipe', () => {
         const token = issueToken(users.admin);
         setToken(token);
 
-        const res = await recipeApi
-            .getRecipe(recipes.chicken.id)
-            .catch(processError);
+        const res = await recipeApi.getRecipe(recipes.chicken.id).catch(processError);
         expect(res).to.eql({
             id: recipes.chicken.id,
             name: recipes.chicken.name,
@@ -221,20 +208,20 @@ describe('Recipe', () => {
             creator: {
                 username: users.creator.username,
                 firstName: null,
-                lastName: null,
+                lastName: null
             },
             modifierId: recipes.chicken.modifierId,
             modifier: {
                 username: users.creator.username,
                 firstName: null,
-                lastName: null,
+                lastName: null
             },
             pictures: [
                 {
                     id: pictures.sample.id,
                     name: pictures.sample.name,
-                    sortNumber: pictures.sample.sortNumber,
-                },
+                    sortNumber: pictures.sample.sortNumber
+                }
             ],
             recipeSections: [
                 {
@@ -250,9 +237,9 @@ describe('Recipe', () => {
                             unitId: ingredients.chicken.toJSON().unitId,
                             unit: {
                                 abbreviation: units.kilogram.abbreviation,
-                                name: units.kilogram.name,
+                                name: units.kilogram.name
                             },
-                            value: ingredients.chicken.toJSON().value,
+                            value: ingredients.chicken.toJSON().value
                         },
                         {
                             id: ingredients.paprica.toJSON().id,
@@ -261,11 +248,11 @@ describe('Recipe', () => {
                             unitId: ingredients.paprica.toJSON().unitId,
                             unit: {
                                 abbreviation: units.gram.abbreviation,
-                                name: units.gram.name,
+                                name: units.gram.name
                             },
-                            value: ingredients.paprica.toJSON().value,
-                        },
-                    ],
+                            value: ingredients.paprica.toJSON().value
+                        }
+                    ]
                 },
                 {
                     id: sections.section2.toJSON().id,
@@ -280,33 +267,31 @@ describe('Recipe', () => {
                             unitId: ingredients.rice.toJSON().unitId,
                             unit: {
                                 abbreviation: units.dekagram.abbreviation,
-                                name: units.dekagram.name,
+                                name: units.dekagram.name
                             },
-                            value: ingredients.rice.toJSON().value,
-                        },
-                    ],
-                },
+                            value: ingredients.rice.toJSON().value
+                        }
+                    ]
+                }
             ],
             tags: [
                 {
                     id: tags.meat.id,
-                    name: tags.meat.name,
-                },
+                    name: tags.meat.name
+                }
             ],
             createdAt: recipes.chicken.createdAt.toISOString(),
-            updatedAt: recipes.chicken.updatedAt.toISOString(),
+            updatedAt: recipes.chicken.updatedAt.toISOString()
         });
     });
 
     it('should try get recipe by id and fail on authentication', async () => {
-        const res = await recipeApi
-            .getRecipe(recipes.chicken.id)
-            .catch(processError);
+        const res = await recipeApi.getRecipe(recipes.chicken.id).catch(processError);
 
         expect(res).to.eql({
             statusCode: 401,
             code: 'INVALID_CREDENTIALS',
-            message: '',
+            message: ''
         });
     });
 
@@ -320,7 +305,7 @@ describe('Recipe', () => {
         expect(res).to.eql({
             statusCode: 404,
             code: 'NOT_FOUND',
-            message: '',
+            message: ''
         });
     });
 
@@ -340,7 +325,7 @@ describe('Recipe', () => {
                 recipeSections: [],
                 tags: [],
                 pictures: [],
-                associatedRecipes: [],
+                associatedRecipes: []
             })
             .catch(processError);
 
@@ -365,14 +350,14 @@ describe('Recipe', () => {
                 recipeSections: [],
                 tags: [],
                 pictures: [],
-                associatedRecipes: [],
+                associatedRecipes: []
             })
             .catch(processError);
 
         expect(res).to.eql({
             statusCode: 403,
             code: 'FORBIDEN',
-            message: '',
+            message: ''
         });
     });
 
@@ -392,16 +377,16 @@ describe('Recipe', () => {
                 recipeSections: [],
                 tags: [],
                 pictures: [],
-                associatedRecipes: [],
+                associatedRecipes: []
             })
             .catch(processError);
 
         expect(res).to.eql({
             code: 'UNIQUE_CONSTRAINT_ERROR',
             fields: {
-                name: 'not_unique',
+                name: 'not_unique'
             },
-            statusCode: 409,
+            statusCode: 409
         });
     });
 
@@ -418,7 +403,7 @@ describe('Recipe', () => {
                 serves: 101,
                 method: undefined!,
                 sources: [
-                    'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
+                    'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1'
                 ],
                 categoryId: 0,
                 recipeSections: [
@@ -431,10 +416,10 @@ describe('Recipe', () => {
                                 name: 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
                                 sortNumber: 0,
                                 value: -1,
-                                unitId: 0,
-                            },
-                        ],
-                    },
+                                unitId: 0
+                            }
+                        ]
+                    }
                 ],
                 associatedRecipes: [0],
                 tags: [0],
@@ -442,9 +427,9 @@ describe('Recipe', () => {
                     {
                         id: 0,
                         name: 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
-                        sortNumber: 0,
-                    },
-                ],
+                        sortNumber: 0
+                    }
+                ]
             })
             .catch(processError);
 
@@ -460,36 +445,36 @@ describe('Recipe', () => {
                 categoryId: { key: 'min', values: { min: 1 } },
                 'recipeSections[0].name': {
                     key: 'maxLength',
-                    values: { max: 80 },
+                    values: { max: 80 }
                 },
                 'recipeSections[0].sortNumber': {
                     key: 'min',
-                    values: { min: 1 },
+                    values: { min: 1 }
                 },
                 'recipeSections[0].method': 'defined',
                 'recipeSections[0].ingredients[0].name': {
                     key: 'maxLength',
-                    values: { max: 80 },
+                    values: { max: 80 }
                 },
                 'recipeSections[0].ingredients[0].sortNumber': {
                     key: 'min',
-                    values: { min: 1 },
+                    values: { min: 1 }
                 },
                 'recipeSections[0].ingredients[0].value': {
                     key: 'min',
-                    values: { min: 0 },
+                    values: { min: 0 }
                 },
                 'recipeSections[0].ingredients[0].unitId': {
                     key: 'min',
-                    values: { min: 1 },
+                    values: { min: 1 }
                 },
                 'associatedRecipes[0]': { key: 'min', values: { min: 1 } },
                 'tags[0]': { key: 'min', values: { min: 1 } },
                 'pictures[0].id': { key: 'min', values: { min: 1 } },
                 'pictures[0].name': { key: 'maxLength', values: { max: 80 } },
-                'pictures[0].sortNumber': { key: 'min', values: { min: 1 } },
+                'pictures[0].sortNumber': { key: 'min', values: { min: 1 } }
             },
-            statusCode: 422,
+            statusCode: 422
         });
 
         const res2 = await recipeApi
@@ -510,10 +495,10 @@ describe('Recipe', () => {
                                 name: '',
                                 sortNumber: undefined!,
                                 value: undefined!,
-                                unitId: undefined!,
-                            },
-                        ],
-                    },
+                                unitId: undefined!
+                            }
+                        ]
+                    }
                 ],
                 associatedRecipes: undefined!,
                 tags: undefined!,
@@ -521,9 +506,9 @@ describe('Recipe', () => {
                     {
                         id: undefined!,
                         name: '',
-                        sortNumber: undefined!,
-                    },
-                ],
+                        sortNumber: undefined!
+                    }
+                ]
             })
             .catch(processError);
 
@@ -538,7 +523,7 @@ describe('Recipe', () => {
                 categoryId: 'required',
                 'recipeSections[0].sortNumber': {
                     key: 'min',
-                    values: { min: 1 },
+                    values: { min: 1 }
                 },
                 'recipeSections[0].method': 'defined',
                 'recipeSections[0].ingredients[0].name': 'required',
@@ -549,9 +534,9 @@ describe('Recipe', () => {
                 tags: 'required',
                 'pictures[0].id': 'required',
                 'pictures[0].name': 'required',
-                'pictures[0].sortNumber': 'required',
+                'pictures[0].sortNumber': 'required'
             },
-            statusCode: 422,
+            statusCode: 422
         });
     });
 
@@ -578,28 +563,26 @@ describe('Recipe', () => {
                                 name: 'Chicken',
                                 sortNumber: 1,
                                 value: 1,
-                                unitId: units.kilogram.id,
-                            },
-                        ],
-                    },
+                                unitId: units.kilogram.id
+                            }
+                        ]
+                    }
                 ],
                 tags: [tags.meat.id],
                 pictures: [
                     {
                         id: pictures.notAssigned.id,
                         name: 'Image of recipe',
-                        sortNumber: 1,
-                    },
+                        sortNumber: 1
+                    }
                 ],
-                associatedRecipes: [],
+                associatedRecipes: []
             })
             .catch(processError);
 
         expect(res1.status).to.equal(204);
 
-        const res2 = await recipeApi
-            .getRecipe(recipes.chicken.id)
-            .catch(processError);
+        const res2 = await recipeApi.getRecipe(recipes.chicken.id).catch(processError);
 
         expect(res2)
             .excluding(['createdAt', 'updatedAt'])
@@ -626,10 +609,10 @@ describe('Recipe', () => {
                                 sortNumber: 1,
                                 value: 1,
                                 unitId: units.kilogram.id,
-                                unit: { name: 'Kilogram', abbreviation: 'kg' },
-                            },
-                        ],
-                    },
+                                unit: { name: 'Kilogram', abbreviation: 'kg' }
+                            }
+                        ]
+                    }
                 ],
                 associatedRecipes: [],
                 tags: [{ id: 1, name: 'Meat' }],
@@ -637,13 +620,13 @@ describe('Recipe', () => {
                 creator: {
                     username: 'creator',
                     firstName: null,
-                    lastName: null,
+                    lastName: null
                 },
                 modifier: {
                     username: 'admin',
                     firstName: 'Best',
-                    lastName: 'Admin',
-                },
+                    lastName: 'Admin'
+                }
             });
 
         expect(res2.createdAt).to.be.a('string');
@@ -666,14 +649,14 @@ describe('Recipe', () => {
                 recipeSections: [],
                 tags: [],
                 pictures: [],
-                associatedRecipes: [],
+                associatedRecipes: []
             })
             .catch(processError);
 
         expect(res).to.eql({
             statusCode: 403,
             code: 'FORBIDEN',
-            message: '',
+            message: ''
         });
     });
 
@@ -693,14 +676,14 @@ describe('Recipe', () => {
                 recipeSections: [],
                 tags: [],
                 pictures: [],
-                associatedRecipes: [],
+                associatedRecipes: []
             })
             .catch(processError);
 
         expect(res).to.eql({
             statusCode: 403,
             code: 'FORBIDEN',
-            message: '',
+            message: ''
         });
     });
 
@@ -721,7 +704,7 @@ describe('Recipe', () => {
                 recipeSections: [],
                 tags: [],
                 pictures: [],
-                associatedRecipes: [],
+                associatedRecipes: []
             })
             .catch(processError);
         expect(res1.id).to.be.a('number');
@@ -737,16 +720,16 @@ describe('Recipe', () => {
                 recipeSections: [],
                 tags: [],
                 pictures: [],
-                associatedRecipes: [],
+                associatedRecipes: []
             })
             .catch(processError);
 
         expect(res2).to.eql({
             code: 'UNIQUE_CONSTRAINT_ERROR',
             fields: {
-                name: 'not_unique',
+                name: 'not_unique'
             },
-            statusCode: 409,
+            statusCode: 409
         });
     });
 
@@ -763,7 +746,7 @@ describe('Recipe', () => {
                 serves: 101,
                 method: undefined!,
                 sources: [
-                    'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
+                    'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1'
                 ],
                 categoryId: 0,
                 recipeSections: [
@@ -776,10 +759,10 @@ describe('Recipe', () => {
                                 name: 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
                                 sortNumber: 0,
                                 value: -1,
-                                unitId: 0,
-                            },
-                        ],
-                    },
+                                unitId: 0
+                            }
+                        ]
+                    }
                 ],
                 associatedRecipes: [0],
                 tags: [0],
@@ -787,9 +770,9 @@ describe('Recipe', () => {
                     {
                         id: 0,
                         name: 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1',
-                        sortNumber: 0,
-                    },
-                ],
+                        sortNumber: 0
+                    }
+                ]
             })
             .catch(processError);
 
@@ -805,36 +788,36 @@ describe('Recipe', () => {
                 categoryId: { key: 'min', values: { min: 1 } },
                 'recipeSections[0].name': {
                     key: 'maxLength',
-                    values: { max: 80 },
+                    values: { max: 80 }
                 },
                 'recipeSections[0].sortNumber': {
                     key: 'min',
-                    values: { min: 1 },
+                    values: { min: 1 }
                 },
                 'recipeSections[0].method': 'defined',
                 'recipeSections[0].ingredients[0].name': {
                     key: 'maxLength',
-                    values: { max: 80 },
+                    values: { max: 80 }
                 },
                 'recipeSections[0].ingredients[0].sortNumber': {
                     key: 'min',
-                    values: { min: 1 },
+                    values: { min: 1 }
                 },
                 'recipeSections[0].ingredients[0].value': {
                     key: 'min',
-                    values: { min: 0 },
+                    values: { min: 0 }
                 },
                 'recipeSections[0].ingredients[0].unitId': {
                     key: 'min',
-                    values: { min: 1 },
+                    values: { min: 1 }
                 },
                 'associatedRecipes[0]': { key: 'min', values: { min: 1 } },
                 'tags[0]': { key: 'min', values: { min: 1 } },
                 'pictures[0].id': { key: 'min', values: { min: 1 } },
                 'pictures[0].name': { key: 'maxLength', values: { max: 80 } },
-                'pictures[0].sortNumber': { key: 'min', values: { min: 1 } },
+                'pictures[0].sortNumber': { key: 'min', values: { min: 1 } }
             },
-            statusCode: 422,
+            statusCode: 422
         });
 
         const res2 = await recipeApi
@@ -855,10 +838,10 @@ describe('Recipe', () => {
                                 name: '',
                                 sortNumber: undefined!,
                                 value: undefined!,
-                                unitId: undefined!,
-                            },
-                        ],
-                    },
+                                unitId: undefined!
+                            }
+                        ]
+                    }
                 ],
                 associatedRecipes: undefined!,
                 tags: undefined!,
@@ -866,9 +849,9 @@ describe('Recipe', () => {
                     {
                         id: undefined!,
                         name: '',
-                        sortNumber: undefined!,
-                    },
-                ],
+                        sortNumber: undefined!
+                    }
+                ]
             })
             .catch(processError);
 
@@ -883,7 +866,7 @@ describe('Recipe', () => {
                 categoryId: 'required',
                 'recipeSections[0].sortNumber': {
                     key: 'min',
-                    values: { min: 1 },
+                    values: { min: 1 }
                 },
                 'recipeSections[0].method': 'defined',
                 'recipeSections[0].ingredients[0].name': 'required',
@@ -894,9 +877,9 @@ describe('Recipe', () => {
                 tags: 'required',
                 'pictures[0].id': 'required',
                 'pictures[0].name': 'required',
-                'pictures[0].sortNumber': 'required',
+                'pictures[0].sortNumber': 'required'
             },
-            statusCode: 422,
+            statusCode: 422
         });
     });
 
@@ -904,9 +887,7 @@ describe('Recipe', () => {
         // prepare valid token
         const token = issueToken(users.admin);
         setToken(token);
-        const res = await recipeApi
-            .deleteRecipe(recipes.chicken.id)
-            .catch(processError);
+        const res = await recipeApi.deleteRecipe(recipes.chicken.id).catch(processError);
         expect(res.status).to.equal(204);
     });
 
@@ -914,13 +895,11 @@ describe('Recipe', () => {
         // prepare valid token
         const token = issueToken(users.simple);
         setToken(token);
-        const res = await recipeApi
-            .deleteRecipe(recipes.chicken.id)
-            .catch(processError);
+        const res = await recipeApi.deleteRecipe(recipes.chicken.id).catch(processError);
         expect(res).to.eql({
             statusCode: 403,
             code: 'FORBIDEN',
-            message: '',
+            message: ''
         });
     });
 
@@ -933,7 +912,7 @@ describe('Recipe', () => {
         expect(res).to.eql({
             statusCode: 404,
             code: 'NOT_FOUND',
-            message: '',
+            message: ''
         });
     });
 });

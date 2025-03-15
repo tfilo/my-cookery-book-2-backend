@@ -1,4 +1,4 @@
-const toSCDF = (value: string) => {
+const toSCDF = (value: string | null) => {
     if (!value) {
         return '';
     }

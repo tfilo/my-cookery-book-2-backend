@@ -1,10 +1,4 @@
-import jwt, {
-    JsonWebTokenError,
-    JwtPayload,
-    NotBeforeError,
-    Secret,
-    TokenExpiredError,
-} from 'jsonwebtoken';
+import jwt, { JsonWebTokenError, JwtPayload, NotBeforeError, Secret, TokenExpiredError } from 'jsonwebtoken';
 
 import CustomError from '../models/customError';
 import User from '../models/database/user';
@@ -12,10 +6,7 @@ import { CUSTOM_ERROR_CODES } from '../models/errorCodes';
 
 const decodeAndValidateRefreshToken = async (token: string) => {
     try {
-        const decodedToken = jwt.verify(
-            token,
-            process.env.TOKEN_SIGN_KEY as Secret
-        ) as JwtPayload;
+        const decodedToken = jwt.verify(token, process.env.TOKEN_SIGN_KEY as Secret) as JwtPayload;
 
         if (!decodedToken || decodedToken.refresh !== true) {
             throw invalidCredentialsError();
@@ -23,8 +14,8 @@ const decodeAndValidateRefreshToken = async (token: string) => {
 
         const user = await User.findOne({
             where: {
-                id: +decodedToken.userId,
-            },
+                id: +decodedToken.userId
+            }
         });
 
         if (!user) {

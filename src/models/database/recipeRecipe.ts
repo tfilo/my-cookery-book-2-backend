@@ -1,9 +1,4 @@
-import {
-    Table,
-    Column,
-    Model,
-    ForeignKey,
-} from 'sequelize-typescript';
+import { Table, Column, Model, ForeignKey } from 'sequelize-typescript';
 
 import Recipe from './recipe';
 
@@ -13,12 +8,9 @@ interface RecipeRecipeAttributes {
 }
 
 @Table({
-    timestamps: false,
+    timestamps: false
 })
-class RecipeRecipe extends Model<
-    RecipeRecipeAttributes,
-    RecipeRecipeAttributes
-> {
+class RecipeRecipe extends Model<RecipeRecipeAttributes, RecipeRecipeAttributes> {
     @ForeignKey(() => Recipe)
     @Column
     recipeId: number;

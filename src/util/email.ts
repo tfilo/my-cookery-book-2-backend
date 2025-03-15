@@ -4,13 +4,13 @@ import SMTPTransport from 'nodemailer/lib/smtp-transport';
 const options: SMTPTransport.Options = {
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT ? parseInt(process.env.EMAIL_PORT) : 587,
-    secure: process.env.EMAIL_SECURE === 'true',
+    secure: process.env.EMAIL_SECURE === 'true'
 };
 
 if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
     options.auth = {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        pass: process.env.EMAIL_PASS
     };
 }
 
@@ -30,7 +30,7 @@ export const sendMail = async (
         to: to,
         subject: subject,
         text,
-        html,
+        html
     });
 };
 

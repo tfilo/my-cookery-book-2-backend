@@ -6,16 +6,10 @@ import isAuth from '../middleware/is-auth';
 import validate from '../middleware/validate';
 import CustomError from '../models/customError';
 import { CUSTOM_ERROR_CODES } from '../models/errorCodes';
-import {
-    confirmSchema,
-    loginSchema,
-    refreshTokenSchema,
-    resetPasswordLinkSchema,
-    resetPasswordSchema,
-} from '../schemas/auth';
+import { confirmSchema, loginSchema, refreshTokenSchema, resetPasswordLinkSchema, resetPasswordSchema } from '../schemas/auth';
 
 const loginLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 10 minutes
+    windowMs: 10 * 60 * 1000, // 10 minutes
     max: 6,
     standardHeaders: true,
     legacyHeaders: false,
@@ -24,7 +18,7 @@ const loginLimiter = rateLimit({
         error.code = CUSTOM_ERROR_CODES.TOO_MANY_REQUESTS;
         error.statusCode = 429;
         next(error);
-    },
+    }
 });
 
 const refreshLimiter = rateLimit({
@@ -37,7 +31,7 @@ const refreshLimiter = rateLimit({
         error.code = CUSTOM_ERROR_CODES.TOO_MANY_REQUESTS;
         error.statusCode = 429;
         next(error);
-    },
+    }
 });
 
 const confirmAccountLimiter = rateLimit({
@@ -50,7 +44,7 @@ const confirmAccountLimiter = rateLimit({
         error.code = CUSTOM_ERROR_CODES.TOO_MANY_REQUESTS;
         error.statusCode = 429;
         next(error);
-    },
+    }
 });
 
 const requestResetPasswordLimiter = rateLimit({
@@ -63,7 +57,7 @@ const requestResetPasswordLimiter = rateLimit({
         error.code = CUSTOM_ERROR_CODES.TOO_MANY_REQUESTS;
         error.statusCode = 429;
         next(error);
-    },
+    }
 });
 
 const resetPasswordLimiter = rateLimit({
@@ -76,45 +70,20 @@ const resetPasswordLimiter = rateLimit({
         error.code = CUSTOM_ERROR_CODES.TOO_MANY_REQUESTS;
         error.statusCode = 429;
         next(error);
-    },
+    }
 });
 
 const router = express.Router();
 
-router.post(
-    '/login',
-    loginLimiter,
-    validate(loginSchema),
-    authController.login
-);
+router.post('/login', loginLimiter, validate(loginSchema), authController.login);
 
-router.post(
-    '/refresh',
-    refreshLimiter,
-    validate(refreshTokenSchema),
-    authController.refreshToken
-);
+router.post('/refresh', refreshLimiter, validate(refreshTokenSchema), authController.refreshToken);
 
-router.patch(
-    '/confirm',
-    confirmAccountLimiter,
-    validate(confirmSchema),
-    authController.confirmEmail
-);
+router.patch('/confirm', confirmAccountLimiter, validate(confirmSchema), authController.confirmEmail);
 
-router.post(
-    '/reset',
-    requestResetPasswordLimiter,
-    validate(resetPasswordLinkSchema),
-    authController.resetPasswordLink
-);
+router.post('/reset', requestResetPasswordLimiter, validate(resetPasswordLinkSchema), authController.resetPasswordLink);
 
-router.patch(
-    '/reset',
-    resetPasswordLimiter,
-    validate(resetPasswordSchema),
-    authController.resetPassword
-);
+router.patch('/reset', resetPasswordLimiter, validate(resetPasswordSchema), authController.resetPassword);
 
 router.get('/user', isAuth(), authController.user);
 

@@ -12,8 +12,8 @@ const sequelize = new Sequelize({
     logging: process.env.DATABASE_LOGGING === 'false' ? false : console.log,
     define: {
         charset: 'utf8',
-        collate: 'utf8_general_ci',
-    },
+        collate: 'utf8_general_ci'
+    }
 });
 
 export default sequelize;

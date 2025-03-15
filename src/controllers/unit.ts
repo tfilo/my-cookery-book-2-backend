@@ -6,31 +6,19 @@ import { CUSTOM_ERROR_CODES } from '../models/errorCodes';
 import sequelize from '../util/database';
 import { SORT_ORDER } from '../models/sortOrderEnum';
 import Unit from '../models/database/unit';
-import {
-    createUnitSchema,
-    deleteUnitSchema,
-    getUnitsByUnitCategorySchema,
-    getUnitSchema,
-    updateUnitSchema,
-} from '../schemas/unit';
+import { createUnitSchema, deleteUnitSchema, getUnitsByUnitCategorySchema, getUnitSchema, updateUnitSchema } from '../schemas/unit';
 
-export const getUnitsByUnitCategory = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const getUnitsByUnitCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const request = <yup.InferType<typeof getUnitsByUnitCategorySchema>>(
-            (<unknown>req)
-        );
+        const request = <yup.InferType<typeof getUnitsByUnitCategorySchema>>(<unknown>req);
 
         const unitCategoryId = request.params.unitCategoryId;
         const units = await Unit.findAll({
             where: {
-                unitCategoryId: unitCategoryId,
+                unitCategoryId: unitCategoryId
             },
             attributes: ['id', 'name', 'abbreviation', 'required'],
-            order: [['name', SORT_ORDER.ASC]],
+            order: [['name', SORT_ORDER.ASC]]
         });
 
         res.status(200).json(units);
@@ -39,11 +27,7 @@ export const getUnitsByUnitCategory = async (
     }
 };
 
-export const getUnit = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const getUnit = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const request = <yup.InferType<typeof getUnitSchema>>(<unknown>req);
 
@@ -63,16 +47,12 @@ export const getUnit = async (
     }
 };
 
-export const createUnit = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const createUnit = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const request = <yup.InferType<typeof createUnitSchema>>req;
 
         const unit = await Unit.create(request.body, {
-            fields: ['name', 'abbreviation', 'required', 'unitCategoryId'],
+            fields: ['name', 'abbreviation', 'required', 'unitCategoryId']
         });
 
         res.status(201).json(unit);
@@ -81,18 +61,14 @@ export const createUnit = async (
     }
 };
 
-export const updateUnit = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const updateUnit = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const request = <yup.InferType<typeof updateUnitSchema>>(<unknown>req);
 
         const unitId = request.params.unitId;
         const result = await sequelize.transaction(async (t) => {
             const unit = await Unit.findByPk(unitId, {
-                transaction: t,
+                transaction: t
             });
 
             if (!unit) {
@@ -104,7 +80,7 @@ export const updateUnit = async (
 
             const updatedUnit = await unit.update(request.body, {
                 fields: ['name', 'abbreviation', 'required', 'unitCategoryId'],
-                transaction: t,
+                transaction: t
             });
 
             return updatedUnit;
@@ -116,11 +92,7 @@ export const updateUnit = async (
     }
 };
 
-export const deleteUnit = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const deleteUnit = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const request = <yup.InferType<typeof deleteUnitSchema>>(<unknown>req);
 
@@ -128,9 +100,9 @@ export const deleteUnit = async (
         await sequelize.transaction(async (t) => {
             const destroyed = await Unit.destroy({
                 where: {
-                    id: unitId,
+                    id: unitId
                 },
-                transaction: t,
+                transaction: t
             });
 
             if (destroyed !== 1) {

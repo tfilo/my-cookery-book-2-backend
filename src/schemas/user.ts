@@ -6,9 +6,9 @@ export const getUserSchema = yup
     .object({
         params: yup
             .object({
-                userId: yup.number().integer().min(1).required(),
+                userId: yup.number().integer().min(1).required()
             })
-            .required(),
+            .required()
     })
     .required();
 
@@ -28,25 +28,10 @@ export const createUserSchema = yup
                     .trim()
                     .min(8)
                     .max(255)
-                    .matches(
-                        /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
-                        'simplePassword'
-                    )
+                    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/, 'simplePassword')
                     .required(),
-                firstName: yup
-                    .string()
-                    .defined()
-                    .trim()
-                    .min(3)
-                    .max(50)
-                    .nullable(),
-                lastName: yup
-                    .string()
-                    .defined()
-                    .trim()
-                    .min(3)
-                    .max(50)
-                    .nullable(),
+                firstName: yup.string().defined().trim().min(3).max(50).nullable(),
+                lastName: yup.string().defined().trim().min(3).max(50).nullable(),
                 email: yup.string().trim().min(5).max(320).email().required(),
                 notifications: yup.boolean().default(false).required(),
                 roles: yup
@@ -57,9 +42,9 @@ export const createUserSchema = yup
                             .oneOf(Object.keys(ROLE) as ROLE[])
                             .required()
                     )
-                    .required(),
+                    .required()
             })
-            .required(),
+            .required()
     })
     .required();
 
@@ -73,24 +58,21 @@ export const updateProfileSchema = yup.object({
                 .trim()
                 .min(8)
                 .max(255)
-                .matches(
-                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
-                    'simplePassword'
-                )
+                .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/, 'simplePassword')
                 .nullable(),
             firstName: yup.string().defined().trim().min(3).max(50).nullable(),
             lastName: yup.string().defined().trim().min(3).max(50).nullable(),
             email: yup.string().trim().min(5).max(320).email().required(),
-            notifications: yup.boolean().default(false).required(),
+            notifications: yup.boolean().default(false).required()
         })
-        .required(),
+        .required()
 });
 
 export const updateUserSchema = yup
     .object({
         params: yup
             .object({
-                userId: yup.number().integer().min(1).required(),
+                userId: yup.number().integer().min(1).required()
             })
             .required(),
         body: yup
@@ -108,25 +90,10 @@ export const updateUserSchema = yup
                     .trim()
                     .min(8)
                     .max(255)
-                    .matches(
-                        /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
-                        'simplePassword'
-                    )
+                    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/, 'simplePassword')
                     .nullable(),
-                firstName: yup
-                    .string()
-                    .defined()
-                    .trim()
-                    .min(3)
-                    .max(50)
-                    .nullable(),
-                lastName: yup
-                    .string()
-                    .defined()
-                    .trim()
-                    .min(3)
-                    .max(50)
-                    .nullable(),
+                firstName: yup.string().defined().trim().min(3).max(50).nullable(),
+                lastName: yup.string().defined().trim().min(3).max(50).nullable(),
                 email: yup.string().trim().min(5).max(320).email().required(),
                 notifications: yup.boolean().default(false).required(),
                 roles: yup
@@ -137,9 +104,9 @@ export const updateUserSchema = yup
                             .oneOf(Object.keys(ROLE) as ROLE[])
                             .required()
                     )
-                    .required(),
+                    .required()
             })
-            .required(),
+            .required()
     })
     .required();
 
@@ -147,9 +114,9 @@ export const resentConfirmationSchema = yup
     .object({
         params: yup
             .object({
-                userId: yup.number().integer().min(1).required(),
+                userId: yup.number().integer().min(1).required()
             })
-            .required(),
+            .required()
     })
     .required();
 
@@ -157,8 +124,8 @@ export const deleteUserSchema = yup
     .object({
         params: yup
             .object({
-                userId: yup.number().integer().min(1).required(),
+                userId: yup.number().integer().min(1).required()
             })
-            .required(),
+            .required()
     })
     .required();

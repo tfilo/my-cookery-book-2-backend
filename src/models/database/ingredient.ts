@@ -1,12 +1,4 @@
-import {
-    Table,
-    Column,
-    Model,
-    DataType,
-    AllowNull,
-    ForeignKey,
-    BelongsTo,
-} from 'sequelize-typescript';
+import { Table, Column, Model, DataType, AllowNull, ForeignKey, BelongsTo } from 'sequelize-typescript';
 import { Optional } from 'sequelize/types';
 
 import RecipeSection from './recipeSection';
@@ -23,34 +15,25 @@ interface IngredientAttributes {
     updatedAt: Date;
 }
 
-interface IngredientCreationAttributes
-    extends Optional<
-        IngredientAttributes,
-        'id' | 'value' | 'createdAt' | 'updatedAt'
-    > {}
-
 @Table({
-    timestamps: true,
+    timestamps: true
 })
-class Ingredient extends Model<
-    IngredientAttributes,
-    IngredientCreationAttributes
-> {
+class Ingredient extends Model<IngredientAttributes, Optional<IngredientAttributes, 'id' | 'value' | 'createdAt' | 'updatedAt'>> {
     @AllowNull(false)
     @Column({
-        type: DataType.STRING(80),
+        type: DataType.STRING(80)
     })
     name: string;
 
     @AllowNull(false)
     @Column({
-        type: DataType.INTEGER,
+        type: DataType.INTEGER
     })
     sortNumber: number;
 
     @AllowNull
     @Column({
-        type: DataType.FLOAT,
+        type: DataType.FLOAT
     })
     value: number;
 
@@ -68,7 +51,7 @@ class Ingredient extends Model<
     recipeSectionId: number;
 
     @BelongsTo(() => RecipeSection, {
-        onDelete: 'CASCADE',
+        onDelete: 'CASCADE'
     })
     recipeSection: RecipeSection;
 }

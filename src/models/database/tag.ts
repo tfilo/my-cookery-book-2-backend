@@ -1,12 +1,4 @@
-import {
-    Table,
-    Column,
-    Model,
-    DataType,
-    AllowNull,
-    Unique,
-    BelongsToMany,
-} from 'sequelize-typescript';
+import { Table, Column, Model, DataType, AllowNull, Unique, BelongsToMany } from 'sequelize-typescript';
 import { Optional } from 'sequelize/types';
 
 import Recipe from './recipe';
@@ -19,23 +11,20 @@ interface TagAttributes {
     updatedAt: Date;
 }
 
-interface TagCreationAttributes
-    extends Optional<TagAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
-
 @Table({
-    timestamps: true,
+    timestamps: true
 })
-class Tag extends Model<TagAttributes, TagCreationAttributes> {
+class Tag extends Model<TagAttributes, Optional<TagAttributes, 'id' | 'createdAt' | 'updatedAt'>> {
     @AllowNull(false)
     @Unique
     @Column({
-        type: DataType.STRING(80),
+        type: DataType.STRING(80)
     })
     name: string;
 
     @BelongsToMany(() => Recipe, {
         through: { model: () => RecipeTag },
-        onDelete: 'RESTRICT',
+        onDelete: 'RESTRICT'
     })
     recipes: Recipe[];
 }

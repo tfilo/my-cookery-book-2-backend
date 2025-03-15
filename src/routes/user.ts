@@ -10,59 +10,25 @@ import {
     getUserSchema,
     resentConfirmationSchema,
     updateProfileSchema,
-    updateUserSchema,
+    updateUserSchema
 } from '../schemas/user';
 
 const router = express.Router();
 
 router.get('/', isAuth(ROLE.ADMIN), userController.getUsers);
 
-router.get(
-    '/profile',
-    isAuth(),
-    userController.getProfile
-);
+router.get('/profile', isAuth(), userController.getProfile);
 
-router.get(
-    '/:userId',
-    isAuth(ROLE.ADMIN),
-    validate(getUserSchema),
-    userController.getUser
-);
+router.get('/:userId', isAuth(ROLE.ADMIN), validate(getUserSchema), userController.getUser);
 
-router.post(
-    '/',
-    isAuth(ROLE.ADMIN),
-    validate(createUserSchema),
-    userController.createUser
-);
+router.post('/', isAuth(ROLE.ADMIN), validate(createUserSchema), userController.createUser);
 
-router.patch(
-    '/resendConfirmation/:userId',
-    isAuth(ROLE.ADMIN),
-    validate(resentConfirmationSchema),
-    userController.resentConfirmation
-);
+router.patch('/resendConfirmation/:userId', isAuth(ROLE.ADMIN), validate(resentConfirmationSchema), userController.resentConfirmation);
 
-router.patch(
-    '/profile',
-    isAuth(),
-    validate(updateProfileSchema),
-    userController.updateProfile
-);
+router.patch('/profile', isAuth(), validate(updateProfileSchema), userController.updateProfile);
 
-router.put(
-    '/:userId',
-    isAuth(ROLE.ADMIN),
-    validate(updateUserSchema),
-    userController.updateUser
-);
+router.put('/:userId', isAuth(ROLE.ADMIN), validate(updateUserSchema), userController.updateUser);
 
-router.delete(
-    '/:userId',
-    isAuth(ROLE.ADMIN),
-    validate(deleteUserSchema),
-    userController.deleteUser
-);
+router.delete('/:userId', isAuth(ROLE.ADMIN), validate(deleteUserSchema), userController.deleteUser);
 
 export default router;
