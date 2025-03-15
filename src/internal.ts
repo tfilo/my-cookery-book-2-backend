@@ -6,6 +6,8 @@ import helmet from 'helmet';
 import moment from 'moment';
 import { Op } from 'sequelize';
 import Handlebars from 'handlebars';
+import rateLimit from 'express-rate-limit';
+
 import hasError from './middleware/has-error';
 import CustomError from './models/customError';
 import Recipe from './models/database/recipe';
@@ -17,7 +19,21 @@ export const appInternal = express();
 
 const internalPath = String(process.env.INTERNATL_PATH ?? '/internal');
 
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 30,
+    standardHeaders: true,
+    legacyHeaders: false,
+    handler: (request, response, next) => {
+        const error = new CustomError();
+        error.code = CUSTOM_ERROR_CODES.TOO_MANY_REQUESTS;
+        error.statusCode = 429;
+        next(error);
+    }
+});
+
 appInternal.use(helmet());
+appInternal.use(limiter);
 appInternal.use(express.json());
 appInternal.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, POST');

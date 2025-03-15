@@ -194,13 +194,7 @@ describe('Picture', () => {
 
         const picture = fs.readFileSync(path.join(__dirname, '..', 'data', 'picture.jpg'));
 
-        const res = await pictureApi
-            .uploadPicture({
-                file: {
-                    value: picture
-                }
-            })
-            .catch(processError);
+        const res = await pictureApi.uploadPicture(picture).catch(processError);
 
         expect(res.id).to.be.a('number');
 
@@ -220,13 +214,7 @@ describe('Picture', () => {
 
         const picture = fs.readFileSync(path.join(__dirname, '..', 'data', 'picture.jpg'));
 
-        const res = await pictureApi
-            .uploadPicture({
-                file: {
-                    value: picture
-                }
-            })
-            .catch(processError);
+        const res = await pictureApi.uploadPicture(picture).catch(processError);
         expect(res).to.eql({
             statusCode: 403,
             code: 'FORBIDEN',
@@ -241,13 +229,7 @@ describe('Picture', () => {
 
         const text = fs.readFileSync(path.join(__dirname, '..', 'data', 'test.txt'));
 
-        const res = await pictureApi
-            .uploadPicture({
-                file: {
-                    value: text
-                }
-            })
-            .catch(processError);
+        const res = await pictureApi.uploadPicture(text).catch(processError);
 
         expect(res).to.eql({
             statusCode: 422,

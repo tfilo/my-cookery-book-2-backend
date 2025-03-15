@@ -79,11 +79,12 @@ export const getPictureData = async (req: Request, res: Response, next: NextFunc
 
 export const uploadPicture = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const file = <Express.Multer.File>req.file;
+        const file = req.body;
+        const fileName = `file_${Date.now()}.bin`;
         const thumbnailDimension = process.env.THUMBNAIL_DIMENSION ? +process.env.THUMBNAIL_DIMENSION : 320;
         const imageDimension = process.env.IMAGE_DIMENSION ? +process.env.IMAGE_DIMENSION : 1280;
 
-        const image = await sharp(file.buffer, { failOnError: false })
+        const image = await sharp(file, { failOnError: false })
             .resize(imageDimension, imageDimension, {
                 fit: 'inside'
             })
@@ -94,7 +95,7 @@ export const uploadPicture = async (req: Request, res: Response, next: NextFunct
             })
             .toBuffer();
 
-        const thumbnail = await sharp(file.buffer, { failOnError: false })
+        const thumbnail = await sharp(file, { failOnError: false })
             .resize(thumbnailDimension, thumbnailDimension, {
                 fit: 'cover'
             })
@@ -104,8 +105,6 @@ export const uploadPicture = async (req: Request, res: Response, next: NextFunct
                 force: true
             })
             .toBuffer();
-
-        const fileName = file.originalname.length < 80 ? file.originalname : file.originalname.substring(0, 75) + '...';
 
         const picture = await Picture.create(
             {
@@ -125,6 +124,13 @@ export const uploadPicture = async (req: Request, res: Response, next: NextFunct
 
         res.status(201).json(result);
     } catch (err) {
-        next(err);
+        console.error(err);
+        const error = new CustomError();
+        error.code = CUSTOM_ERROR_CODES.VALIDATION_FAILED;
+        error.statusCode = 422;
+        error.fields = {
+            file: 'invalidValue'
+        };
+        next(error);
     }
 };

@@ -9,7 +9,7 @@ import { CUSTOM_ERROR_CODES } from '../models/errorCodes';
 import { confirmSchema, loginSchema, refreshTokenSchema, resetPasswordLinkSchema, resetPasswordSchema } from '../schemas/auth';
 
 const loginLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 10 minutes
+    windowMs: 10 * 60 * 1000, // 10 minutes
     max: 6,
     standardHeaders: true,
     legacyHeaders: false,
