@@ -151,3 +151,6 @@ sketch
 
 /src/tests/openapi
 /src/tests/openapi-internal
+
+# InteliJ
+.idea
