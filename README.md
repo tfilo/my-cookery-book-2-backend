@@ -4,36 +4,36 @@ Backend application providing RestApi build on Express and Node.js. Whole backen
 
 ## Technologies required for development
 
--   Node.js (>=22)
--   Docker (>=24.0.2)
--   Docker compose (>=2.20.1)
+- Node.js (>=22)
+- Docker (>=24.0.2)
+- Docker compose (>=2.20.1)
 
 ## Development
 
 While development it is required to have Postgres database running. It can be runned by prepared `docker-compose.yaml` file. This development environment can be started by command:
 
--   `docker compose up -d`
+- `docker compose up -d`
 
 It will run pgAdmin on port 8081 and database on port 5432.
 
 After database is running, you can start development server by commands:
 
--   `npm install` (only if you didn't run it before or you modifed package.json file)
--   `npm run start:dev`
+- `npm install` (only if you didn't run it before or you modifed package.json file)
+- `npm run start:dev`
 
 It will run node.js app on port 8080 and internal api for sending notifications on port 8081. It will use environment variables defined inside `.env` file where you can optionaly modify port, basepath etc. If you modified docker-compose.yaml you need modify accordingly this file too to ensure correct configuration of database.
 
 When you are done with development, don't forget to stop database server by running command:
 
--   `docker compose down`
+- `docker compose down`
 
 ## Tests
 
 There are integration and unit tests available. You can run it by
 
--   `npm run tests` - to run all tests
--   `npm run tests:unit` - to run unit tests only
--   `npm run tests:integration` - to run integration tests only
+- `npm run tests` - to run all tests
+- `npm run tests:unit` - to run unit tests only
+- `npm run tests:integration` - to run integration tests only
 
 ### Usefull links
 
@@ -51,7 +51,7 @@ There are integration and unit tests available. You can run it by
 
 Please before every commit run
 
--   `npm run lint`
+- `npm run lint`
 
 and fix any errors or warnings if possible. It will ensure to have consistent code styling.
 
@@ -92,6 +92,7 @@ and fix any errors or warnings if possible. It will ensure to have consistent co
 | MAIL_RESET_SUBJECT                  | string        |                  |          | Email subject                                                                                                        |
 | MAIL_RESET_TEMPLATE_TXT_HBS         | string        |                  |          | Plain text handlebars template, variables: fullName: string, key: string, username: string                           |
 | MAIL_RESET_TEMPLATE_HTML_HBS        | string        |                  |          | HTML handlebars template: fullName: string, key: string, username: string                                            |
+| PROXY_TRUSTED_IPS                   | string        |                  | true     | IP adress of proxy like this: "::ffff:172.21.7.3" or partial "::ffff:172.21."                                        |
 
 ## Building docker image
 

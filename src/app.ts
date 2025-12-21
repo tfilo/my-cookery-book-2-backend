@@ -37,12 +37,12 @@ const limiter = rateLimit({
 });
 
 app.set('trust proxy', (ip: unknown) => {
-    console.debug('trust proxy check for ip:', ip);
     process.env.PROXY_TRUSTED_IPS?.split(',').forEach((trustedIp) => {
-        if (String(ip).trim() === trustedIp.trim()) {
+        if (String(ip).trim().startsWith(trustedIp.trim())) {
             return true;
         }
     });
+    console.debug('Not trusted proxy IP:', ip);
     return false;
 });
 app.use(helmet());
