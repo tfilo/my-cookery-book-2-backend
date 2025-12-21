@@ -25,34 +25,34 @@ class RecipeSection extends Model<
     @Column({
         type: DataType.STRING(80)
     })
-    name: string | null;
+    declare name: string | null;
 
     @AllowNull(false)
     @Column({
         type: DataType.INTEGER
     })
-    sortNumber: number;
+    declare sortNumber: number;
 
     @AllowNull
     @Column({
         type: DataType.TEXT
     })
-    method: string;
+    declare method: string;
 
     @HasMany(() => Ingredient, {
         onDelete: 'CASCADE'
     })
-    ingredients: Ingredient[];
+    declare ingredients: Ingredient[];
 
     @AllowNull(false)
     @ForeignKey(() => Recipe)
     @Column
-    recipeId: number;
+    declare recipeId: number;
 
     @BelongsTo(() => Recipe, {
         onDelete: 'CASCADE'
     })
-    recipe: Recipe;
+    declare recipe: Recipe;
 }
 
 export default RecipeSection;

@@ -19,12 +19,12 @@ class UnitCategory extends Model<UnitCategoryAttributes, Optional<UnitCategoryAt
     @Column({
         type: DataType.STRING(80)
     })
-    name: string;
+    declare name: string;
 
     @HasMany(() => Unit, {
         onDelete: 'RESTRICT'
     })
-    units: Unit[];
+    declare units: Unit[];
 }
 
 export default UnitCategory;

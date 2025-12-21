@@ -53,7 +53,7 @@ class User extends Model<
     @Column({
         type: DataType.STRING(50)
     })
-    username: string;
+    declare username: string;
 
     @AllowNull(false)
     @Column({
@@ -71,53 +71,53 @@ class User extends Model<
     @Column({
         type: DataType.STRING(50)
     })
-    firstName: string;
+    declare firstName: string;
 
     @AllowNull(true)
     @Column({
         type: DataType.STRING(50)
     })
-    lastName: string;
+    declare lastName: string;
 
     @AllowNull(false)
     @Unique
     @Column({
         type: DataType.STRING(320)
     })
-    email: string;
+    declare email: string;
 
     @AllowNull
     @Column({
         type: DataType.STRING(36)
     })
-    uuid: string | null;
+    declare uuid: string | null;
 
     @AllowNull(false)
     @Column({
         type: DataType.BOOLEAN
     })
-    confirmed: boolean;
+    declare confirmed: boolean;
 
     @AllowNull(false)
     @Column({
         type: DataType.BOOLEAN
     })
-    notifications: boolean;
+    declare notifications: boolean;
 
     @HasMany(() => UserRole)
-    roles: UserRole[];
+    declare roles: UserRole[];
 
     @HasMany(() => Recipe, {
         foreignKey: 'creatorId',
         onDelete: 'RESTRICT'
     })
-    createdRecipes: Recipe[];
+    declare createdRecipes: Recipe[];
 
     @HasMany(() => Recipe, {
         foreignKey: 'modifierId',
         onDelete: 'RESTRICT'
     })
-    updatedRecipes: Recipe[];
+    declare updatedRecipes: Recipe[];
 }
 
 export default User;

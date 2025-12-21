@@ -25,7 +25,7 @@ class UserRole extends Model<UserRoleAttributes, Optional<UserRoleAttributes, 'i
     @Column({
         type: DataType.ENUM(...Object.keys(ROLE))
     })
-    roleName: ROLE;
+    declare roleName: ROLE;
 
     @Index({
         name: 'unique-role',
@@ -34,7 +34,7 @@ class UserRole extends Model<UserRoleAttributes, Optional<UserRoleAttributes, 'i
     @AllowNull(false)
     @ForeignKey(() => User)
     @Column
-    userId: number;
+    declare userId: number;
 
     @Index({
         name: 'unique-role',
@@ -43,7 +43,7 @@ class UserRole extends Model<UserRoleAttributes, Optional<UserRoleAttributes, 'i
     @Column({
         type: DataType.DATE
     })
-    deletedAt: Date;
+    declare deletedAt: Date;
 }
 
 export default UserRole;

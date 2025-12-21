@@ -23,37 +23,37 @@ class Ingredient extends Model<IngredientAttributes, Optional<IngredientAttribut
     @Column({
         type: DataType.STRING(80)
     })
-    name: string;
+    declare name: string;
 
     @AllowNull(false)
     @Column({
         type: DataType.INTEGER
     })
-    sortNumber: number;
+    declare sortNumber: number;
 
     @AllowNull
     @Column({
         type: DataType.FLOAT
     })
-    value: number;
+    declare value: number;
 
     @AllowNull(false)
     @ForeignKey(() => Unit)
     @Column
-    unitId: number;
+    declare unitId: number;
 
     @BelongsTo(() => Unit)
-    unit: Unit;
+    declare unit: Unit;
 
     @AllowNull(false)
     @ForeignKey(() => RecipeSection)
     @Column
-    recipeSectionId: number;
+    declare recipeSectionId: number;
 
     @BelongsTo(() => RecipeSection, {
         onDelete: 'CASCADE'
     })
-    recipeSection: RecipeSection;
+    declare recipeSection: RecipeSection;
 }
 
 export default Ingredient;

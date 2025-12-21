@@ -36,6 +36,15 @@ const limiter = rateLimit({
     }
 });
 
+app.set('trust proxy', (ip: unknown) => {
+    console.debug('trust proxy check for ip:', ip);
+    process.env.PROXY_TRUSTED_IPS?.split(',').forEach((trustedIp) => {
+        if (String(ip).trim() === trustedIp.trim()) {
+            return true;
+        }
+    });
+    return false;
+});
 app.use(helmet());
 app.use(limiter);
 app.use(express.json());

@@ -5,6 +5,15 @@ import { ValidationError } from 'yup';
 import CustomError from '../models/customError';
 import { CUSTOM_ERROR_CODES } from '../models/errorCodes';
 
+// Workaround to make req.query writable again after validation, because Express marks it as read-only
+const updateQuery = (req: Request, value: unknown) => {
+    Object.defineProperty(req, 'query', {
+        ...Object.getOwnPropertyDescriptor(req, 'query'),
+        writable: false,
+        value
+    });
+};
+
 const validate = (yupSchema: yup.InferType<yup.AnySchema>) => {
     return async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -19,8 +28,9 @@ const validate = (yupSchema: yup.InferType<yup.AnySchema>) => {
                     stripUnknown: true
                 }
             );
+
             req.body = afterValidation.body;
-            req.query = afterValidation.query;
+            updateQuery(req, afterValidation.query);
             req.params = afterValidation.params;
 
             next();

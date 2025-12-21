@@ -19,12 +19,12 @@ class Category extends Model<CategoryAttributes, Optional<CategoryAttributes, 'i
     @Column({
         type: DataType.STRING(50)
     })
-    name: string;
+    declare name: string;
 
     @HasMany(() => Recipe, {
         onDelete: 'RESTRICT'
     })
-    recipes: Recipe[];
+    declare recipes: Recipe[];
 }
 
 export default Category;

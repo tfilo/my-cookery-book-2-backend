@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
-        "target": "es6",
+        "target": "ES2023",
+        "lib": ["ES2023"],
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "module": "commonjs",
@@ -8,11 +9,14 @@
         "moduleResolution": "node",
         "outDir": "./dist",
         "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
         "forceConsistentCasingInFileNames": true,
         "strict": true,
         "strictPropertyInitialization": false,
         "skipLibCheck": true,
-        "typeRoots": ["./node_modules/@types", "./src/types"]
+        "resolveJsonModule": true,
+        "typeRoots": ["./node_modules/@types", "./src/types"],
+        "types": ["node"]
     },
     "exclude": ["./src/tests", "node_modules", "dist"]
 }

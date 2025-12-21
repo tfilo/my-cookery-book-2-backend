@@ -23,33 +23,33 @@ class Unit extends Model<UnitAttributes, Optional<UnitAttributes, 'id' | 'create
     @Column({
         type: DataType.STRING(80)
     })
-    name: string;
+    declare name: string;
 
     @AllowNull(false)
     @Unique
     @Column({
         type: DataType.STRING(20)
     })
-    abbreviation: string;
+    declare abbreviation: string;
 
     @AllowNull(false)
     @Column({
         type: DataType.BOOLEAN
     })
-    required: boolean;
+    declare required: boolean;
 
     @AllowNull(false)
     @ForeignKey(() => UnitCategory)
     @Column
-    unitCategoryId: number;
+    declare unitCategoryId: number;
 
     @BelongsTo(() => UnitCategory)
-    unitCategory: UnitCategory;
+    declare unitCategory: UnitCategory;
 
     @HasMany(() => Ingredient, {
         onDelete: 'RESTRICT'
     })
-    ingredients: Ingredient[];
+    declare ingredients: Ingredient[];
 }
 
 export default Unit;

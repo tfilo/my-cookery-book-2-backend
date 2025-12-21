@@ -37,48 +37,48 @@ class Recipe extends Model<
     @Column({
         type: DataType.STRING(80)
     })
-    name: string;
+    declare name: string;
 
     @AllowNull
     @Column({
         type: DataType.STRING(80)
     })
-    nameSearch: string;
+    declare nameSearch: string;
 
     @AllowNull
     @Column({
         type: DataType.STRING(160)
     })
-    description: string | null;
+    declare description: string | null;
 
     @AllowNull
     @Column({
         type: DataType.STRING(160)
     })
-    descriptionSearch: string;
+    declare descriptionSearch: string;
 
     @AllowNull
     @Column({
         type: DataType.INTEGER
     })
-    serves: number;
+    declare serves: number;
 
     @AllowNull
     @Column({
         type: DataType.TEXT
     })
-    method: string;
+    declare method: string;
 
     @AllowNull(false)
     @Column({
         type: DataType.ARRAY(DataType.STRING(1000))
     })
-    sources: string[];
+    declare sources: string[];
 
     @AllowNull(false)
     @ForeignKey(() => Category)
     @Column
-    categoryId: number;
+    declare categoryId: number;
 
     @BelongsTo(() => Category)
     category: Category;
@@ -86,34 +86,34 @@ class Recipe extends Model<
     @AllowNull(false)
     @ForeignKey(() => User)
     @Column
-    creatorId: number;
+    declare creatorId: number;
 
     @BelongsTo(() => User, 'creatorId')
-    creator: User;
+    declare creator: User;
 
     @AllowNull(false)
     @ForeignKey(() => User)
     @Column
-    modifierId: number;
+    declare modifierId: number;
 
     @BelongsTo(() => User, 'modifierId')
-    modifier: User;
+    declare modifier: User;
 
     @HasMany(() => RecipeSection, {
         onDelete: 'CASCADE'
     })
-    recipeSections: RecipeSection[];
+    declare recipeSections: RecipeSection[];
 
     @BelongsToMany(() => Recipe, () => RecipeRecipe, 'recipeId', 'associatedRecipeId')
-    associatedRecipes: Array<Recipe & { RecipeRecipe: RecipeRecipe }>;
+    declare associatedRecipes: Array<Recipe & { RecipeRecipe: RecipeRecipe }>;
 
     @BelongsToMany(() => Tag, () => RecipeTag)
-    tags: Array<Tag & { RecipeTag: RecipeTag }>;
+    declare tags: Array<Tag & { RecipeTag: RecipeTag }>;
 
     @HasMany(() => Picture, {
         onDelete: 'CASCADE'
     })
-    pictures: Picture[];
+    declare pictures: Picture[];
 }
 
 export default Recipe;

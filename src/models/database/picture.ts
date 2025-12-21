@@ -22,33 +22,33 @@ class Picture extends Model<PictureAttributes, Optional<PictureAttributes, 'id' 
     @Column({
         type: DataType.INTEGER
     })
-    sortNumber: number;
+    declare sortNumber: number;
 
     @AllowNull(false)
     @Column({
         type: DataType.STRING(80)
     })
-    name: string;
+    declare name: string;
 
     @AllowNull(false)
     @Column({
         type: DataType.BLOB
     })
-    data: Buffer;
+    declare data: Buffer;
 
     @AllowNull(false)
     @Column({
         type: DataType.BLOB
     })
-    thumbnail: Buffer;
+    declare thumbnail: Buffer;
 
     @AllowNull
     @ForeignKey(() => Recipe)
     @Column
-    recipeId: number;
+    declare recipeId: number;
 
     @BelongsTo(() => Recipe)
-    recipe: Recipe;
+    declare recipe: Recipe;
 }
 
 export default Picture;

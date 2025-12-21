@@ -13,11 +13,11 @@ interface RecipeRecipeAttributes {
 class RecipeRecipe extends Model<RecipeRecipeAttributes, RecipeRecipeAttributes> {
     @ForeignKey(() => Recipe)
     @Column
-    recipeId: number;
+    declare recipeId: number;
 
     @ForeignKey(() => Recipe)
     @Column
-    associatedRecipeId: number;
+    declare associatedRecipeId: number;
 }
 
 export default RecipeRecipe;

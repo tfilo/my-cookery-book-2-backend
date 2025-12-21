@@ -20,13 +20,13 @@ class Tag extends Model<TagAttributes, Optional<TagAttributes, 'id' | 'createdAt
     @Column({
         type: DataType.STRING(80)
     })
-    name: string;
+    declare name: string;
 
     @BelongsToMany(() => Recipe, {
         through: { model: () => RecipeTag },
         onDelete: 'RESTRICT'
     })
-    recipes: Recipe[];
+    declare recipes: Recipe[];
 }
 
 export default Tag;
