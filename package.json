@@ -1,7 +1,7 @@
 {
     "name": "my-cookery-2-backend",
     "description": "Backend for cookery book 2",
-    "version": "1.4.0",
+    "version": "1.4.1",
     "main": "server.js",
     "author": "Tomáš Filo",
     "license": "MIT",

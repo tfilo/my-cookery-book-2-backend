@@ -7,7 +7,6 @@ import moment from 'moment';
 import { Op } from 'sequelize';
 import Handlebars from 'handlebars';
 import rateLimit from 'express-rate-limit';
-import { v4 as uuidv4 } from 'uuid';
 
 import hasError from './middleware/has-error';
 import CustomError from './models/customError';
@@ -15,7 +14,6 @@ import Recipe from './models/database/recipe';
 import User from './models/database/user';
 import { CUSTOM_ERROR_CODES } from './models/errorCodes';
 import { sendMail } from './util/email';
-import Picture from './models/database/picture';
 
 export const appInternal = express();
 
@@ -117,44 +115,6 @@ router.post('/sendNotifications', async (req, res) => {
 });
 
 router.get('/health', (req, res) => {
-    res.send('ok');
-});
-
-router.get('/migrate', async (req, res) => {
-    const pictureDir = process.env.UPLOAD_DIR ?? '/app/uploads';
-    const thumbnailDir = path.join(pictureDir, 'thumbnail');
-    await fs.promises.mkdir(pictureDir, { recursive: true });
-    await fs.promises.mkdir(thumbnailDir, { recursive: true });
-
-    const pictures = await Picture.findAll();
-
-    console.log(`Začínam migráciu ${pictures.length} obrázkov...`);
-
-    for (const picture of pictures) {
-        
-        if (!picture.data || !picture.thumbnail) {
-            console.warn(`Obrázok ID ${picture.id} nemá žiadne dáta (null), preskakujem.`);
-            continue;
-        }
-
-        const fileUuid = uuidv4();
-        const fileName = `${fileUuid}.jpg`;
-
-        try {
-            await Promise.all([
-                fs.promises.writeFile(path.join(pictureDir, fileName), picture.data),
-                fs.promises.writeFile(path.join(thumbnailDir, fileName), picture.thumbnail)
-            ]);
-
-            picture.fileName = fileName;
-            await picture.save();
-
-            console.log(`Spracované: ID ${picture.id} -> ${fileName}`);
-        } catch (err) {
-            console.error(`Chyba pri ukladaní ID ${picture.id}:`, err);
-        }
-    }
-
     res.send('ok');
 });
 
