@@ -1,12 +1,20 @@
 import { NextFunction, Request, Response } from 'express';
+import fs from 'fs';
 import * as yup from 'yup';
 import sharp from 'sharp';
+import { v4 as uuidv4 } from 'uuid';
+import path from 'path';
+import { pipeline } from 'stream/promises';
 
 import Picture from '../models/database/picture';
 import CustomError from '../models/customError';
 import { CUSTOM_ERROR_CODES } from '../models/errorCodes';
 import { SORT_ORDER } from '../models/sortOrderEnum';
 import { getPictureDataSchema, getPicturesByRecipeSchema, getPictureThumbnailSchema } from '../schemas/picture';
+
+// Directory with files
+const pictureDir = process.env.UPLOAD_DIR ?? '/app/uploads';
+const thumbnailDir = path.join(pictureDir, 'thumbnail');
 
 export const getPicturesByRecipe = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -33,20 +41,43 @@ export const getPictureThumbnail = async (req: Request, res: Response, next: Nex
 
         const pictureId = request.params.pictureId;
         const picture = await Picture.findByPk(pictureId, {
-            attributes: ['thumbnail']
+            attributes: ['fileName']
         });
 
-        if (!picture) {
+        if (!picture || !picture.fileName) {
             const error = new CustomError();
             error.code = CUSTOM_ERROR_CODES.NOT_FOUND;
             error.statusCode = 404;
             throw error;
         }
 
+        const filePath = path.join(thumbnailDir, picture.fileName);
+
+        try {
+            await fs.promises.access(filePath);
+        } catch {
+            const error = new CustomError();
+            error.code = CUSTOM_ERROR_CODES.NOT_FOUND;
+            error.statusCode = 404;
+            throw error;
+        }
+
+        const stats = await fs.promises.stat(filePath);
+
         res.status(200);
         res.setHeader('Content-Type', 'image/jpeg');
-        res.setHeader('Content-Length', picture.thumbnail.length);
-        res.end(picture.thumbnail);
+        res.setHeader('Content-Length', stats.size);
+
+        const readStream = fs.createReadStream(filePath);
+        try {
+            await pipeline(readStream, res);
+        } catch (err) {
+            const error = new CustomError();
+            error.code = CUSTOM_ERROR_CODES.GENERAL_ERROR;
+            error.statusCode = 500;
+            error.cause = err instanceof Error ? err.message : String(err);
+            throw error;
+        }
     } catch (err) {
         next(err);
     }
@@ -58,20 +89,43 @@ export const getPictureData = async (req: Request, res: Response, next: NextFunc
 
         const pictureId = request.params.pictureId;
         const picture = await Picture.findByPk(pictureId, {
-            attributes: ['data']
+            attributes: ['fileName']
         });
 
-        if (!picture) {
+        if (!picture || !picture.fileName) {
             const error = new CustomError();
             error.code = CUSTOM_ERROR_CODES.NOT_FOUND;
             error.statusCode = 404;
             throw error;
         }
 
+        const filePath = path.join(pictureDir, picture.fileName);
+
+        try {
+            await fs.promises.access(filePath);
+        } catch {
+            const error = new CustomError();
+            error.code = CUSTOM_ERROR_CODES.NOT_FOUND;
+            error.statusCode = 404;
+            throw error;
+        }
+
+        const stats = await fs.promises.stat(filePath);
+
         res.status(200);
         res.setHeader('Content-Type', 'image/jpeg');
-        res.setHeader('Content-Length', picture.data.length);
-        res.end(picture.data);
+        res.setHeader('Content-Length', stats.size);
+
+        const readStream = fs.createReadStream(filePath);
+        try {
+            await pipeline(readStream, res);
+        } catch (err) {
+            const error = new CustomError();
+            error.code = CUSTOM_ERROR_CODES.GENERAL_ERROR;
+            error.statusCode = 500;
+            error.cause = err instanceof Error ? err.message : String(err);
+            throw error;
+        }
     } catch (err) {
         next(err);
     }
@@ -80,11 +134,18 @@ export const getPictureData = async (req: Request, res: Response, next: NextFunc
 export const uploadPicture = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const file = req.body;
-        const fileName = `file_${Date.now()}.bin`;
         const thumbnailDimension = process.env.THUMBNAIL_DIMENSION ? +process.env.THUMBNAIL_DIMENSION : 320;
         const imageDimension = process.env.IMAGE_DIMENSION ? +process.env.IMAGE_DIMENSION : 1280;
 
-        const image = await sharp(file, { failOnError: false })
+        // Unique file names
+        const fileUuid = uuidv4();
+        const fileName = `${fileUuid}.jpg`;
+
+        // Create upload directory if it doesn't exist
+        await fs.promises.mkdir(pictureDir, { recursive: true });
+        await fs.promises.mkdir(thumbnailDir, { recursive: true });
+
+        const imageBuffer = await sharp(file, { failOnError: false })
             .resize(imageDimension, imageDimension, {
                 fit: 'inside'
             })
@@ -95,7 +156,7 @@ export const uploadPicture = async (req: Request, res: Response, next: NextFunct
             })
             .toBuffer();
 
-        const thumbnail = await sharp(file, { failOnError: false })
+        const thumbBuffer = await sharp(file, { failOnError: false })
             .resize(thumbnailDimension, thumbnailDimension, {
                 fit: 'cover'
             })
@@ -106,15 +167,19 @@ export const uploadPicture = async (req: Request, res: Response, next: NextFunct
             })
             .toBuffer();
 
+        await Promise.all([
+            fs.promises.writeFile(path.join(pictureDir, fileName), imageBuffer),
+            fs.promises.writeFile(path.join(thumbnailDir, fileName), thumbBuffer)
+        ]);
+
         const picture = await Picture.create(
             {
                 sortNumber: 1,
                 name: fileName,
-                data: image,
-                thumbnail: thumbnail
+                fileName: fileName
             },
             {
-                fields: ['sortNumber', 'name', 'data', 'thumbnail']
+                fields: ['sortNumber', 'name', 'fileName']
             }
         );
 

@@ -14,5 +14,7 @@ COPY --from=builder /usr/src/app/src/openapi-internal.json .
 RUN npm install --location=global npm@latest \
     && npm install --omit=dev
 
+VOLUME /app/uploads
+
 EXPOSE 8080
 CMD ["node", "server.js"]

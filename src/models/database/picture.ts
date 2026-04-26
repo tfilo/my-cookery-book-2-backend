@@ -7,8 +7,9 @@ export interface PictureAttributes {
     id: number;
     sortNumber: number;
     name: string;
-    data: Buffer;
-    thumbnail: Buffer;
+    data: Buffer | null;
+    thumbnail: Buffer | null;
+    fileName: string;
     recipeId: number | null;
     createdAt: Date;
     updatedAt: Date;
@@ -30,17 +31,23 @@ class Picture extends Model<PictureAttributes, Optional<PictureAttributes, 'id' 
     })
     declare name: string;
 
-    @AllowNull(false)
+    @AllowNull(true)
     @Column({
         type: DataType.BLOB
     })
     declare data: Buffer;
 
-    @AllowNull(false)
+    @AllowNull(true)
     @Column({
         type: DataType.BLOB
     })
     declare thumbnail: Buffer;
+
+    @AllowNull(true)
+    @Column({
+        type: DataType.STRING(40)
+    })
+    declare fileName: string;
 
     @AllowNull
     @ForeignKey(() => Recipe)

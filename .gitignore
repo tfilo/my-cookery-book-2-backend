@@ -154,3 +154,6 @@ sketch
 
 # InteliJ
 .idea
+
+# Uploads directory
+uploads

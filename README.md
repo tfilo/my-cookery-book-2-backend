@@ -93,6 +93,7 @@ and fix any errors or warnings if possible. It will ensure to have consistent co
 | MAIL_RESET_TEMPLATE_TXT_HBS         | string        |                  |          | Plain text handlebars template, variables: fullName: string, key: string, username: string                           |
 | MAIL_RESET_TEMPLATE_HTML_HBS        | string        |                  |          | HTML handlebars template: fullName: string, key: string, username: string                                            |
 | PROXY_TRUSTED_IPS                   | string        |                  | true     | IP adress of proxy like this: "::ffff:172.21.7.3" or partial "::ffff:172.21."                                        |
+| UPLOAD_DIR                          | string        | /app/uploads     |          | Directory where images will be stored                                                                                |
 
 ## Building docker image
 

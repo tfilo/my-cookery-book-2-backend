@@ -5,6 +5,9 @@ npm-debug.log
 #build
 dist
 
+#uploads
+uploads
+
 #tests
 src/tests
 
