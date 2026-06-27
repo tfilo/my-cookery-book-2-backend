@@ -145,7 +145,7 @@ export const uploadPicture = async (req: Request, res: Response, next: NextFunct
         await fs.promises.mkdir(pictureDir, { recursive: true });
         await fs.promises.mkdir(thumbnailDir, { recursive: true });
 
-        const imageBuffer = await sharp(file, { failOnError: false })
+        const imageBuffer = await sharp(file, { failOn: 'none' })
             .resize(imageDimension, imageDimension, {
                 fit: 'inside'
             })
@@ -156,7 +156,7 @@ export const uploadPicture = async (req: Request, res: Response, next: NextFunct
             })
             .toBuffer();
 
-        const thumbBuffer = await sharp(file, { failOnError: false })
+        const thumbBuffer = await sharp(file, { failOn: 'none' })
             .resize(thumbnailDimension, thumbnailDimension, {
                 fit: 'cover'
             })

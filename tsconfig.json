@@ -16,7 +16,8 @@
         "skipLibCheck": true,
         "resolveJsonModule": true,
         "typeRoots": ["./node_modules/@types", "./src/types"],
-        "types": ["node"]
+        "types": ["node"],
+        "ignoreDeprecations": "6.0"
     },
     "exclude": ["./src/tests", "node_modules", "dist"]
 }
